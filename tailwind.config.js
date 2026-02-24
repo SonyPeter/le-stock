@@ -9,7 +9,12 @@ module.exports = {
     //"."
   ],
   theme: {
-    extend: {},
+  extend: {
+          colors: {
+        // Vos couleurs personnalisées (optionnel)
+        brand: '#3B82F6',
+      }
+  },
   },
   plugins: [],
 }
