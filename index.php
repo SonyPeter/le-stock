@@ -41,14 +41,13 @@ include 'includes/header.php';
     </div>
 
 </div>
-
-<div class="absolute top-[5%] left-[58%] z-50  ">
-  <div class="relative w-full  animate-float">
+<div class="absolute top-[19%] left-[59%] z-50 w-[35%] md:w-[25%] lg:w-[20%]">
+  <div class="relative w-full animate-float">
     
     <img src="assets/img/vendeuse.png" alt="Produit"
-         class="w-[300px] h-auto drop-shadow-[0_20px_50px_rgba(59,130,246,0.5)]">
+         class="w-full h-auto drop-shadow-[0_20px_50px_rgba(59,130,246,0.5)]">
     
-    <div class="absolute -z-10 top-[13px] left-[88px] -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/20 blur-[100px] rounded-full"></div>
+    <div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-500/10 blur-[80px] rounded-full"></div>
     
   </div>
 </div>
