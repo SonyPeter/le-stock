@@ -10,7 +10,7 @@ session_start();
     <title><?php echo isset($pageTitle) ? $pageTitle : 'Mon E-commerce'; ?></title>
     
     <!-- Votre CSS Tailwind compilé -->
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -35,7 +35,8 @@ session_start();
                 <!-- Logo image avec effet hover -->
               <div class=" flex items-center justify-center group-hover:shadow-lg transition-all duration-300">
     
-    <img src="assets/img/le stock entreprise copy.png" 
+    
+    <img src="/le-stock/assets/img/le stock entreprise copy.png" 
          alt="MaBoutique" 
          class="w-25 h-20 p-1 object-contain group-hover:scale-110 transition-transform duration-300">
 </div>
@@ -164,8 +165,8 @@ session_start();
                         <?php else: ?>
                             <div class="p-4 text-center">
                                 <p class="text-gray-600 mb-3 text-sm">Connectez-vous pour accéder à votre compte</p>
-                                <a href="pages/connexion.php" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mb-2">Se connecter</a>
-                                <a href="pages/inscription.php" class="block w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">Créer un compte</a>
+                                <a href="page/connexion.php" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mb-2">Se connecter</a>
+                                <a href="page/inscription.php" class="block w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">Créer un compte</a>
                             </div>
                         <?php endif; ?>
                     </div>
