@@ -1,4 +1,8 @@
 <?php
+// 1. Rele koneksyon an anvan tout bagay
+require_once dirname(__DIR__) . '/config/db.php';
+
+// 2. Apre sa ou ka rele header a
 require_once dirname(__DIR__) . '/includes/header.php';
 
 $error = "";
