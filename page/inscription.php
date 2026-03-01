@@ -49,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: login.php?success=registered");
                 exit();
             }
-
         } catch (PDOException $e) {
             $error = "Gen yon erè. Tanpri eseye ankò.";
         }
@@ -59,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
+
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -76,13 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </script>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
-    
+
     <!-- Main Container -->
     <div class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
-        
+
         <!-- ===== SECTION GOCH - IMAGE ===== -->
         <div class="bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-col items-center justify-center p-8 sm:p-12 lg:p-16 min-h-[400px] lg:min-h-[700px] text-center relative">
-            
+
             <!-- Header Text -->
             <div class="mb-6 sm:mb-8">
                 <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
@@ -94,28 +94,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <!-- Image -->
-            <img 
+            <img
                 src="/le-stock/assets/img/anscrit.png"
                 alt="Shopping"
-                class="w-full max-w-md lg:max-w-lg xl:max-w-xl h-auto object-contain drop-shadow-2xl"
-            >
+                class="w-full max-w-md lg:max-w-lg xl:max-w-xl h-auto object-contain drop-shadow-2xl">
         </div>
 
         <!-- ===== SECTION DWAT - FORM ===== -->
         <div class="p-6 sm:p-10 lg:p-16 flex flex-col justify-center">
-            
+
             <!-- Form Header -->
             <div class="text-center mb-6 sm:mb-8">
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">
                     Créez votre compte
                 </h1>
                 <p class="text-gray-500 text-sm sm:text-base">
-                   Remplissez les informations pour commencer
+                    Remplissez les informations pour commencer
                 </p>
             </div>
 
             <!-- Error Message -->
-            <?php if($error): ?>
+            <?php if ($error): ?>
                 <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-lg mb-5 text-sm">
                     <?php echo htmlspecialchars($error); ?>
                 </div>
@@ -123,30 +122,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!-- Form -->
             <form method="POST" class="space-y-4 sm:space-y-5">
-                
+
                 <!-- Nom & Prénom -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Nom
                         </label>
-                        <input 
-                            type="text" 
-                            name="lastname" 
-                            required 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                        >
+                        <input
+                            type="text"
+                            name="lastname"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Prénom
                         </label>
-                        <input 
-                            type="text" 
-                            name="firstname" 
-                            required 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                        >
+                        <input
+                            type="text"
+                            name="firstname"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                 </div>
 
@@ -155,12 +152,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                         Email
                     </label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        required 
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                    >
+                    <input
+                        type="email"
+                        name="email"
+                        required
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                 </div>
 
                 <!-- Adresse -->
@@ -168,12 +164,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                         Adresse
                     </label>
-                    <input 
-                        type="text" 
-                        name="adresse" 
-                        required 
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                    >
+                    <input
+                        type="text"
+                        name="adresse"
+                        required
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                 </div>
 
                 <!-- Téléphone -->
@@ -181,12 +176,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                         Téléphone
                     </label>
-                    <input 
-                        type="tel" 
-                        name="phone" 
-                        required 
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                    >
+                    <input
+                        type="tel"
+                        name="phone"
+                        required
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                 </div>
 
                 <!-- Mot de passe & Confirmer -->
@@ -195,31 +189,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Mot de passe
                         </label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            required 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                        >
+                        <input
+                            type="password"
+                            name="password"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                             Confirmer
                         </label>
-                        <input 
-                            type="password" 
-                            name="confirm_password" 
-                            required 
-                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
-                        >
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            required
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                 </div>
 
                 <!-- Submit Button -->
-                <button 
-                    type="submit" 
-                    class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-300 mt-2"
-                >
+                <button
+                    type="submit"
+                    class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-300 mt-2">
                     Créer Mon Compte
                 </button>
 
@@ -227,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <!-- Login Link -->
             <div class="text-center mt-6 text-sm text-gray-600">
-                Déjà un compte? 
+                Déjà un compte?
                 <a href="login.php" class="text-indigo-600 font-bold hover:text-indigo-800 hover:underline transition-colors">
                     Connectez-vous ici
                 </a>
