@@ -167,7 +167,7 @@ session_start();
                             <?php else: ?>
                                 <div class="p-4 text-center">
                                     <p class="text-gray-600 mb-3 text-sm">Connectez-vous pour accéder à votre compte</p>
-                                    <a href="page/connexion.php" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mb-2">Se connecter</a>
+                                    <a href="page/login.php" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mb-2">Se connecter</a>
                                     <a href="page/inscription.php" class="block w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">Créer un compte</a>
                                 </div>
                             <?php endif; ?>
