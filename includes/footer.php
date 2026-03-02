@@ -1,11 +1,13 @@
 <?php
-// Lis paj kote nou PA vle footer a parèt (Auth pages)
-$auth_pages = ['login.php', 'signup.php', 'verifye.php'];
+// Verifye non paj la
 $current_page = basename($_SERVER['PHP_SELF']);
+$auth_pages = ['login.php', 'inscription.php', 'verifye.php'];
 
+// Si nou PA sou yon paj auth, n ap afiche footer a
 if (!in_array($current_page, $auth_pages)):
 ?>
     <link rel="stylesheet" href="/le-stock/css/style.css">
+
     <footer class="main-footer">
         <div class="footer-container">
             <div class="footer-info">
@@ -36,6 +38,3 @@ if (!in_array($current_page, $auth_pages)):
         </div>
     </footer>
 <?php endif; ?>
-</body>
-
-</html>
