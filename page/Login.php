@@ -1,12 +1,19 @@
 <?php
 session_start();
-require_once dirname(__DIR__) . '/page/login.php';
+
+// 1. Rele koneksyon baz de done a (Ajiste chemen an si l pa sa)
+require_once dirname(__DIR__) . '/config/db.php';
 
 $error = "";
 $success = "";
 
-// ===== TRAITEMENT LOGIN SELMAN =====
-if (isset($_POST['action']) && $_POST['action'] === 'login') {
+// Si gen paramèt "success" nan URL la (lè moun nan sot enskri)
+if (isset($_GET['success']) && $_GET['success'] === 'registered') {
+    $success = "Kont kreye avèk siksè! Konekte kounye a.";
+}
+
+// ===== TRAITEMENT LOGIN =====
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -14,32 +21,36 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         $error = "Tanpri ranpli tout chan yo.";
     } else {
         try {
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            // 2. Chanje 'users' pou 'clients'
+            $stmt = $pdo->prepare("SELECT * FROM clients WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
-            if ($user && password_verify($password, $user['password'])) {
+            // 3. Chanje 'password' pou 'mot_de_passe' jan sa ye nan phpMyAdmin ou a
+            if ($user && password_verify($password, $user['mot_de_passe'])) {
+
+                // Kreye sesyon yo
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
+                // Nan baz de done w lan se 'nom' ak 'prenom'
+                $_SESSION['user_name'] = $user['prenom'] . ' ' . $user['nom'];
+
+                // 4. Redireksyon sou paj akèy (index.php)
                 header("Location: ../index.php");
                 exit();
             } else {
                 $error = "Imèl oswa modpas pa kòrèk.";
             }
         } catch (PDOException $e) {
-            $error = "Gen yon erè. Tanpri eseye ankò.";
+            // Si gen yon erè teknik, n ap afiche l pou n ka debug
+            $error = "Erè nan baz de done: " . $e->getMessage();
         }
     }
-}
-
-// Si gen paramèt "success" nan URL (soti nan inscription)
-if (isset($_GET['success']) && $_GET['success'] === 'registered') {
-    $success = "Kont kreye avèk siksè! Konekte kounye a.";
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="ht">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,7 +61,7 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -62,13 +73,13 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
             }
         }
     </script>
-    
+
     <style>
         /* Gradient background */
         .bg-gradient-purple {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
+
         /* Background image overlay */
         .bg-image-overlay::before {
             content: '';
@@ -88,6 +99,7 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -98,21 +110,38 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
             animation: fadeInUp 0.8s ease-out forwards;
         }
 
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
+        .delay-100 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-300 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-400 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-500 {
+            animation-delay: 0.5s;
+        }
 
         /* Pulse effect pou stats */
         @keyframes pulse-glow {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
-                text-shadow: 0 0 20px rgba(255,255,255,0.3);
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
             }
+
             50% {
                 transform: scale(1.05);
-                text-shadow: 0 0 30px rgba(255,255,255,0.6);
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
             }
         }
 
@@ -121,12 +150,13 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
         }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col lg:flex-row bg-gray-50">
 
     <!-- ===== KOTE GOCH: FORM LOGIN ===== -->
     <div class="w-full lg:w-1/2 bg-white flex flex-col items-center justify-center px-4 py-10 sm:px-6 lg:px-8 order-2 lg:order-1">
         <div class="w-full max-w-md">
-            
+
             <!-- Logo -->
             <div class="mx-auto w-14 h-14 bg-black rounded-xl flex items-center justify-center mb-5">
                 <i class="fas fa-shopping-bag text-white text-2xl"></i>
@@ -141,13 +171,13 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
             </p>
 
             <!-- Messages -->
-            <?php if($error): ?>
+            <?php if ($error): ?>
                 <div class="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-5 text-sm text-center">
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
-            
-            <?php if($success): ?>
+
+            <?php if ($success): ?>
                 <div class="w-full bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-5 text-sm text-center">
                     <?php echo htmlspecialchars($success); ?>
                 </div>
@@ -156,7 +186,7 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
             <!-- Form -->
             <form method="POST" action="" class="space-y-4">
                 <input type="hidden" name="action" value="login">
-                
+
                 <!-- Email -->
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -166,14 +196,13 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-envelope text-gray-400 text-sm"></i>
                         </div>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            placeholder="vous@exemple.com" 
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="vous@exemple.com"
                             required
-                            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        >
+                            class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
                     </div>
                 </div>
 
@@ -186,18 +215,16 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-lock text-gray-400 text-sm"></i>
                         </div>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            placeholder="••••••••" 
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••"
                             required
-                            class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        >
-                        <div 
+                            class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        <div
                             class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
-                            onclick="togglePassword('password', this)"
-                        >
+                            onclick="togglePassword('password', this)">
                             <i class="fas fa-eye text-sm"></i>
                         </div>
                     </div>
@@ -206,11 +233,10 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
                 <!-- Options -->
                 <div class="flex items-center justify-between pt-1">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input 
-                            type="checkbox" 
-                            name="remember" 
-                            class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black"
-                        >
+                        <input
+                            type="checkbox"
+                            name="remember"
+                            class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black">
                         <span class="text-sm text-gray-600">Se souvenir de moi</span>
                     </label>
                     <a href="#" class="text-sm font-medium text-black hover:opacity-70 hover:underline transition-opacity">
@@ -219,10 +245,9 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
                 </div>
 
                 <!-- Submit Button -->
-                <button 
-                    type="submit" 
-                    class="w-full bg-black text-white py-3.5 rounded-lg font-semibold text-base hover:bg-gray-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-                >
+                <button
+                    type="submit"
+                    class="w-full bg-black text-white py-3.5 rounded-lg font-semibold text-base hover:bg-gray-800 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
                     Se connecter
                 </button>
             </form>
@@ -239,17 +264,15 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
 
             <!-- Social Buttons -->
             <div class="space-y-3">
-                <a 
-                    href="#" 
-                    class="w-full flex items-center justify-center gap-2.5 px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-200"
-                >
+                <a
+                    href="#"
+                    class="w-full flex items-center justify-center gap-2.5 px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-200">
                     <i class="fab fa-google text-red-500 text-lg"></i>
                     Continuer avec Google
                 </a>
-                <a 
-                    href="#" 
-                    class="w-full flex items-center justify-center gap-2.5 px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-200"
-                >
+                <a
+                    href="#"
+                    class="w-full flex items-center justify-center gap-2.5 px-4 py-3 border border-gray-200 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:-translate-y-0.5 transition-all duration-200">
                     <i class="fab fa-facebook-f text-blue-600 text-lg"></i>
                     Continuer avec Facebook
                 </a>
@@ -257,7 +280,7 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
 
             <!-- Register Link -->
             <p class="mt-6 text-center text-sm text-gray-500">
-                Pas encore de compte ? 
+                Pas encore de compte ?
                 <a href="inscription.php" class="font-semibold text-black hover:opacity-70 hover:underline transition-opacity">
                     Créer un compte gratuitement
                 </a>
@@ -267,10 +290,10 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
 
     <!-- ===== KOTE DWAT: INFO PANEL ===== -->
     <div class="w-full lg:w-1/2 bg-gradient-purple relative overflow-hidden flex flex-col justify-center px-6 py-12 sm:px-10 lg:px-16 order-1 lg:order-2 min-h-[400px] lg:min-h-screen bg-image-overlay">
-        
+
         <!-- Content -->
         <div class="relative z-10 text-white">
-            
+
             <!-- Tit -->
             <h2 class="text-3xl sm:text-4xl font-bold leading-tight mb-4 animate-fade-in">
                 Votre boutique en ligne de confiance
@@ -281,14 +304,13 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
 
             <!-- Stats avec animasyon defileman -->
             <div class="flex flex-wrap gap-8 sm:gap-10 mb-10">
-                
+
                 <!-- Stat 1: 500K+ Clients -->
                 <div class="text-center animate-fade-in delay-200">
-                    <span 
-                        class="block text-3xl sm:text-4xl font-bold stat-glow" 
+                    <span
+                        class="block text-3xl sm:text-4xl font-bold stat-glow"
                         data-target="500"
-                        data-suffix="K+"
-                    >
+                        data-suffix="K+">
                         0
                     </span>
                     <span class="text-sm opacity-80 mt-1 block">Clients</span>
@@ -296,11 +318,10 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
 
                 <!-- Stat 2: 50K+ Produits -->
                 <div class="text-center animate-fade-in delay-300">
-                    <span 
-                        class="block text-3xl sm:text-4xl font-bold stat-glow" 
+                    <span
+                        class="block text-3xl sm:text-4xl font-bold stat-glow"
                         data-target="50"
-                        data-suffix="K+"
-                    >
+                        data-suffix="K+">
                         0
                     </span>
                     <span class="text-sm opacity-80 mt-1 block">Produits</span>
@@ -310,12 +331,11 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
                 <div class="text-center animate-fade-in delay-400">
                     <div class="flex items-center justify-center gap-1.5 stat-glow">
                         <i class="fas fa-star text-yellow-400 text-xl"></i>
-                        <span 
-                            class="text-3xl sm:text-4xl font-bold" 
+                        <span
+                            class="text-3xl sm:text-4xl font-bold"
                             data-target="4.9"
                             data-suffix=""
-                            data-decimals="1"
-                        >
+                            data-decimals="1">
                             0
                         </span>
                     </div>
@@ -326,7 +346,7 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
 
             <!-- Features -->
             <div class="space-y-5 max-w-md">
-                
+
                 <!-- Feature 1 -->
                 <div class="flex items-start gap-4 animate-fade-in delay-500">
                     <div class="w-11 h-11 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -370,7 +390,7 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
         function togglePassword(inputId, iconContainer) {
             const input = document.getElementById(inputId);
             const icon = iconContainer.querySelector('i');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -388,18 +408,18 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                
+
                 // Easing function pou animasyon pi dous
                 const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-                
+
                 let current = start + (end - start) * easeOutQuart;
-                
+
                 if (decimals > 0) {
                     element.textContent = current.toFixed(decimals);
                 } else {
                     element.textContent = Math.floor(current);
                 }
-                
+
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
                 } else {
@@ -414,12 +434,12 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
         // Lanse animasyon yo lè paj la chaje
         document.addEventListener('DOMContentLoaded', () => {
             const stats = document.querySelectorAll('[data-target]');
-            
+
             stats.forEach((stat, index) => {
                 const target = parseFloat(stat.getAttribute('data-target'));
                 const decimals = parseInt(stat.getAttribute('data-decimals')) || 0;
                 const delay = index * 200; // Delai ant chak stat
-                
+
                 setTimeout(() => {
                     animateValue(stat, 0, target, 2000, decimals);
                 }, delay);
@@ -428,4 +448,5 @@ if (isset($_GET['success']) && $_GET['success'] === 'registered') {
     </script>
 
 </body>
+
 </html>

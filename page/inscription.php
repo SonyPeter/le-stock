@@ -1,12 +1,10 @@
 <?php
-// 1. Rele koneksyon an anvan tout bagay
+// 1. Rele koneksyon an (db.php dwe gen $pdo ladan l)
 require_once dirname(__DIR__) . '/config/db.php';
-
-// 2. Apre sa ou ka rele header a
-require_once dirname(__DIR__) . '/includes/header.php';
 
 $error = "";
 
+// Lojik pou trete fòm nan lè moun nan klike sou bouton an
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $firstname = trim($_POST['firstname'] ?? '');
@@ -17,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password  = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
+    // VALIDASYON YO
     if (empty($firstname) || empty($lastname) || empty($email) || empty($phone) || empty($password) || empty($adresse)) {
         $error = "Tanpri ranpli tout chan yo.";
     } elseif ($password !== $confirm_password) {
@@ -26,44 +25,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Tanpri antre yon imèl valide.";
     } else {
-
+        // SI TOUT BAGAY OK, N AP ANREJISTRE
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $check = $pdo->prepare("SELECT id FROM users WHERE email = ? OR phone = ?");
+            // Nou tcheke si imèl oswa telefòn nan tablo 'clients' la deja egziste
+            $check = $pdo->prepare("SELECT id FROM clients WHERE email = ? OR telefòn = ?");
             $check->execute([$email, $phone]);
 
             if ($check->rowCount() > 0) {
-                $error = "Imèl oswa telefòn sa deja egziste.";
+                $error = "Imèl oswa telefòn sa deja egziste nan sistèm nan.";
             } else {
+                // INSERT nan tablo 'clients' ak bon non kolòn yo jan nou wè nan phpMyAdmin ou a
+                $stmt = $pdo->prepare("INSERT INTO clients 
+                    (nom, prenom, email, telefòn, adresse, mot_de_passe, dat_enskripsyon)
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())");
 
-                $stmt = $pdo->prepare("INSERT INTO users 
-                (firstname, lastname, email, phone, adresse, password, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())");
-
-                $stmt->execute([
-                    $firstname,
-                    $lastname,
-                    $email,
-                    $phone,
-                    $adresse,
-                    $hashed_password
+                $resultat = $stmt->execute([
+                    $lastname,         // prale nan kolòn 'nom'
+                    $firstname,        // prale nan kolòn 'prenom'
+                    $email,            // prale nan kolòn 'email'
+                    $phone,            // prale nan kolòn 'telefòn'
+                    $adresse,          // prale nan kolòn 'adresse'
+                    $hashed_password   // prale nan kolòn 'mot_de_passe'
                 ]);
 
-                header("Location: login.php?success=registered");
-                exit();
+                if ($resultat) {
+                    header("Location: login.php?success=registered");
+                    exit();
+                } else {
+                    $error = "Enskripsyon an echwe. Eseye ankò.";
+                }
             }
         } catch (PDOException $e) {
-            $error = "Gen yon erè. Tanpri eseye ankò.";
+            $error = "Erè nan baz de done: " . $e->getMessage();
         }
     }
 }
+
+// Rele header a sèlman SI pa gen redireksyon ki fèt (evite erè Headers already sent)
+require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
-<!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
@@ -81,13 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4 sm:p-6">
 
-    <!-- Main Container -->
     <div class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
 
-        <!-- ===== SECTION GOCH - IMAGE ===== -->
         <div class="bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-col items-center justify-center p-8 sm:p-12 lg:p-16 min-h-[400px] lg:min-h-[700px] text-center relative">
-
-            <!-- Header Text -->
             <div class="mb-6 sm:mb-8">
                 <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
                     Envie de Shopping
@@ -96,18 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     Inscrit-toi Maintenant
                 </div>
             </div>
-
-            <!-- Image -->
             <img
                 src="/le-stock/assets/img/anscrit.png"
                 alt="Shopping"
                 class="w-full max-w-md lg:max-w-lg xl:max-w-xl h-auto object-contain drop-shadow-2xl">
         </div>
 
-        <!-- ===== SECTION DWAT - FORM ===== -->
         <div class="p-6 sm:p-10 lg:p-16 flex flex-col justify-center">
 
-            <!-- Form Header -->
             <div class="text-center mb-6 sm:mb-8">
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">
                     Créez votre compte
@@ -117,110 +114,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </p>
             </div>
 
-            <!-- Error Message -->
             <?php if ($error): ?>
                 <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-lg mb-5 text-sm">
                     <?php echo htmlspecialchars($error); ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Form -->
-            <form method="POST" class="space-y-4 sm:space-y-5">
+            <form method="POST" action="" class="space-y-4 sm:space-y-5">
 
-                <!-- Nom & Prénom -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Nom
-                        </label>
-                        <input
-                            type="text"
-                            name="lastname"
-                            required
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nom</label>
+                        <input type="text" name="lastname" value="<?= htmlspecialchars($lastname ?? '') ?>" required
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Prénom
-                        </label>
-                        <input
-                            type="text"
-                            name="firstname"
-                            required
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Prénom</label>
+                        <input type="text" name="firstname" value="<?= htmlspecialchars($firstname ?? '') ?>" required
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                 </div>
 
-                <!-- Email -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        name="email"
-                        required
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($email ?? '') ?>" required
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                 </div>
 
-                <!-- Adresse -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Adresse
-                    </label>
-                    <input
-                        type="text"
-                        name="adresse"
-                        required
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Adresse</label>
+                    <input type="text" name="adresse" value="<?= htmlspecialchars($adresse ?? '') ?>" required
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                 </div>
 
-                <!-- Téléphone -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Téléphone
-                    </label>
-                    <input
-                        type="tel"
-                        name="phone"
-                        required
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Téléphone</label>
+                    <input type="tel" name="phone" value="<?= htmlspecialchars($phone ?? '') ?>" required
                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                 </div>
 
-                <!-- Mot de passe & Confirmer -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Mot de passe
-                        </label>
-                        <input
-                            type="password"
-                            name="password"
-                            required
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Mot de passe</label>
+                        <input type="password" name="password" required
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Confirmer
-                        </label>
-                        <input
-                            type="password"
-                            name="confirm_password"
-                            required
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Confirmer</label>
+                        <input type="password" name="confirm_password" required
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <button
-                    type="submit"
+                <button type="submit"
                     class="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-300 mt-2">
                     Créer Mon Compte
                 </button>
 
             </form>
 
-            <!-- Login Link -->
             <div class="text-center mt-6 text-sm text-gray-600">
                 Déjà un compte?
                 <a href="login.php" class="text-indigo-600 font-bold hover:text-indigo-800 hover:underline transition-colors">

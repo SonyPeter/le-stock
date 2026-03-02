@@ -160,7 +160,7 @@ session_start();
                                         <i class="fas fa-cog text-blue-600"></i>Paramètres
                                     </a>
                                     <hr class="my-2 border-gray-100">
-                                    <a href="controller/deconnexion.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition">
+                                    <a href="page/logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition">
                                         <i class="fas fa-sign-out-alt"></i>Déconnexion
                                     </a>
                                 </div>
