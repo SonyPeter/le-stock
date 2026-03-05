@@ -151,13 +151,13 @@ if (session_status() === PHP_SESSION_NONE) {
                         <div class="absolute right-0 top-full w-52 bg-white shadow-xl rounded-xl mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100 transform translate-y-2 group-hover:translate-y-0">
                             <?php if (isset($_SESSION['user_id'])): ?>
                                 <div class="p-2">
-                                    <a href="pages/profil.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                    <a href="page/profile.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                         <i class="fas fa-user text-blue-600"></i>Mon profil
                                     </a>
-                                    <a href="pages/commandes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                    <a href="page/commandes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                         <i class="fas fa-box text-blue-600"></i>Mes commandes
                                     </a>
-                                    <a href="pages/parametres.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                    <a href="page/parametres.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                         <i class="fas fa-cog text-blue-600"></i>Paramètres
                                     </a>
                                     <hr class="my-2 border-gray-100">
