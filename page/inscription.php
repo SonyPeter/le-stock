@@ -4,70 +4,43 @@ require_once dirname(__DIR__) . '/config/db.php';
 
 $error = "";
 $success = "";
+// Nou prepare yon tablo pou kenbe done yo si gen erè (UX)
+$data = ['firstname' => '', 'lastname' => '', 'email' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $firstname = trim($_POST['firstname'] ?? '');
-    $lastname  = trim($_POST['lastname'] ?? '');
-    $email     = trim($_POST['email'] ?? '');
-    $role      = $_POST['role'] ?? 'user'; // 'user' oswa 'merchant'
-    $password  = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
+    $data['firstname'] = trim($_POST['firstname'] ?? '');
+    $data['lastname']  = trim($_POST['lastname'] ?? '');
+    $data['email']     = trim($_POST['email'] ?? '');
+    $password          = $_POST['password'] ?? '';
+    $confirm_password  = $_POST['confirm_password'] ?? '';
 
     // Validasyon de baz
-    if (empty($firstname) || empty($lastname) || empty($email) || empty($password)) {
+    if (empty($data['firstname']) || empty($data['lastname']) || empty($data['email']) || empty($password)) {
         $error = "Tanpri ranpli tout chan obligatwa yo.";
     } elseif ($password !== $confirm_password) {
         $error = "De modpas yo pa menm.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
         $error = "Imèl sa a pa valide.";
     } else {
         try {
             // Tcheke si imèl la deja egziste
             $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-            $check->execute([$email]);
+            $check->execute([$data['email']]);
 
             if ($check->rowCount() > 0) {
                 $error = "Imèl sa a deja itilize.";
             } else {
-                $proof_filename = null;
-                $status = ($role === 'merchant') ? 'pending' : 'active';
+                // Tout moun enskri kòm 'user' pa defo
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("INSERT INTO users (nom, prenom, email, password, role) VALUES (?, ?, ?, ?, 'user')");
 
-                // SI SE YON MACHANN, JERE UPLOAD PRÈV LA
-                if ($role === 'merchant') {
-                    if (isset($_FILES['proof']) && $_FILES['proof']['error'] === 0) {
-                        $allowed = ['jpg', 'jpeg', 'png', 'pdf'];
-                        $filename = $_FILES['proof']['name'];
-                        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-                        if (in_array($ext, $allowed)) {
-                            // Kreye yon non inik pou dosye a
-                            $proof_filename = "proof_" . time() . "_" . uniqid() . "." . $ext;
-                            $upload_path = dirname(__DIR__) . '/assets/img/' . $proof_filename;
-
-                            if (!move_uploaded_file($_FILES['proof']['tmp_name'], $upload_path)) {
-                                $error = "Erè pandan n t ap sove prèv peman an.";
-                            }
-                        } else {
-                            $error = "Fòma fichye a dwe JPG, PNG oswa PDF.";
-                        }
-                    } else {
-                        $error = "Kòm machann, ou dwe voye yon prèv peman.";
-                    }
-                }
-
-                // SI PA GEN ERÈ UPLOAD, ANREJISTRE NAN DB
-                if (empty($error)) {
-                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt = $pdo->prepare("INSERT INTO users (nom, prenom, email, password, role, status, proof_payment) VALUES (?, ?, ?, ?, ?, ?, ?)");
-
-                    if ($stmt->execute([$lastname, $firstname, $email, $hashed_password, $role, $status, $proof_filename])) {
-                        header("Location: login.php?success=registered");
-                        exit();
-                    }
+                if ($stmt->execute([$data['lastname'], $data['firstname'], $data['email'], $hashed_password])) {
+                    header("Location: login.php?success=registered");
+                    exit();
                 }
             }
         } catch (PDOException $e) {
-            $error = "Erè nan baz de done: " . $e->getMessage();
+            $error = "Erè nan sistèm nan. Tanpri eseye pita.";
         }
     }
 }
@@ -87,7 +60,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
         <div class="lg:w-1/2 p-8 sm:p-12">
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-800">Kreye yon kont</h1>
-                <p class="text-gray-500">Chwazi tip kont ou epi ranpli fòm nan.</p>
+                <p class="text-gray-500">Antre enfòmasyon ou yo pou w kòmanse.</p>
             </div>
 
             <?php if ($error): ?>
@@ -96,61 +69,50 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="" enctype="multipart/form-data" class="space-y-4">
+            <form method="POST" action="" class="space-y-4">
 
-                <div class="flex gap-4 mb-6">
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="role" value="user" class="hidden peer" checked onchange="toggleMerchantFields(false)">
-                        <div class="p-3 text-center border-2 rounded-xl peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all text-sm font-semibold">
-                            Senp Kliyan
-                        </div>
-                    </label>
-                    <label class="flex-1 cursor-pointer">
-                        <input type="radio" name="role" value="merchant" class="hidden peer" onchange="toggleMerchantFields(true)">
-                        <div class="p-3 text-center border-2 rounded-xl peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all text-sm font-semibold">
-                            Machann
-                        </div>
-                    </label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 ml-1">Prénom</label>
+                        <input type="text" name="firstname" value="<?= htmlspecialchars($data['firstname']) ?>" placeholder="Prénom" required
+                            class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 ml-1">Nom</label>
+                        <input type="text" name="lastname" value="<?= htmlspecialchars($data['lastname']) ?>" placeholder="Nom" required
+                            class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 ml-1">Email</label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($data['email']) ?>" placeholder="Email" required
+                        class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="text" name="firstname" placeholder="Prénom" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none">
-                    <input type="text" name="lastname" placeholder="Nom" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 ml-1">Mot de passe</label>
+                        <input type="password" name="password" placeholder="••••••••" required
+                            class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 ml-1">Confirmer</label>
+                        <input type="password" name="confirm_password" placeholder="••••••••" required
+                            class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none transition-all">
+                    </div>
                 </div>
 
-                <input type="email" name="email" placeholder="Email" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none">
-
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="password" name="password" placeholder="Mot de passe" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none">
-                    <input type="password" name="confirm_password" placeholder="Confirmer" required class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none">
-                </div>
-
-                <div id="merchant-upload" class="hidden bg-yellow-50 p-4 rounded-xl border border-yellow-200">
-                    <label class="block text-sm font-bold text-yellow-800 mb-2">Prèv Peman (PDF, JPG, PNG)</label>
-                    <input type="file" name="proof" class="text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200">
-                </div>
-
-                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 mt-4">
                     Enskri Kounye a
                 </button>
             </form>
 
-            <p class="mt-6 text-center text-sm text-gray-600">
-                Ou gen yon kont deja? <a href="login.php" class="text-indigo-600 font-bold">Konekte w</a>
+            <p class="mt-8 text-center text-sm text-gray-600">
+                Ou gen yon kont deja? <a href="login.php" class="text-indigo-600 font-bold hover:underline">Konekte w</a>
             </p>
         </div>
     </div>
 </div>
-
-<script>
-    function toggleMerchantFields(isMerchant) {
-        const uploadDiv = document.getElementById('merchant-upload');
-        if (isMerchant) {
-            uploadDiv.classList.remove('hidden');
-        } else {
-            uploadDiv.classList.add('hidden');
-        }
-    }
-</script>
 
 <?php require_once dirname(__DIR__) . '/includes/footer.php'; ?>
