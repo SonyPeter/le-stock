@@ -2,6 +2,7 @@
 session_start();
 require_once dirname(__DIR__) . '/config/db.php';
 
+
 $error = "";
 $success = "";
 
@@ -36,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['role'] = $user['role'];
 
                 // Redireksyon otomatik
-                if ($user['role'] === 'admin') header("Location: admin/index.php");
-                elseif ($user['role'] === 'merchant') header("Location: merchant_dashboard.php");
+                if ($user['role'] === 'admin') header("Location: admin_dashboard.php");
+                elseif ($user['role'] === 'merchant') header("Location: acceuil.php");
                 else header("Location: ../index.php");
                 exit();
             } else {
@@ -66,24 +67,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: linear-gradient(rgba(118, 75, 162, 0.8), rgba(102, 126, 234, 0.8)),
                 url('/le-stock/assets/img/stock.png') center/cover no-repeat;
         }
-        
+
         /* Amelyorasyon responsive pou tèks */
         @media (max-width: 1024px) {
             .bg-image-side {
                 min-height: 400px;
             }
         }
-        
+
         @media (max-width: 640px) {
             .bg-image-side {
                 min-height: 300px;
                 padding: 2rem 1.5rem;
             }
-            
+
             .stats-grid {
                 gap: 1rem;
             }
-            
+
             .feature-card {
                 padding: 1rem;
             }
@@ -110,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if ($error): ?>
                     <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-6 border border-red-100 text-sm flex items-center gap-3">
-                        <i class="fas fa-exclamation-circle text-lg"></i> 
+                        <i class="fas fa-exclamation-circle text-lg"></i>
                         <span><?= $error ?></span>
                     </div>
                 <?php endif; ?>
@@ -151,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
 
                 <p class="text-center mt-8 text-sm text-gray-500">
-                    Pas encore de compte ? 
+                    Pas encore de compte ?
                     <a href="inscription.php" class="font-bold text-indigo-600 hover:underline hover:text-indigo-800 transition-colors">Créer un compte</a>
                 </p>
             </div>
