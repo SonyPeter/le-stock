@@ -33,7 +33,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 </button>
 
                 <!-- VOTRE LOGO ICI -->
-                <a href="index.php" class="flex items-center gap-3 shrink-0 group">
+                <a href="../index.php" class="flex items-center gap-3 shrink-0 group">
 
                     <!-- Logo image avec effet hover -->
                     <div class=" flex items-center justify-center group-hover:shadow-lg transition-all duration-300">
@@ -54,7 +54,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
                 <!-- Navigation desktop -->
                 <nav class="hidden lg:flex items-center gap-8">
-                    <a href="index.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative group">
+                    <a href="page/acceuil.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative group">
                         Accueil
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
                     </a>
@@ -87,7 +87,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </div>
                     </div>
 
-                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition relative">
+                    <a href="page/promotion.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative">
                         Promotions
                         <span class="absolute -top-2 -right-6 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">Hot</span>
                     </a>
