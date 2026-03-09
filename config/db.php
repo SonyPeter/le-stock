@@ -2,7 +2,7 @@
 $host = 'localhost';
 $db   = 'le-stock';
 $user = 'root';
-$pass = 'Sony-2003';
+$pass = '';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
