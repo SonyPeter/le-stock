@@ -14,14 +14,13 @@ try {
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Fetch user stats - verifye si tab yo egziste avan
+    // Fetch user stats
     $userStats = [
         'total_orders' => 0,
         'total_spent' => 0,
         'total_favorites' => 0
     ];
 
-    // Eseye pran estatistik komand si tab la egziste
     try {
         $stats = $pdo->prepare("SELECT 
             COUNT(DISTINCT c.id) as total_orders,
@@ -33,23 +32,19 @@ try {
         $userStats['total_orders'] = $orderStats['total_orders'] ?? 0;
         $userStats['total_spent'] = $orderStats['total_spent'] ?? 0;
     } catch (PDOException $e) {
-        // Tab commandes pa egziste, kite default values
         $userStats['total_orders'] = 0;
         $userStats['total_spent'] = 0;
     }
 
-    // Eseye pran kantite favori si tab la egziste
     try {
         $favStmt = $pdo->prepare("SELECT COUNT(*) as total FROM favoris WHERE user_id = ?");
         $favStmt->execute([$user_id]);
         $favResult = $favStmt->fetch(PDO::FETCH_ASSOC);
         $userStats['total_favorites'] = $favResult['total'] ?? 0;
     } catch (PDOException $e) {
-        // Tab favoris pa egziste
         $userStats['total_favorites'] = 0;
     }
 
-    // Si se machann, pran pwen li yo
     $merchantPoints = 0;
     if (strtolower($user['role'] ?? '') === 'merchant') {
         try {
@@ -58,7 +53,6 @@ try {
             $pointsResult = $pointsStmt->fetch(PDO::FETCH_ASSOC);
             $merchantPoints = $pointsResult['points'] ?? 0;
         } catch (PDOException $e) {
-            // Tab merchant_points pa egziste
             $merchantPoints = 0;
         }
     }
@@ -81,11 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_info'])) {
     }
 }
 
-// Verifye si se admin
 $isAdmin = strtolower($user['role'] ?? '') === 'admin';
-// Verifye si se machann
 $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
+
+// Verifye si itilizatè a gen yon demann an kou
+$status_demann = strtolower($user['merchant_status'] ?? '');
 ?>
+
 <!DOCTYPE html>
 <html lang="ht">
 
@@ -93,12 +89,9 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pwofil - <?= htmlspecialchars($user['prenom']) ?></title>
-    <!-- Tailwind CSS CLI -->
     <link rel="stylesheet" href="/le-stock/css/style.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300 ;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -114,7 +107,6 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
             background: #f5f5f5;
         }
 
-        /* IMAJ BACKGROUND FLOU 5% */
         .bg-container {
             position: fixed;
             top: 0;
@@ -133,14 +125,11 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            /* FLOU 5% */
             filter: blur(5px);
             -webkit-filter: blur(5px);
             transform: scale(1.03);
-            /* Evite bò ki klè akoz flou a */
         }
 
-        /* Overlay pou kontras */
         .bg-overlay {
             position: fixed;
             top: 0;
@@ -155,7 +144,6 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
             font-family: 'Space Grotesk', sans-serif;
         }
 
-        /* GLASS MORPHISM POU CHAMPS FÒM YO */
         .glass-input {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
@@ -309,7 +297,41 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
-        /* RESPONSIVE POU MOBIL */
+        /* Progress bar styles */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
         @media (max-width: 768px) {
             .bg-image {
                 background-attachment: scroll;
@@ -342,7 +364,6 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
 
 <body class="text-slate-800">
 
-    <!-- IMAJ BACKGROUND FLOU 5% -->
     <div class="bg-container">
         <div class="bg-image"></div>
     </div>
@@ -361,12 +382,10 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
 
                 <div class="hidden md:flex items-center gap-6 lg:gap-8">
                     <?php if ($isAdmin): ?>
-                        <!-- Lyen Dashboard pou Admin -->
                         <a href="admin_dashboard.php" class="flex items-center gap-2 text-red-600 hover:text-red-700 font-bold transition-colors text-sm">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
                     <?php else: ?>
-                        <!-- Lyen regilye pou lòt moun -->
                         <a href="panier.php" class="flex items-center gap-2 text-slate-600 hover:text-indigo-500 font-medium transition-colors text-sm">
                             <i class="fas fa-shopping-bag"></i> Panier
                         </a>
@@ -640,13 +659,11 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Prenom</label>
-                                <!-- GLASS INPUT -->
                                 <input type="text" name="prenom" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>"
                                     class="glass-input w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
                             </div>
                             <div>
                                 <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Nom</label>
-                                <!-- GLASS INPUT -->
                                 <input type="text" name="nom" value="<?= htmlspecialchars($user['nom'] ?? '') ?>"
                                     class="glass-input w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
                             </div>
@@ -656,7 +673,6 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
                             <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Telefòn</label>
                             <div class="relative">
                                 <i class="fas fa-phone absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                                <!-- GLASS INPUT -->
                                 <input type="tel" name="phone" value="<?= htmlspecialchars($user['telephone'] ?? '') ?>"
                                     class="glass-input w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
                             </div>
@@ -666,7 +682,6 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
                             <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Adrès</label>
                             <div class="relative">
                                 <i class="fas fa-map-marker-alt absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                                <!-- GLASS INPUT -->
                                 <input type="text" name="adresse" value="<?= htmlspecialchars($user['adresse'] ?? '') ?>"
                                     class="glass-input w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
                             </div>
@@ -680,12 +695,9 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
 
                     <!-- Merchant/Admin Section -->
                     <div class="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/60">
-                        <?php
-                        $status_demann = strtolower($user['merchant_status'] ?? '');
-                        ?>
 
                         <?php if ($isMerchant): ?>
-                            <!-- Machann: Montre pwen ak cashout -->
+                            <!-- Machann deja apwouve -->
                             <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-xl">
                                 <div class="flex flex-col sm:flex-row items-center gap-4">
                                     <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
@@ -709,24 +721,63 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
                                 </div>
                             </div>
 
-                        <?php elseif ($isAdmin): ?>
-                            <!-- Admin: Pa montre anyen nan seksyon sa -->
-                            <!-- Admin pa wè seksyon "Vle vin Machann" -->
-
                         <?php elseif ($status_demann === 'pending'): ?>
-                            <!-- Demann an kou -->
-                            <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-amber-50/90 backdrop-blur-sm border-2 border-amber-200 flex items-center gap-3 sm:gap-4">
-                                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 animate-pulse flex-shrink-0">
-                                    <i class="fas fa-hourglass-half text-xl sm:text-2xl"></i>
+                            <!-- Demann an kou: Bar pwogrès -->
+                            <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-lg">
+                                <div class="flex items-center gap-3 sm:gap-4 mb-4">
+                                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 animate-pulse flex-shrink-0">
+                                        <i class="fas fa-hourglass-half text-xl sm:text-2xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-blue-900 text-sm sm:text-base">Demann Machann an kou...</h4>
+                                        <p class="text-xs sm:text-sm text-blue-700">Ekip nou ap verifye dokiman ou yo. Sa ka pran 24-48 èdtan.</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 class="font-bold text-amber-900 text-sm sm:text-base">Demann an kou...</h4>
-                                    <p class="text-xs sm:text-sm text-amber-700">Ekip nou ap verifye peman ou. Sa ka pran 24-48 èdtan.</p>
+
+                                <!-- Bar pwogrès -->
+                                <div class="mb-4">
+                                    <div class="flex justify-between text-xs font-semibold text-blue-800 mb-2">
+                                        <span>Soumèt</span>
+                                        <span>Verifikasyon</span>
+                                        <span>Apwobasyon</span>
+                                    </div>
+                                    <div class="progress-container h-3">
+                                        <div class="progress-bar h-full rounded-full" style="width: 50%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center text-xs text-blue-600">
+                                    <span class="flex items-center gap-1"><i class="fas fa-check-circle text-green-500"></i> Demann soumèt</span>
+                                    <span class="flex items-center gap-1 animate-pulse"><i class="fas fa-spinner fa-spin"></i> An verifikasyon</span>
+                                    <span class="text-blue-300"><i class="fas fa-crown"></i> Apwobasyon final</span>
+                                </div>
+
+                                <div class="mt-4 p-3 bg-white/70 rounded-lg text-xs text-blue-800">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Ou pral resevwa yon notifikasyon lè demann ou a apwouve oswa rejte.
                                 </div>
                             </div>
 
+                        <?php elseif ($status_demann === 'rejected'): ?>
+                            <!-- Demann rejte -->
+                            <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-red-50 border-2 border-red-200 flex items-center gap-3 sm:gap-4">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0">
+                                    <i class="fas fa-times-circle text-xl sm:text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-red-900 text-sm sm:text-base">Demann rejte</h4>
+                                    <p class="text-xs sm:text-sm text-red-700">Demann ou a pa ka apwouve. Kontakte sipò pou plis enfòmasyon.</p>
+                                    <a href="form_machann.php" class="inline-block mt-2 text-xs font-bold text-red-600 hover:text-red-800 underline">
+                                        Eseye ankò
+                                    </a>
+                                </div>
+                            </div>
+
+                        <?php elseif ($isAdmin): ?>
+                            <!-- Admin: Pa montre anyen -->
+
                         <?php else: ?>
-                            <!-- Itilizatè regilye: Montre bouton vin machann -->
+                            <!-- Itilizatè regilye -->
                             <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card">
                                 <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                                     <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl sm:text-2xl shadow-lg flex-shrink-0">
@@ -802,14 +853,12 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
     </main>
 
     <script>
-        // Add smooth scrolling and interactive effects
         document.querySelectorAll('a[href^="?tab="]').forEach(link => {
             link.addEventListener('click', function(e) {
                 document.body.style.cursor = 'wait';
             });
         });
 
-        // Animate numbers on load
         const animateValue = (obj, start, end, duration) => {
             let startTimestamp = null;
             const step = (timestamp) => {
@@ -823,7 +872,6 @@ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
             window.requestAnimationFrame(step);
         };
 
-        // Trigger number animations
         document.addEventListener('DOMContentLoaded', () => {
             const stats = document.querySelectorAll('.stat-card .text-2xl, .stat-card .text-3xl');
             stats.forEach(stat => {

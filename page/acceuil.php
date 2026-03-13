@@ -80,10 +80,10 @@ function getDiscountPercent($product)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LE-STOCK - Akèy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com  "></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css  ">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300  ;400;500;600;700;800&display=swap');
 
         * {
             margin: 0;
@@ -186,6 +186,23 @@ function getDiscountPercent($product)
             font-weight: 700;
             padding: 0.125rem 0.375rem;
             border-radius: 9999px;
+            transition: transform 0.2s;
+        }
+
+        .header-btn .badge.bounce {
+            animation: badgeBounce 0.5s ease;
+        }
+
+        @keyframes badgeBounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
         }
 
         /* Hero Section ak Promosyon */
@@ -389,6 +406,11 @@ function getDiscountPercent($product)
             background: #3b82f6;
         }
 
+        .add-to-cart:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         /* Seksyon Kategori */
         .category-section {
             margin-bottom: 4rem;
@@ -544,9 +566,9 @@ function getDiscountPercent($product)
                 <a href="favoris.php" class="header-btn" title="Favori">
                     <i class="fas fa-heart"></i>
                 </a>
-                <a href="panier.php" class="header-btn" title="Panier">
+                <a href="panier/Panier.php" class="header-btn" title="Panier">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="badge">0</span>
+                    <span class="badge" id="cart-badge">0</span>
                 </a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="header-btn" title="Pwofil">
@@ -593,7 +615,7 @@ function getDiscountPercent($product)
                                         <span class="price-current promo"><?= number_format($pr['price_promo']) ?> HTG</span>
                                         <span class="price-old"><?= number_format($pr['price']) ?> HTG</span>
                                     </div>
-                                    <button class="add-to-cart" onclick="addToCart(<?= $pr['id'] ?>)">
+                                    <button class="add-to-cart" onclick="addToCart(<?= $pr['id'] ?>, this)">
                                         <i class="fas fa-cart-plus"></i>
                                     </button>
                                 </div>
@@ -668,7 +690,7 @@ function getDiscountPercent($product)
                                                     <span class="price-current"><?= number_format($pr['price']) ?> HTG</span>
                                                 <?php endif; ?>
                                             </div>
-                                            <button class="add-to-cart" onclick="addToCart(<?= $pr['id'] ?>)">
+                                            <button class="add-to-cart" onclick="addToCart(<?= $pr['id'] ?>, this)">
                                                 <i class="fas fa-cart-plus"></i>
                                             </button>
                                         </div>
@@ -682,8 +704,6 @@ function getDiscountPercent($product)
         <?php endif; ?>
     </main>
 
-
-
     <!-- Quick View Modal -->
     <div id="quickViewModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 2rem;">
         <div style="background: white; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
@@ -696,33 +716,90 @@ function getDiscountPercent($product)
         </div>
     </div>
 
-
-
     <script>
+        // Chaje kantite panier a lè paj la chaje
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartBadge();
+        });
+
+        // Fonksyon pou mete ajou badge panier a (pran kantite reyèl nan serveur)
+        function updateCartBadge() {
+            fetch('panier/get_cart_count.php')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('cart-badge');
+                    if (badge) {
+                        const oldCount = parseInt(badge.textContent) || 0;
+                        const newCount = data.count || 0;
+
+                        badge.textContent = newCount;
+
+                        // Si kantite a chanje, ajoute animasyon
+                        if (newCount !== oldCount && oldCount !== 0) {
+                            badge.classList.add('bounce');
+                            setTimeout(() => {
+                                badge.classList.remove('bounce');
+                            }, 500);
+                        }
+                    }
+                })
+                .catch(error => console.error('Erè:', error));
+        }
+
         // Fonksyon pou ajoute nan panier
-        function addToCart(productId) {
-            fetch('add_to_cart.php', {
+        function addToCart(productId, buttonElement) {
+            console.log("Tantativ ajoute pwodwi:", productId);
+
+            // Anpeche double klik
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                const originalContent = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
+            fetch('panier/add_to_cart.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: 'product_id=' + productId + '&qty=1'
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log("Repons HTTP:", response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP error! Status: ' + response.status);
+                    }
+                    return response.text(); // pran kòm tèks pou wè sa ki genyen
+                })
+                .then(text => {
+                    console.log("Repons tèks:", text);
+                    try {
+                        return JSON.parse(text); // eseye parse kòm JSON
+                    } catch (e) {
+                        console.error("Pa kapab parse JSON:", e);
+                        throw new Error('Repons pa valide JSON: ' + text.substring(0, 100));
+                    }
+                })
                 .then(data => {
+                    console.log("Done parsed:", data);
                     if (data.success) {
-                        const badge = document.querySelector('.fa-shopping-cart + .badge');
-                        if (badge) {
-                            badge.textContent = parseInt(badge.textContent) + 1;
-                        }
+                        updateCartBadge();
                         showNotification('Pwodwi ajoute nan panier!', 'success');
                     } else {
                         showNotification(data.message || 'Erè, eseye ankò.', 'error');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Erè rezo, eseye ankò.', 'error');
+                    console.error('Error konplè:', error);
+                    showNotification('Erè: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    if (buttonElement) {
+                        setTimeout(() => {
+                            buttonElement.disabled = false;
+                            buttonElement.innerHTML = '<i class="fas fa-cart-plus"></i>';
+                        }, 500);
+                    }
                 });
         }
 
@@ -742,6 +819,10 @@ function getDiscountPercent($product)
                     } else {
                         showNotification(data.message || 'Ou dwe konekte anvan.', 'error');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Erè rezo, eseye ankò.', 'error');
                 });
         }
 
@@ -769,13 +850,17 @@ function getDiscountPercent($product)
                                         <span style="font-size: 1.5rem; font-weight: 800; color: #0f172a;">${new Intl.NumberFormat().format(data.price)} HTG</span>
                                     `}
                                 </div>
-                                <button onclick="addToCart(${data.id}); closeQuickView();" class="add-to-cart" style="width: 100%; justify-content: center;">
+                                <button onclick="addToCart(${data.id}, this); closeQuickView();" class="add-to-cart" style="width: 100%; justify-content: center;">
                                     <i class="fas fa-cart-plus"></i> Ajoute nan Panier
                                 </button>
                             </div>
                         </div>
                     `;
                     modal.style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Erè nan chajman pwodwi a', 'error');
                 });
         }
 
@@ -785,7 +870,14 @@ function getDiscountPercent($product)
 
         // Fonksyon notifikasyon
         function showNotification(message, type) {
+            // retire ansyen notifikasyon si genyen
+            const existingNotif = document.querySelector('.cart-notification');
+            if (existingNotif) {
+                existingNotif.remove();
+            }
+
             const notif = document.createElement('div');
+            notif.className = 'cart-notification';
             notif.style.cssText = `
                 position: fixed;
                 top: 100px;
@@ -795,13 +887,15 @@ function getDiscountPercent($product)
                 font-weight: 600;
                 z-index: 10000;
                 animation: slideIn 0.3s ease;
-                ${type === 'success' ? 'background: #dcfce7; color: #166534;' : 'background: #fee2e2; color: #991b1b;'}
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                ${type === 'success' ? 'background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;' : 'background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;'}
             `;
-            notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${message}`;
+            notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle" style="margin-right: 0.5rem;"></i> ${message}`;
             document.body.appendChild(notif);
 
             setTimeout(() => {
                 notif.style.opacity = '0';
+                notif.style.transform = 'translateX(100%)';
                 setTimeout(() => notif.remove(), 300);
             }, 3000);
         }
@@ -834,6 +928,7 @@ function getDiscountPercent($product)
 
 <?php
 require_once dirname(__DIR__) . '/includes/footer.php';
+
 // Fonksyon pou jwenn ikon kategori a
 function getCategoryIcon($categoryName)
 {
