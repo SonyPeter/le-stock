@@ -1,0 +1,16 @@
+=== DEMANN MACHANN ===
+ID_DEMANN: REQ_69b09e2916104
+USER_ID: 4
+DAT: 10-03-2026 22:41:45
+NON: Olizard
+PRENOM: Jameson
+EMAIL: olizardjameson@gmail.com
+TELEFON: +50941344850
+ADRES: okap
+NUMERO_TRANSFERT: 32733920
+FOTO_PROFIL: 1773182505_profil_WhatsApp Image 2026-02-10 at 8.34.15 AM.jpeg
+PIECE_ID: 1773182505_id_Screenshot_10-3-2026_102016_localhost.jpeg
+PREUVE_PAIEMENT: 1773182505_paie_Screenshot_7-3-2026_234632_localhost.jpeg
+STATUT: pending
+======================
+

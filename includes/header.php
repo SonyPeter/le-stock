@@ -123,7 +123,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     </a>
 
                     <!-- Panier -->
-                    <a href="pages/panier.php" class="p-2 hover:bg-gray-100 rounded-full transition relative group">
+                    <a href="page/panier/panier.php" class="p-2 hover:bg-gray-100 rounded-full transition relative group">
                         <i class="fas fa-shopping-cart text-xl text-gray-700 group-hover:text-blue-600 transition"></i>
                         <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
                             <?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>
