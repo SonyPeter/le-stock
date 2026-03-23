@@ -21,39 +21,32 @@ $host = $_SERVER['HTTP_HOST'];
 $script_name = $_SERVER['SCRIPT_NAME'];
 $admin_url = $protocol . $host . $script_name;
 
-// Fonksyon redireksyon amelyore - KI KAPAB RETOUNEN SOU TET LI
+// Fonksyon redireksyon amelyore
 function redirect($section, $message = '', $error = '', $return_to_same = false)
 {
     global $admin_url;
-
-    // Si return_to_same = true, nou retounen sou menm paj la (tèt li)
-    // Si non, nou al sou dashboard
     $target_section = $return_to_same ? $section : 'dashboard';
-
     $url = $admin_url . "?section=" . $target_section;
     if ($message) $url .= "&msg=" . urlencode($message);
     if ($error) $url .= "&error=" . urlencode($error);
-
     header("Location: " . $url);
     exit();
 }
 
-// Fonksyon pou retounen sou menm paj la (tèt li) san chanje seksyon
+// Fonksyon pou retounen sou menm paj la san chanje seksyon
 function refreshWithMessage($section, $message = '', $error = '')
 {
     global $admin_url;
-
     $url = $admin_url . "?section=" . $section;
     if ($message) $url .= "&msg=" . urlencode($message);
     if ($error) $url .= "&error=" . urlencode($error);
-
     header("Location: " . $url);
     exit();
 }
 
 // ==================== AKSYON YO ====================
 
-// 1. AJOUTE KATEGORI - Retounen sou menm paj la
+// 1. AJOUTE KATEGORI
 if (isset($_POST['add_cat'])) {
     $nom_cat = trim(htmlspecialchars($_POST['nom_cat']));
     if (!empty($nom_cat)) {
@@ -75,7 +68,7 @@ if (isset($_POST['add_cat'])) {
     }
 }
 
-// 2. AJOUTE PWODWI - Retounen sou paj "add-product" pou ka ajoute ankò, oswa "products" pou wè lis la
+// 2. AJOUTE PWODWI
 if (isset($_POST['add_product'])) {
     $nom = trim(htmlspecialchars($_POST['p_nom']));
     $prix_reg = $_POST['p_prix_reg'];
@@ -122,7 +115,6 @@ if (isset($_POST['add_product'])) {
             try {
                 $sql = "INSERT INTO products (name, price, price_promo, stock_qty, category_id, description, caractéristiques, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $pdo->prepare($sql)->execute([$nom, $prix_reg, $prix_promo, $qty, $cat_id, $desc, $carac, $img, $status]);
-                // Retounen sou paj "products" pou wè pwodwi a nan lis la
                 refreshWithMessage('products', "Pwodwi ajoute ak siksè!");
             } catch (PDOException $e) {
                 $error_msg = "Erè: " . $e->getMessage();
@@ -137,7 +129,7 @@ if (isset($_POST['add_product'])) {
     }
 }
 
-// 3. APWOUVE MACHANN - Retounen sou menm paj la
+// 3. APWOUVE MACHANN
 if (isset($_POST['approve_merchant'])) {
     $id_demande = $_POST['id_demande'];
     $user_id = $_POST['user_id'];
@@ -162,7 +154,7 @@ if (isset($_POST['approve_merchant'])) {
     }
 }
 
-// 4. REJTE MACHANN - Retounen sou menm paj la
+// 4. REJTE MACHANN
 if (isset($_POST['reject_merchant'])) {
     $id_demande = $_POST['id_demande'];
     $user_id = $_POST['user_id'];
@@ -187,7 +179,7 @@ if (isset($_POST['reject_merchant'])) {
     }
 }
 
-// 5. EFASE KATEGORI - Retounen sou menm paj la
+// 5. EFASE KATEGORI
 if (isset($_POST['delete_cat'])) {
     $cat_id = $_POST['cat_id'];
     try {
@@ -206,7 +198,7 @@ if (isset($_POST['delete_cat'])) {
     }
 }
 
-// 6. EFASE PWODWI - Retounen sou menm paj la
+// 6. EFASE PWODWI
 if (isset($_POST['delete_product'])) {
     $p_id = $_POST['product_id'];
     try {
@@ -229,7 +221,7 @@ if (isset($_POST['delete_product'])) {
     }
 }
 
-// 7. MODIFYE PWODWI - Retounen sou paj "products"
+// 7. MODIFYE PWODWI
 if (isset($_POST['update_product'])) {
     $p_id = $_POST['product_id'];
     $nom = trim(htmlspecialchars($_POST['edit_nom']));
@@ -271,7 +263,7 @@ if (isset($_POST['update_product'])) {
     }
 }
 
-// 8. EFASE ITILIZATÈ - Retounen sou menm paj la
+// 8. EFASE ITILIZATÈ
 if (isset($_POST['delete_user'])) {
     $user_id = $_POST['user_id'];
 
@@ -287,9 +279,9 @@ if (isset($_POST['delete_user'])) {
     }
 }
 
-// ==================== HOT DEALS - AK REDIREKSYON KÒRÈK ====================
+// ==================== HOT DEALS - AK KOREKSYON ====================
 
-// 9. AJOUTE HOT DEAL - Retounen sou paj "hot_deals" pou wè rezilta a
+// 9. AJOUTE HOT DEAL
 if (isset($_POST['add_hot_deal'])) {
     $titre = trim(htmlspecialchars($_POST['deal_titre']));
     $description = htmlspecialchars($_POST['deal_desc']);
@@ -358,11 +350,13 @@ if (isset($_POST['add_hot_deal'])) {
     }
 }
 
-// 10. MODIFYE HOT DEAL - Retounen sou paj "hot_deals"
+// 10. MODIFYE HOT DEAL - KODE KORIGE ISIT LA
 if (isset($_POST['update_hot_deal'])) {
     $deal_id = $_POST['deal_id'];
     $titre = trim(htmlspecialchars($_POST['edit_titre']));
     $description = htmlspecialchars($_POST['edit_desc']);
+
+    // KOREKSYON: Nou itilize bon non chan yo ki kòmanse ak 'edit_'
     $prix_original = $_POST['edit_prix_original'];
     $prix_deal = $_POST['edit_prix'];
     $date_fin = $_POST['edit_date_fin'];
@@ -402,7 +396,7 @@ if (isset($_POST['update_hot_deal'])) {
     }
 }
 
-// 11. EFASE HOT DEAL - Retounen sou paj "hot_deals"
+// 11. EFASE HOT DEAL
 if (isset($_POST['delete_hot_deal'])) {
     $deal_id = $_POST['deal_id'];
     try {
@@ -423,7 +417,7 @@ if (isset($_POST['delete_hot_deal'])) {
     }
 }
 
-// 12. EFASE IMAJ HOT DEAL - Retounen sou paj modifye a (edit_deal)
+// 12. EFASE IMAJ HOT DEAL
 if (isset($_POST['delete_deal_image'])) {
     $image_id = $_POST['image_id'];
     $deal_id = $_POST['deal_id'];
@@ -439,7 +433,6 @@ if (isset($_POST['delete_deal_image'])) {
 
             $pdo->prepare("DELETE FROM hot_deal_images WHERE id = ?")->execute([$image_id]);
 
-            // Retounen sou paj modifye a
             global $admin_url;
             $url = $admin_url . "?section=hot_deals&edit_deal=" . $deal_id . "&msg=" . urlencode("Imaj efase!");
             header("Location: " . $url);
@@ -453,7 +446,7 @@ if (isset($_POST['delete_deal_image'])) {
     }
 }
 
-// 13. METE IMAJ KÒM PRINCIPAL - Retounen sou paj modifye a
+// 13. METE IMAJ KÒM PRINCIPAL
 if (isset($_POST['set_primary_image'])) {
     $image_id = $_POST['image_id'];
     $deal_id = $_POST['deal_id'];
@@ -461,7 +454,6 @@ if (isset($_POST['set_primary_image'])) {
         $pdo->prepare("UPDATE hot_deal_images SET is_primary = 0 WHERE deal_id = ?")->execute([$deal_id]);
         $pdo->prepare("UPDATE hot_deal_images SET is_primary = 1 WHERE id = ?")->execute([$image_id]);
 
-        // Retounen sou paj modifye a
         global $admin_url;
         $url = $admin_url . "?section=hot_deals&edit_deal=" . $deal_id . "&msg=" . urlencode("Imaj prensipal chanje!");
         header("Location: " . $url);
@@ -525,10 +517,8 @@ $pending_merchants = array_filter($demandes_marchands, fn($d) => $d['statut'] ==
 
 $all_products = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id DESC")->fetchAll();
 
-// REKIPERE ITILIZATÈ YO AK UUID (KONVÈTI AN TÈKS)
 $all_users = $pdo->query("SELECT id, BIN_TO_UUID(uuid) as uuid_text, prenom, nom, email, role, merchant_status, created_at FROM users ORDER BY id DESC")->fetchAll();
 
-// Rekipere Hot Deals yo
 $hot_deals = [];
 try {
     $deals_stmt = $pdo->query("SELECT * FROM hot_deals ORDER BY created_at DESC");
@@ -768,7 +758,6 @@ $img_base_url = '../uploads/';
             font-size: 10px;
         }
 
-        /* STIL POU UUID */
         .uuid-cell {
             font-family: 'Courier New', monospace;
             font-size: 0.75rem;
@@ -964,7 +953,7 @@ $img_base_url = '../uploads/';
             </div>
 
         <?php elseif ($section === 'merchant_requests'): ?>
-            <!-- MERCHANT REQUESTS -->
+            <!-- MERCHANT REQUESTS - KOREKSYON KONPLÈT -->
             <h2 class="text-3xl font-black mb-8 border-l-4 border-yellow-500 pl-4 uppercase">Demann Machann yo</h2>
 
             <?php if (empty($demandes_marchands)): ?>
@@ -973,20 +962,29 @@ $img_base_url = '../uploads/';
                     <p class="text-xl">Pa gen demann machann pou kounye a</p>
                 </div>
             <?php else: ?>
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <?php foreach ($demandes_marchands as $demande):
                         $badge = getStatusBadge($demande['statut']);
+
+                        // Verifye si fichye yo egziste
+                        $uploads_dir = dirname(dirname(__FILE__)) . "/uploads/requests/";
+                        $uploads_url = '../uploads/requests/';
+
+                        $foto_profil_exists = !empty($demande['foto_profil']) && file_exists($uploads_dir . $demande['foto_profil']);
+                        $piece_id_exists = !empty($demande['piece_id']) && file_exists($uploads_dir . $demande['piece_id']);
+                        $preuve_exists = !empty($demande['preuve_paiement']) && file_exists($uploads_dir . $demande['preuve_paiement']);
                     ?>
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 request-card">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-200 request-card overflow-hidden">
+                            <!-- Header ak enfòmasyon de baz -->
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center text-2xl">
-                                        <i class="fas fa-user"></i>
+                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-2xl text-white font-bold">
+                                        <?= strtoupper(substr($demande['prenom'], 0, 1)) ?>
                                     </div>
                                     <div>
-                                        <h3 class="font-bold text-lg"><?= htmlspecialchars($demande['prenom'] . ' ' . $demande['nom']) ?></h3>
-                                        <p class="text-slate-500 text-sm"><i class="fas fa-envelope mr-1"></i> <?= htmlspecialchars($demande['email']) ?></p>
-                                        <p class="text-slate-500 text-sm"><i class="fas fa-phone mr-1"></i> <?= htmlspecialchars($demande['telephone']) ?></p>
+                                        <h3 class="font-bold text-xl text-slate-800"><?= htmlspecialchars($demande['prenom'] . ' ' . $demande['nom']) ?></h3>
+                                        <p class="text-slate-500 text-sm"><i class="fas fa-envelope mr-1 text-blue-500"></i> <?= htmlspecialchars($demande['email']) ?></p>
+                                        <p class="text-slate-500 text-sm"><i class="fas fa-phone mr-1 text-green-500"></i> <?= htmlspecialchars($demande['telephone']) ?></p>
                                         <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold <?= $badge[0] ?>">
                                             <i class="<?= $badge[2] ?> mr-1"></i> <?= $badge[1] ?>
                                         </span>
@@ -994,39 +992,196 @@ $img_base_url = '../uploads/';
                                 </div>
 
                                 <?php if ($demande['statut'] === 'pending'): ?>
-                                    <div class="flex gap-2">
-                                        <form method="POST" class="inline">
+                                    <div class="flex gap-2 w-full md:w-auto">
+                                        <form method="POST" class="flex-1 md:flex-none">
                                             <input type="hidden" name="id_demande" value="<?= $demande['id_demande'] ?>">
                                             <input type="hidden" name="user_id" value="<?= $demande['user_id'] ?>">
-                                            <button type="submit" name="approve_merchant" class="bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-green-700">
-                                                <i class="fas fa-check"></i> Apwouve
+                                            <button type="submit" name="approve_merchant" class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-green-700 transition-all flex items-center justify-center gap-2">
+                                                <i class="fas fa-check"></i> <span class="md:hidden">Apwouve</span><span class="hidden md:inline">Apwouve Machann</span>
                                             </button>
                                         </form>
-                                        <form method="POST" class="inline">
+                                        <form method="POST" class="flex-1 md:flex-none">
                                             <input type="hidden" name="id_demande" value="<?= $demande['id_demande'] ?>">
                                             <input type="hidden" name="user_id" value="<?= $demande['user_id'] ?>">
-                                            <button type="submit" name="reject_merchant" class="bg-red-600 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-red-700">
-                                                <i class="fas fa-times"></i> Rejte
+                                            <button type="submit" name="reject_merchant" class="w-full bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                                                <i class="fas fa-times"></i> <span class="md:hidden">Rejte</span><span class="hidden md:inline">Rejte Demann</span>
                                             </button>
                                         </form>
                                     </div>
                                 <?php endif; ?>
                             </div>
 
-                            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <span class="text-slate-400">Adrès:</span>
-                                    <p class="font-semibold"><?= htmlspecialchars($demande['adresse']) ?></p>
+                            <!-- Detay konplè -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="space-y-3">
+                                    <div class="bg-slate-50 p-4 rounded-xl">
+                                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Adrès konplè:</span>
+                                        <p class="font-semibold text-slate-700"><i class="fas fa-map-marker-alt mr-2 text-red-500"></i><?= htmlspecialchars($demande['adresse']) ?></p>
+                                    </div>
+
+                                    <div class="bg-slate-50 p-4 rounded-xl">
+                                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Nimewo ki fè transfè a:</span>
+                                        <p class="font-semibold text-slate-700 text-lg"><i class="fas fa-mobile-alt mr-2 text-blue-500"></i><?= htmlspecialchars($demande['numero_transfert']) ?></p>
+                                    </div>
+
+                                    <div class="bg-slate-50 p-4 rounded-xl">
+                                        <span class="text-xs text-slate-400 uppercase font-bold block mb-1">Dat demann lan:</span>
+                                        <p class="font-semibold text-slate-700"><i class="fas fa-calendar-alt mr-2 text-purple-500"></i><?= htmlspecialchars($demande['date']) ?></p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span class="text-slate-400">Nimewo Transfè:</span>
-                                    <p class="font-semibold"><?= htmlspecialchars($demande['numero_transfert']) ?></p>
-                                </div>
-                                <div>
-                                    <span class="text-slate-400">Dat:</span>
-                                    <p class="font-semibold"><?= htmlspecialchars($demande['date']) ?></p>
+
+                                <!-- Seksyon Dokiman -->
+                                <div class="space-y-3">
+                                    <h4 class="font-bold text-slate-700 uppercase text-sm mb-3"><i class="fas fa-folder-open mr-2"></i>Dokiman yo:</h4>
+
+                                    <div class="grid grid-cols-1 gap-3">
+                                        <!-- Prèv Peman (Obligatwa) -->
+                                        <div class="border-2 <?= $preuve_exists ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50' ?> rounded-xl p-3 flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg <?= $preuve_exists ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' ?> flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-receipt text-xl"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-bold text-sm <?= $preuve_exists ? 'text-green-800' : 'text-red-800' ?>">Prèv Peman</p>
+                                                <?php if ($preuve_exists): ?>
+                                                    <p class="text-xs text-green-600 truncate"><?= htmlspecialchars($demande['preuve_paiement']) ?></p>
+                                                    <a href="<?= $uploads_url . htmlspecialchars($demande['preuve_paiement']) ?>" target="_blank" class="text-xs text-blue-600 hover:underline font-semibold">
+                                                        <i class="fas fa-eye mr-1"></i>Wè fichye a
+                                                    </a>
+                                                <?php else: ?>
+                                                    <p class="text-xs text-red-500">Fichye pa disponib</p>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($preuve_exists): ?>
+                                                <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                                            <?php else: ?>
+                                                <span class="text-red-500"><i class="fas fa-exclamation-circle"></i></span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Pyès ID (Opsyonel) -->
+                                        <div class="border-2 <?= $piece_id_exists ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-slate-50' ?> rounded-xl p-3 flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg <?= $piece_id_exists ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-400' ?> flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-id-card text-xl"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-bold text-sm <?= $piece_id_exists ? 'text-blue-800' : 'text-slate-600' ?>">Pyès ID</p>
+                                                <?php if ($piece_id_exists): ?>
+                                                    <p class="text-xs text-blue-600 truncate"><?= htmlspecialchars($demande['piece_id']) ?></p>
+                                                    <a href="<?= $uploads_url . htmlspecialchars($demande['piece_id']) ?>" target="_blank" class="text-xs text-blue-600 hover:underline font-semibold">
+                                                        <i class="fas fa-eye mr-1"></i>Wè imaj la
+                                                    </a>
+                                                <?php elseif (!empty($demande['piece_id'])): ?>
+                                                    <p class="text-xs text-orange-500">Fichye pa jwenn sou serveur</p>
+                                                <?php else: ?>
+                                                    <p class="text-xs text-slate-400">Pa t' telechaje</p>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($piece_id_exists): ?>
+                                                <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                                            <?php elseif (!empty($demande['piece_id'])): ?>
+                                                <span class="text-orange-500"><i class="fas fa-question-circle"></i></span>
+                                            <?php else: ?>
+                                                <span class="text-slate-400"><i class="fas fa-minus-circle"></i></span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Foto Profil (Opsyonel) -->
+                                        <div class="border-2 <?= $foto_profil_exists ? 'border-purple-200 bg-purple-50' : 'border-slate-200 bg-slate-50' ?> rounded-xl p-3 flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-lg <?= $foto_profil_exists ? 'bg-purple-100 text-purple-600' : 'bg-slate-200 text-slate-400' ?> flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-user-circle text-xl"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-bold text-sm <?= $foto_profil_exists ? 'text-purple-800' : 'text-slate-600' ?>">Foto Profil</p>
+                                                <?php if ($foto_profil_exists): ?>
+                                                    <p class="text-xs text-purple-600 truncate"><?= htmlspecialchars($demande['foto_profil']) ?></p>
+                                                    <a href="<?= $uploads_url . htmlspecialchars($demande['foto_profil']) ?>" target="_blank" class="text-xs text-blue-600 hover:underline font-semibold">
+                                                        <i class="fas fa-eye mr-1"></i>Wè imaj la
+                                                    </a>
+                                                <?php elseif (!empty($demande['foto_profil'])): ?>
+                                                    <p class="text-xs text-orange-500">Fichye pa jwenn sou serveur</p>
+                                                <?php else: ?>
+                                                    <p class="text-xs text-slate-400">Pa t' telechaje</p>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($foto_profil_exists): ?>
+                                                <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
+                                            <?php elseif (!empty($demande['foto_profil'])): ?>
+                                                <span class="text-orange-500"><i class="fas fa-question-circle"></i></span>
+                                            <?php else: ?>
+                                                <span class="text-slate-400"><i class="fas fa-minus-circle"></i></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- Galeri Imaj (si genyen) -->
+                            <?php if ($foto_profil_exists || $piece_id_exists || $preuve_exists): ?>
+                                <div class="border-t border-slate-100 pt-6">
+                                    <h4 class="font-bold text-slate-700 uppercase text-sm mb-4"><i class="fas fa-images mr-2"></i>Vizyalizasyon Imaj yo:</h4>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <?php if ($preuve_exists): ?>
+                                            <div class="relative group">
+                                                <div class="aspect-square rounded-2xl overflow-hidden border-2 border-green-200 bg-white shadow-sm">
+                                                    <?php
+                                                    $ext = strtolower(pathinfo($demande['preuve_paiement'], PATHINFO_EXTENSION));
+                                                    if ($ext === 'pdf'): ?>
+                                                        <div class="w-full h-full flex flex-col items-center justify-center bg-red-50 text-red-600 p-4">
+                                                            <i class="fas fa-file-pdf text-5xl mb-2"></i>
+                                                            <span class="text-xs font-bold text-center">PDF Document</span>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <img src="<?= $uploads_url . htmlspecialchars($demande['preuve_paiement']) ?>"
+                                                            alt="Prèv Peman"
+                                                            class="w-full h-full object-cover">
+                                                    <?php endif; ?>
+                                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                        <a href="<?= $uploads_url . htmlspecialchars($demande['preuve_paiement']) ?>" target="_blank"
+                                                            class="bg-white text-slate-800 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                                            <i class="fas fa-external-link-alt mr-1"></i>Wè nan nouvo tab
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <p class="text-center text-xs font-bold text-green-700 mt-2">Prèv Peman</p>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if ($piece_id_exists): ?>
+                                            <div class="relative group">
+                                                <div class="aspect-square rounded-2xl overflow-hidden border-2 border-blue-200 bg-white shadow-sm">
+                                                    <img src="<?= $uploads_url . htmlspecialchars($demande['piece_id']) ?>"
+                                                        alt="Pyès ID"
+                                                        class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                        <a href="<?= $uploads_url . htmlspecialchars($demande['piece_id']) ?>" target="_blank"
+                                                            class="bg-white text-slate-800 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                                            <i class="fas fa-external-link-alt mr-1"></i>Wè nan nouvo tab
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <p class="text-center text-xs font-bold text-blue-700 mt-2">Pyès ID</p>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <?php if ($foto_profil_exists): ?>
+                                            <div class="relative group">
+                                                <div class="aspect-square rounded-2xl overflow-hidden border-2 border-purple-200 bg-white shadow-sm">
+                                                    <img src="<?= $uploads_url . htmlspecialchars($demande['foto_profil']) ?>"
+                                                        alt="Foto Profil"
+                                                        class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                        <a href="<?= $uploads_url . htmlspecialchars($demande['foto_profil']) ?>" target="_blank"
+                                                            class="bg-white text-slate-800 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                                                            <i class="fas fa-external-link-alt mr-1"></i>Wè nan nouvo tab
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <p class="text-center text-xs font-bold text-purple-700 mt-2">Foto Profil</p>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -1101,7 +1256,7 @@ $img_base_url = '../uploads/';
                             <div>
                                 <label class="block text-xs text-slate-500 mb-2 uppercase font-bold">Dat Expirasyon</label>
                                 <input type="datetime-local" name="<?= $edit_mode ? 'edit_date_fin' : 'deal_date_fin' ?>"
-                                    value="<?= $edit_mode ? str_replace(' ', 'T', $deal_data['date_fin']) : '' ?>"
+                                    value="<?= $edit_mode && $deal_data['date_fin'] ? str_replace(' ', 'T', $deal_data['date_fin']) : '' ?>"
                                     class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200">
                             </div>
 
@@ -1314,7 +1469,6 @@ $img_base_url = '../uploads/';
             <!-- CATEGORIES -->
             <h2 class="text-3xl font-black mb-8 border-l-4 border-blue-600 pl-4 uppercase">Gestion des Catégories</h2>
 
-            <!-- Form ajoute kategori -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8">
                 <form method="POST" class="flex gap-4">
                     <input type="text" name="nom_cat" placeholder="Non nouvo kategori a" required
@@ -1325,7 +1479,6 @@ $img_base_url = '../uploads/';
                 </form>
             </div>
 
-            <!-- Lis kategori -->
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                 <table class="w-full">
                     <thead class="bg-slate-50">
@@ -1475,7 +1628,7 @@ $img_base_url = '../uploads/';
             </div>
 
         <?php elseif ($section === 'users'): ?>
-            <!-- USERS - AK UUID NAN PLAS ID -->
+            <!-- USERS -->
             <h2 class="text-3xl font-black mb-8 border-l-4 border-green-600 pl-4 uppercase">Jesyon Itilizatè</h2>
 
             <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
@@ -1582,6 +1735,7 @@ $img_base_url = '../uploads/';
         function moveSlide(dealId, direction) {
             if (!slideIndices[dealId]) slideIndices[dealId] = 0;
             const slider = document.querySelector(`#slider-${dealId}`);
+            if (!slider) return;
             const slides = slider.querySelector('.deal-slides');
             const dots = slider.querySelectorAll('.dot');
             const totalSlides = dots.length || 1;
@@ -1600,6 +1754,7 @@ $img_base_url = '../uploads/';
 
         function updateSlider(dealId) {
             const slider = document.querySelector(`#slider-${dealId}`);
+            if (!slider) return;
             const slides = slider.querySelector('.deal-slides');
             const dots = slider.querySelectorAll('.dot');
 
@@ -1614,7 +1769,6 @@ $img_base_url = '../uploads/';
 
         document.querySelectorAll('.deal-slider').forEach(slider => {
             const dealId = slider.id.replace('slider-', '');
-            const slides = slider.querySelectorAll('.deal-slide');
             slideIndices[dealId] = 0;
         });
 
@@ -1677,7 +1831,6 @@ $img_base_url = '../uploads/';
             alert('Fonksyon modifye pwodwi a ap devlope...');
         }
 
-        // FONKSYON POU KOPYE UUID
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(function() {
                 alert('UUID kopye nan clipboard!');

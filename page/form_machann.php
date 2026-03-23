@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Konekte ak baz done a
-require_once dirname(__DIR__) . '/../config/db.php';
+require_once dirname(__DIR__) . '/config/db.php';
 
 // LOJIK PHP POU TRETE FÒMILÈ A
 $errors = [];
