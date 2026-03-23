@@ -59,122 +59,100 @@ if (session_status() === PHP_SESSION_NONE) {
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
                     </a>
 
-                    <!-- Menu déroulant Catégories -->
-                    <div class="relative group">
-                        <button class="text-gray-700 hover:text-blue-600 font-medium transition flex items-center gap-1 py-2">
-                            Catégories
-                            <i class="fas fa-chevron-down text-xs transition-transform group-hover:rotate-180"></i>
-                        </button>
-                        <div class="absolute top-full left-0 w-56 bg-white shadow-xl rounded-xl mt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100 transform translate-y-2 group-hover:translate-y-0">
-                            <div class="p-2">
-                                <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-gray-700">
-                                    <i class="fas fa-laptop text-blue-600 w-5"></i>
-                                    <span>Électronique</span>
-                                </a>
-                                <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-gray-700">
-                                    <i class="fas fa-tshirt text-blue-600 w-5"></i>
-                                    <span>Mode</span>
-                                </a>
-                                <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-gray-700">
-                                    <i class="fas fa-home text-blue-600 w-5"></i>
-                                    <span>Maison</span>
-                                </a>
-                                <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition text-gray-700">
-                                    <i class="fas fa-futbol text-blue-600 w-5"></i>
-                                    <span>Sport</span>
-                                </a>
-                            </div>
-                        </div>
+                    <nav class="hidden lg:flex items-center gap-8">
+                        <a href="page/hot_deal.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative group">
+                            Deal
+                            <span class="absolute -top-2 -right-6 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">Hot</span>
+                        </a>
+
+                        <a href="page/promotion.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative">
+                            Promotions
+
+                        </a>
+                        <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition">Nouveautés</a>
+                    </nav>
+
+                    <!-- Barre de recherche -->
+                    <div class="hidden md:flex flex-1 max-w-lg mx-4">
+                        <form action="pages/recherche.php" method="GET" class="relative w-full group">
+                            <input type="text"
+                                name="q"
+                                placeholder="Rechercher un produit..."
+                                class="w-full pl-12 pr-24 py-2.5 rounded-full border-2 border-gray-200 focus:border-blue-600 focus:outline-none bg-gray-50 focus:bg-white transition shadow-sm focus:shadow-md">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition"></i>
+                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full hover:bg-blue-700 transition text-sm font-medium">
+                                OK
+                            </button>
+                        </form>
                     </div>
 
-                    <a href="page/promotion.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative">
-                        Promotions
-                        <span class="absolute -top-2 -right-6 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">Hot</span>
-                    </a>
-                    <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition">Nouveautés</a>
-                </nav>
+                    <!-- Actions droite -->
+                    <div class="flex items-center gap-2 sm:gap-4">
 
-                <!-- Barre de recherche -->
-                <div class="hidden md:flex flex-1 max-w-lg mx-4">
-                    <form action="pages/recherche.php" method="GET" class="relative w-full group">
-                        <input type="text"
-                            name="q"
-                            placeholder="Rechercher un produit..."
-                            class="w-full pl-12 pr-24 py-2.5 rounded-full border-2 border-gray-200 focus:border-blue-600 focus:outline-none bg-gray-50 focus:bg-white transition shadow-sm focus:shadow-md">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition"></i>
-                        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full hover:bg-blue-700 transition text-sm font-medium">
-                            OK
+                        <!-- Recherche mobile -->
+                        <button id="mobile-search-btn" class="md:hidden p-2 hover:bg-gray-100 rounded-full transition">
+                            <i class="fas fa-search text-xl text-gray-700"></i>
                         </button>
-                    </form>
-                </div>
 
-                <!-- Actions droite -->
-                <div class="flex items-center gap-2 sm:gap-4">
+                        <!-- Favoris -->
+                        <a href="pages/favoris.php" class="hidden sm:flex p-2 hover:bg-gray-100 rounded-full transition relative group">
+                            <i class="far fa-heart text-xl text-gray-700 group-hover:text-red-500 transition"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">3</span>
+                        </a>
 
-                    <!-- Recherche mobile -->
-                    <button id="mobile-search-btn" class="md:hidden p-2 hover:bg-gray-100 rounded-full transition">
-                        <i class="fas fa-search text-xl text-gray-700"></i>
-                    </button>
-
-                    <!-- Favoris -->
-                    <a href="pages/favoris.php" class="hidden sm:flex p-2 hover:bg-gray-100 rounded-full transition relative group">
-                        <i class="far fa-heart text-xl text-gray-700 group-hover:text-red-500 transition"></i>
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">3</span>
-                    </a>
-
-                    <!-- Panier -->
-                    <a href="page/panier/panier.php" class="p-2 hover:bg-gray-100 rounded-full transition relative group">
-                        <i class="fas fa-shopping-cart text-xl text-gray-700 group-hover:text-blue-600 transition"></i>
-                        <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
-                            <?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>
-                        </span>
-                    </a>
-
-                    <!-- Compte utilisateur -->
-                    <div class="relative group">
-                        <button class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-full transition">
-                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                <?php
-                                if (isset($_SESSION['user_name'])) {
-                                    echo strtoupper(substr($_SESSION['user_name'], 0, 1));
-                                } else {
-                                    echo '<i class="fas fa-user text-xs"></i>';
-                                }
-                                ?>
-                            </div>
-                            <span class="hidden lg:block text-sm font-medium text-gray-700">
-                                <?php echo isset($_SESSION['user_name']) ? explode(' ', $_SESSION['user_name'])[0] : 'Compte'; ?>
+                        <!-- Panier -->
+                        <a href="page/panier/panier.php" class="p-2 hover:bg-gray-100 rounded-full transition relative group">
+                            <i class="fas fa-shopping-cart text-xl text-gray-700 group-hover:text-blue-600 transition"></i>
+                            <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                                <?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>
                             </span>
-                        </button>
+                        </a>
 
-                        <!-- Dropdown compte -->
-                        <div class="absolute right-0 top-full w-52 bg-white shadow-xl rounded-xl mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100 transform translate-y-2 group-hover:translate-y-0">
-                            <?php if (isset($_SESSION['user_id'])): ?>
-                                <div class="p-2">
-                                    <a href="page/profile.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
-                                        <i class="fas fa-user text-blue-600"></i>Mon profil
-                                    </a>
-                                    <a href="page/commandes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
-                                        <i class="fas fa-box text-blue-600"></i>Mes commandes
-                                    </a>
-                                    <a href="page/parametres.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
-                                        <i class="fas fa-cog text-blue-600"></i>Paramètres
-                                    </a>
-                                    <hr class="my-2 border-gray-100">
-                                    <a href="page/logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition">
-                                        <i class="fas fa-sign-out-alt"></i>Déconnexion
-                                    </a>
+                        <!-- Compte utilisateur -->
+                        <div class="relative group">
+                            <button class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-full transition">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                    <?php
+                                    if (isset($_SESSION['user_name'])) {
+                                        echo strtoupper(substr($_SESSION['user_name'], 0, 1));
+                                    } else {
+                                        echo '<i class="fas fa-user text-xs"></i>';
+                                    }
+                                    ?>
                                 </div>
-                            <?php else: ?>
-                                <div class="p-4 text-center">
-                                    <p class="text-gray-600 mb-3 text-sm">Connectez-vous pour accéder à votre compte</p>
-                                    <a href="page/login.php" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mb-2">Se connecter</a>
-                                    <a href="page/inscription.php" class="block w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">Créer un compte</a>
-                                </div>
-                            <?php endif; ?>
+                                <span class="hidden lg:block text-sm font-medium text-gray-700">
+                                    <?php echo isset($_SESSION['user_name']) ? explode(' ', $_SESSION['user_name'])[0] : 'Compte'; ?>
+                                </span>
+                            </button>
+
+                            <!-- Dropdown compte -->
+                            <div class="absolute right-0 top-full w-52 bg-white shadow-xl rounded-xl mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100 transform translate-y-2 group-hover:translate-y-0">
+                                <?php if (isset($_SESSION['user_id'])): ?>
+                                    <div class="p-2">
+                                        <a href="page/profile.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                            <i class="fas fa-user text-blue-600"></i>Mon profil
+                                        </a>
+                                        <a href="page/commandes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                            <i class="fas fa-box text-blue-600"></i>Mes commandes
+                                        </a>
+                                        <a href="page/parametres.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                            <i class="fas fa-cog text-blue-600"></i>Paramètres
+                                        </a>
+                                        <hr class="my-2 border-gray-100">
+                                        <a href="page/logout.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition">
+                                            <i class="fas fa-sign-out-alt"></i>Déconnexion
+                                        </a>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="p-4 text-center">
+                                        <p class="text-gray-600 mb-3 text-sm">Connectez-vous pour accéder à votre compte</p>
+                                        <a href="page/login.php" class="block w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition mb-2">Se connecter</a>
+                                        <a href="page/inscription.php" class="block w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition text-sm">Créer un compte</a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
 
