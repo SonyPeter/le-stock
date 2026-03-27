@@ -18,9 +18,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($action) {
         case 'update_quantity':
             $itemId = intval($_POST['item_id']);
-            $newQuantity = intval($_POST['quantity']);
+            $change = intval($_POST['change'] ?? 0); // +1 oubyen -1
 
-            if ($newQuantity >= 1) {
+            // Jwenn kantite aktyèl la
+            $qtyStmt = $pdo->prepare("SELECT quantity FROM panier WHERE id = ? AND user_id = ?");
+            $qtyStmt->execute([$itemId, $user_id]);
+            $currentQty = $qtyStmt->fetchColumn();
+
+            if ($currentQty === false) {
+                $message = 'Atik pa jwenn nan panye a!';
+                $messageType = 'error';
+                break;
+            }
+
+            $newQuantity = $currentQty + $change;
+
+            // Koreksyon: Si nou rive nan 0, efase atik la
+            if ($newQuantity <= 0) {
+                $stmt = $pdo->prepare("DELETE FROM panier WHERE id = ? AND user_id = ?");
+                $stmt->execute([$itemId, $user_id]);
+                $message = 'Atik retire nan panier!';
+                $messageType = 'success';
+            } else {
+                // Verifye stock la anvan ou mete ajou
                 $stockCheck = $pdo->prepare("
                     SELECT p.stock_qty 
                     FROM products p 
@@ -39,9 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = 'Kantite demann depase stock disponib!';
                     $messageType = 'error';
                 }
-            } else {
-                $stmt = $pdo->prepare("DELETE FROM panier WHERE id = ? AND user_id = ?");
-                $stmt->execute([$itemId, $user_id]);
             }
             break;
 
@@ -141,7 +158,7 @@ $recommendedProducts = [];
 try {
     $cartProductIds = array_column($cartItems, 'product_id');
     $placeholders = !empty($cartProductIds) ? implode(',', array_fill(0, count($cartProductIds), '?')) : '0';
-    
+
     $sql = "
         SELECT 
             p.id,
@@ -158,18 +175,18 @@ try {
         ORDER BY p.created_at DESC
         LIMIT 4
     ";
-    
+
     $stmt = $pdo->prepare($sql);
     $params = !empty($cartProductIds) ? $cartProductIds : [];
     $stmt->execute($params);
     $recommendedProducts = $stmt->fetchAll();
-    
+
     if (count($recommendedProducts) < 4) {
         $limit = 4 - count($recommendedProducts);
         $existingIds = array_column($recommendedProducts, 'id');
         $allIds = array_merge($existingIds, $cartProductIds);
         $placeholders2 = !empty($allIds) ? implode(',', array_fill(0, count($allIds), '?')) : '0';
-        
+
         $sql2 = "
             SELECT 
                 p.id,
@@ -186,7 +203,7 @@ try {
             ORDER BY RAND()
             LIMIT $limit
         ";
-        
+
         $stmt2 = $pdo->prepare($sql2);
         $stmt2->execute(!empty($allIds) ? $allIds : []);
         $additionalProducts = $stmt2->fetchAll();
@@ -204,24 +221,28 @@ $taxAmount = $subtotalAfterDiscount * $taxRate;
 $shipping = ($subtotal > 5000) ? 0 : 250;
 $total = $subtotalAfterDiscount + $taxAmount + $shipping;
 
-function getDisplayPrice($item) {
+function getDisplayPrice($item)
+{
     if ($item['price_promo'] > 0 && $item['price_promo'] < $item['price']) {
         return $item['price_promo'];
     }
     return $item['price'];
 }
 
-function isOnPromo($item) {
+function isOnPromo($item)
+{
     return $item['price_promo'] > 0 && $item['price_promo'] < $item['price'];
 }
 
-function getStockStatus($stockQty) {
+function getStockStatus($stockQty)
+{
     if ($stockQty <= 0) return ['out', 'Epiize'];
     if ($stockQty <= 5) return ['low', 'Stock ba (' . $stockQty . ' disponib)'];
     return ['in', 'Disponib'];
 }
 
-function formatPrice($price) {
+function formatPrice($price)
+{
     return number_format($price, 2) . ' HTG';
 }
 ?>
@@ -233,69 +254,76 @@ function formatPrice($price) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panier - LE STOCK</title>
-    
+
     <!-- Tailwind CSS CLI -->
     <link rel="stylesheet" href="\le-stock\css\style.css">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        
+
         .hover-lift {
             transition: all 0.3s ease;
         }
-        
+
         .hover-lift:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
+
         .mobile-menu {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
         }
-        
+
         .mobile-menu.open {
             transform: translateX(0);
         }
-        
+
         @keyframes bounce-cart {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-25%); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-25%);
+            }
         }
-        
+
         .animate-bounce-cart {
             animation: bounce-cart 1s infinite;
         }
-        
+
         /* Glass Morphism Background */
         .bg-glass {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        
+
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .glass-dark {
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(10px);
@@ -386,7 +414,7 @@ function formatPrice($price) {
         .hamburger-btn i {
             color: white;
             font-size: 1.25rem;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
         }
 
         /* Responsive hamburger sizes */
@@ -395,6 +423,7 @@ function formatPrice($price) {
                 width: 40px;
                 height: 40px;
             }
+
             .hamburger-btn i {
                 font-size: 1.1rem;
             }
@@ -405,6 +434,7 @@ function formatPrice($price) {
                 width: 48px;
                 height: 48px;
             }
+
             .hamburger-btn i {
                 font-size: 1.4rem;
             }
@@ -460,13 +490,13 @@ function formatPrice($price) {
             color: white;
             font-size: 18px;
             font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 
 <body class="min-h-screen">
-    
+
     <!-- Background Image with Glass Effect -->
     <div class="fixed inset-0 z-0">
         <div class="absolute inset-0 bg-cover bg-center bg-fixed bg-no-repeat" style="background-image: url('/le-stock/assets/img/stock11.png');"></div>
@@ -477,14 +507,14 @@ function formatPrice($price) {
     <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-blue-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                
+
                 <!-- Logo Image - PI GWO E LISIB -->
                 <a href="accueil.php" class="logo-container group">
-                    <img src="\le-stock\assets\img\le stock entreprise copy2.png" 
-                         alt="LE STOCK Logo" 
-                         class="logo-img"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    
+                    <img src="\le-stock\assets\img\le stock entreprise copy2.png"
+                        alt="LE STOCK Logo"
+                        class="logo-img"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
                     <!-- Fallback si imaj la pa ka chaje -->
                     <div class="hidden w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 rounded-lg items-center justify-center" id="logo-fallback">
                         <i class="fas fa-shopping-bag text-2xl sm:text-3xl text-white"></i>
@@ -493,20 +523,20 @@ function formatPrice($price) {
 
                 <!-- Desktop Navigation -->
                 <nav class="hidden md:flex items-center gap-8">
-                    <a href="../accueil.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Akèy</a>
-                    <a href="../products.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Pwodwi</a>
-                    <a href="../categories.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Kategori</a>
-                    <a href="#" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Pwomosyon</a>
+                    <a href="../../index.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Akèy</a>
+                    <a href="../acceuil.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Pwodwi</a>
+                    <a href="../hot_deal.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Hot-Deal</a>
+                    <a href="../promotion.php" class="text-blue-300 hover:text-white text-sm font-medium uppercase tracking-wide transition-colors">Pwomosyon</a>
                 </nav>
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <button class="hidden sm:block p-2 text-blue-300 hover:text-white transition-colors">
+                    <!-- <button class="hidden sm:block p-2 text-blue-300 hover:text-white transition-colors">
                         <i class="fas fa-search text-lg"></i>
                     </button>
                     <button class="hidden sm:block p-2 text-blue-300 hover:text-white transition-colors">
                         <i class="far fa-heart text-lg"></i>
-                    </button>
+                    </button> -->
                     <a href="panier.php" class="p-2 text-blue-400 hover:text-white transition-colors relative">
                         <i class="fas fa-shopping-cart text-lg"></i>
                         <?php if ($totalItems > 0): ?>
@@ -518,7 +548,7 @@ function formatPrice($price) {
                     <a href="../profile.php" class="hidden sm:block p-2 text-blue-300 hover:text-white transition-colors">
                         <i class="far fa-user text-lg"></i>
                     </a>
-                    
+
                     <!-- HAMBURGER BUTTON - NOUVO STYLES -->
                     <button id="mobile-menu-btn" class="hamburger-btn md:hidden" aria-label="Ouvri menu a">
                         <i class="fas fa-bars"></i>
@@ -526,7 +556,7 @@ function formatPrice($price) {
                 </div>
             </div>
         </div>
-        
+
         <!-- Mobile Menu - NOUVO STYLES AK BACKGROUND BLANC -->
         <div id="mobile-menu" class="mobile-menu fixed inset-y-0 left-0 w-64 md:hidden z-50">
             <!-- Header -->
@@ -536,22 +566,22 @@ function formatPrice($price) {
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <!-- Navigation Links -->
             <nav class="p-4">
-                <a href="../acceuil.php" class="mobile-nav-link">
+                <a href="../../index.php" class="mobile-nav-link">
                     <i class="fas fa-home"></i>
                     <span>Akèy</span>
                 </a>
-                <a href="../products.php" class="mobile-nav-link">
+                <a href="../acceuil.php" class="mobile-nav-link">
                     <i class="fas fa-box"></i>
                     <span>Pwodwi</span>
                 </a>
-                <a href="../categories.php" class="mobile-nav-link">
+                <a href="../hot_deal.php" class="mobile-nav-link">
                     <i class="fas fa-tags"></i>
-                    <span>Kategori</span>
+                    <span>Hot-Deal</span>
                 </a>
-                <a href="#" class="mobile-nav-link">
+                <a href="../promotion.php" class="mobile-nav-link">
                     <i class="fas fa-percent"></i>
                     <span>Pwomosyon</span>
                 </a>
@@ -570,19 +600,19 @@ function formatPrice($price) {
                         <div class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">1</div>
                         <span class="text-xs sm:text-sm font-medium text-white">Panier</span>
                     </div>
-                    
+
                     <!-- Line -->
                     <div class="w-8 sm:w-16 h-0.5 bg-blue-500"></div>
-                    
+
                     <!-- Step 2 -->
                     <div class="flex items-center gap-2">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 bg-slate-700 text-slate-400 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border border-slate-600">2</div>
                         <span class="text-xs sm:text-sm font-medium text-slate-400">Livrezon</span>
                     </div>
-                    
+
                     <!-- Line -->
                     <div class="w-8 sm:w-16 h-0.5 bg-slate-600"></div>
-                    
+
                     <!-- Step 3 -->
                     <div class="flex items-center gap-2">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 bg-slate-700 text-slate-400 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold border border-slate-600">3</div>
@@ -596,19 +626,17 @@ function formatPrice($price) {
     <!-- Main Content -->
     <main class="relative z-10 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-            
+
             <!-- Alerts -->
             <?php if ($message): ?>
-                <div class="mb-4 sm:mb-6 rounded-lg p-3 sm:p-4 flex items-center gap-3 shadow-lg <?php 
-                    echo $messageType === 'success' ? 'bg-green-100 text-green-900 border border-green-400' : 
-                         ($messageType === 'error' ? 'bg-red-100 text-red-900 border border-red-400' : 
-                         'bg-blue-100 text-blue-900 border border-blue-400'); 
-                ?>">
-                    <i class="fas <?php 
-                        echo $messageType === 'success' ? 'fa-check-circle text-green-600' : 
-                             ($messageType === 'error' ? 'fa-exclamation-circle text-red-600' : 
-                             'fa-info-circle text-blue-600'); 
-                    ?> text-xl"></i>
+                <div class="mb-4 sm:mb-6 rounded-lg p-3 sm:p-4 flex items-center gap-3 shadow-lg <?php
+                                                                                                    echo $messageType === 'success' ? 'bg-green-100 text-green-900 border border-green-400' : ($messageType === 'error' ? 'bg-red-100 text-red-900 border border-red-400' :
+                                                                                                        'bg-blue-100 text-blue-900 border border-blue-400');
+                                                                                                    ?>">
+                    <i class="fas <?php
+                                    echo $messageType === 'success' ? 'fa-check-circle text-green-600' : ($messageType === 'error' ? 'fa-exclamation-circle text-red-600' :
+                                        'fa-info-circle text-blue-600');
+                                    ?> text-xl"></i>
                     <span class="font-semibold text-sm sm:text-base"><?php echo htmlspecialchars($message); ?></span>
                 </div>
             <?php endif; ?>
@@ -622,7 +650,7 @@ function formatPrice($price) {
                         </div>
                         <h1 class="text-2xl font-bold text-gray-900 mb-4">Panier ou a vid</h1>
                         <p class="text-gray-600 mb-8">Sanble ou poko ajoute anyen nan panier ou a.</p>
-                        <a href="../accueil.php" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                        <a href="../acceuil.php" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                             <i class="fas fa-store"></i>
                             Kòmanse fè Makèt
                         </a>
@@ -639,7 +667,7 @@ function formatPrice($price) {
                                 <?php echo $totalItems; ?> atik nan panier ou
                             </p>
                         </div>
-                        <a href="../products.php" class="inline-flex items-center gap-2 text-blue-400 hover:text-white font-medium transition-all bg-blue-600/20 hover:bg-blue-600/40 px-4 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-400 w-fit text-sm sm:text-base group">
+                        <a href="../acceuil.php" class="inline-flex items-center gap-2 text-blue-400 hover:text-white font-medium transition-all bg-blue-600/20 hover:bg-blue-600/40 px-4 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-400 w-fit text-sm sm:text-base group">
                             <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
                             <span>Kontinye achte</span>
                         </a>
@@ -648,10 +676,10 @@ function formatPrice($price) {
 
                 <!-- Cart Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-                    
+
                     <!-- Cart Items -->
                     <div class="lg:col-span-2 space-y-4 sm:space-y-5">
-                        
+
                         <!-- Clear Cart -->
                         <div class="flex justify-end">
                             <form method="POST" onsubmit="return confirm('Èske ou sèten ou vle vid panier ou a?');">
@@ -671,7 +699,7 @@ function formatPrice($price) {
                         ?>
                             <div class="glass-card rounded-xl p-4 sm:p-5 shadow-md hover-lift">
                                 <div class="flex gap-4 sm:gap-5">
-                                    
+
                                     <!-- Image -->
                                     <div class="relative flex-shrink-0">
                                         <img src="../../uploads/products/<?php echo htmlspecialchars($item['image'] ?? 'placeholder.png'); ?>"
@@ -680,7 +708,7 @@ function formatPrice($price) {
                                             onerror="this.src='../../assets/img/placeholder.png'">
                                         <?php if (isOnPromo($item)): ?>
                                             <span class="absolute -top-2 -left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                                                -<?php echo round((1 - $item['price_promo']/$item['price']) * 100); ?>%
+                                                -<?php echo round((1 - $item['price_promo'] / $item['price']) * 100); ?>%
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -695,24 +723,22 @@ function formatPrice($price) {
                                                 <h3 class="text-base sm:text-lg font-bold text-gray-900 mt-1 line-clamp-1">
                                                     <?php echo htmlspecialchars($item['name']); ?>
                                                 </h3>
-                                                <span class="inline-flex items-center gap-1.5 mt-2 text-xs sm:text-sm font-medium <?php 
-                                                    echo $stockStatus[0] === 'in' ? 'text-green-600' : 
-                                                         ($stockStatus[0] === 'low' ? 'text-yellow-600' : 
-                                                         'text-red-600'); 
-                                                ?>">
-                                                    <span class="w-2 h-2 rounded-full <?php 
-                                                        echo $stockStatus[0] === 'in' ? 'bg-green-500' : 
-                                                             ($stockStatus[0] === 'low' ? 'bg-yellow-500' : 
-                                                             'bg-red-500'); 
-                                                    ?>"></span>
+                                                <span class="inline-flex items-center gap-1.5 mt-2 text-xs sm:text-sm font-medium <?php
+                                                                                                                                    echo $stockStatus[0] === 'in' ? 'text-green-600' : ($stockStatus[0] === 'low' ? 'text-yellow-600' :
+                                                                                                                                        'text-red-600');
+                                                                                                                                    ?>">
+                                                    <span class="w-2 h-2 rounded-full <?php
+                                                                                        echo $stockStatus[0] === 'in' ? 'bg-green-500' : ($stockStatus[0] === 'low' ? 'bg-yellow-500' :
+                                                                                            'bg-red-500');
+                                                                                        ?>"></span>
                                                     <?php echo $stockStatus[1]; ?>
                                                 </span>
                                             </div>
-                                            
+
                                             <form method="POST" class="flex-shrink-0">
                                                 <input type="hidden" name="action" value="remove_item">
                                                 <input type="hidden" name="item_id" value="<?php echo $item['cart_id']; ?>">
-                                                <button type="submit" onclick="return confirm('Èske ou sèten?')" 
+                                                <button type="submit" onclick="return confirm('Èske ou sèten?')"
                                                     class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
                                                     <i class="fas fa-trash-alt text-base"></i>
                                                 </button>
@@ -720,27 +746,36 @@ function formatPrice($price) {
                                         </div>
 
                                         <div class="flex items-center justify-between mt-3">
-                                            <!-- Quantity -->
-                                            <form method="POST" class="flex items-center gap-2">
-                                                <input type="hidden" name="action" value="update_quantity">
-                                                <input type="hidden" name="item_id" value="<?php echo $item['cart_id']; ?>">
-                                                
-                                                <button type="submit" name="quantity" value="<?php echo max(1, $item['quantity'] - 1); ?>"
-                                                    class="w-8 h-8 sm:w-10 sm:h-10 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors disabled:opacity-50"
-                                                    <?php echo $item['quantity'] <= 1 ? 'disabled' : ''; ?>>
-                                                    <i class="fas fa-minus text-xs sm:text-sm"></i>
-                                                </button>
-                                                
+                                            <!-- Quantity - KOREKSYON: Nouvo fòm ak chanjman -->
+                                            <div class="flex items-center gap-2">
+                                                <!-- Bouton Mwens -->
+                                                <form method="POST" class="inline">
+                                                    <input type="hidden" name="action" value="update_quantity">
+                                                    <input type="hidden" name="item_id" value="<?php echo $item['cart_id']; ?>">
+                                                    <input type="hidden" name="change" value="-1">
+                                                    <button type="submit"
+                                                        class="w-8 h-8 sm:w-10 sm:h-10 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors"
+                                                        title="<?php echo $item['quantity'] <= 1 ? 'Retire atik la' : 'Diminye kantite a'; ?>">
+                                                        <i class="fas fa-minus text-xs sm:text-sm"></i>
+                                                    </button>
+                                                </form>
+
                                                 <span class="w-10 sm:w-12 text-center font-semibold text-gray-900 text-base sm:text-lg">
                                                     <?php echo $item['quantity']; ?>
                                                 </span>
-                                                
-                                                <button type="submit" name="quantity" value="<?php echo $item['quantity'] + 1; ?>"
-                                                    class="w-8 h-8 sm:w-10 sm:h-10 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors disabled:opacity-50"
-                                                    <?php echo $item['quantity'] >= $item['stock_qty'] ? 'disabled' : ''; ?>>
-                                                    <i class="fas fa-plus text-xs sm:text-sm"></i>
-                                                </button>
-                                            </form>
+
+                                                <!-- Bouton Plis -->
+                                                <form method="POST" class="inline">
+                                                    <input type="hidden" name="action" value="update_quantity">
+                                                    <input type="hidden" name="item_id" value="<?php echo $item['cart_id']; ?>">
+                                                    <input type="hidden" name="change" value="1">
+                                                    <button type="submit"
+                                                        class="w-8 h-8 sm:w-10 sm:h-10 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors disabled:opacity-50"
+                                                        <?php echo $item['quantity'] >= $item['stock_qty'] ? 'disabled' : ''; ?>>
+                                                        <i class="fas fa-plus text-xs sm:text-sm"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
 
                                             <!-- Price -->
                                             <div class="text-right">
@@ -827,7 +862,7 @@ function formatPrice($price) {
                                 <?php else: ?>
                                     <form method="POST" class="flex gap-2">
                                         <input type="hidden" name="action" value="apply_promo">
-                                        <input type="text" name="promo_code" 
+                                        <input type="text" name="promo_code"
                                             placeholder="KÒD RABÈ"
                                             class="flex-1 px-3 py-2.5 rounded-lg text-xs sm:text-sm uppercase bg-slate-900/80 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-medium">
                                         <button type="submit" class="px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold bg-blue-600 text-white hover:bg-blue-500 transition-colors">
@@ -844,7 +879,7 @@ function formatPrice($price) {
                             </div>
 
                             <!-- Checkout -->
-                            <form action="checkout.php" method="POST">
+                            <form action="paiement.php" method="POST">
                                 <button type="submit" class="w-full py-4 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-500 transition-colors shadow-lg flex items-center justify-center gap-2 text-base sm:text-lg">
                                     <i class="fas fa-lock"></i>
                                     Pase kòmand la
@@ -864,7 +899,7 @@ function formatPrice($price) {
                                         Ajoute <span class="font-semibold text-white"><?php echo formatPrice(5000 - $subtotal); ?></span> pou livrezon gratis!
                                     </p>
                                     <div class="w-full bg-slate-700 rounded-full h-2">
-                                        <div class="bg-blue-500 h-2 rounded-full" style="width: <?php echo min(100, ($subtotal/5000)*100); ?>%"></div>
+                                        <div class="bg-blue-500 h-2 rounded-full" style="width: <?php echo min(100, ($subtotal / 5000) * 100); ?>%"></div>
                                     </div>
                                 </div>
                             <?php else: ?>
@@ -885,19 +920,19 @@ function formatPrice($price) {
                 <div class="mt-10 sm:mt-12 pt-8">
                     <h2 class="text-xl sm:text-2xl font-bold text-white mb-6 drop-shadow-lg">Ou ta kapab renmen sa yo tou</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
-                        <?php foreach ($recommendedProducts as $product): 
+                        <?php foreach ($recommendedProducts as $product):
                             $isPromo = $product['price_promo'] > 0 && $product['price_promo'] < $product['price'];
                             $displayPrice = $isPromo ? $product['price_promo'] : $product['price'];
                         ?>
                             <a href="../product-detail.php?id=<?php echo $product['id']; ?>" class="glass-card rounded-xl p-3 sm:p-4 shadow-md block hover:shadow-xl transition-shadow">
                                 <div class="aspect-square bg-gray-100 rounded-lg mb-3 relative overflow-hidden">
-                                    <img src="../../uploads/products/<?php echo htmlspecialchars($product['image'] ?? 'placeholder.png'); ?>" 
+                                    <img src="../../uploads/products/<?php echo htmlspecialchars($product['image'] ?? 'placeholder.png'); ?>"
                                         alt="<?php echo htmlspecialchars($product['name']); ?>"
                                         class="w-full h-full object-cover"
                                         onerror="this.src='../../assets/img/placeholder.png'">
                                     <?php if ($isPromo): ?>
                                         <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-                                            -<?php echo round((1 - $product['price_promo']/$product['price']) * 100); ?>%
+                                            -<?php echo round((1 - $product['price_promo'] / $product['price']) * 100); ?>%
                                         </span>
                                     <?php endif; ?>
                                 </div>
@@ -925,7 +960,7 @@ function formatPrice($price) {
         <!-- Features -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                
+
                 <!-- Free Shipping -->
                 <div class="glass-card rounded-xl p-5 flex items-center gap-4 shadow-lg">
                     <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -966,7 +1001,7 @@ function formatPrice($price) {
         <footer class="border-t border-slate-800">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-                    
+
                     <div class="space-y-4">
                         <div class="flex items-center gap-2">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center">
@@ -1060,23 +1095,23 @@ function formatPrice($price) {
         const closeMenuBtn = document.getElementById('close-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const menuOverlay = document.getElementById('menu-overlay');
-        
+
         function openMenu() {
             mobileMenu.classList.add('open');
             menuOverlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
-        
+
         function closeMenu() {
             mobileMenu.classList.remove('open');
             menuOverlay.classList.add('hidden');
             document.body.style.overflow = '';
         }
-        
+
         mobileMenuBtn.addEventListener('click', openMenu);
         closeMenuBtn.addEventListener('click', closeMenu);
         menuOverlay.addEventListener('click', closeMenu);
-        
+
         // Form submission
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function(e) {

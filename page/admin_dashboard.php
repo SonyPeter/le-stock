@@ -839,6 +839,18 @@ $img_base_url = '../uploads/';
                 <?php endif; ?>
             </a>
 
+            <a href="admin-order.php" class="sidebar-btn <?= basename($_SERVER['PHP_SELF']) === 'admin-orders.php' ? 'active' : '' ?>">
+                <i class="fas fa-clipboard-list w-6"></i>
+                Jesyon Kòmand
+                <?php
+                // Rekipere kantite kòmand an kou pou badge la
+                $pending_orders_count = $pdo->query("SELECT COUNT(*) as total FROM orders WHERE status = 'pending'")->fetch()['total'];
+                if ($pending_orders_count > 0):
+                ?>
+                    <span class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full ml-auto animate-pulse"><?= $pending_orders_count ?></span>
+                <?php endif; ?>
+            </a>
+
             <a href="?section=hot_deals" class="sidebar-btn <?= (in_array($section, ['hot_deals', 'add_hot_deal'])) ? 'active' : '' ?>">
                 <i class="fas fa-fire w-6"></i>
                 Hot Deals
@@ -868,7 +880,7 @@ $img_base_url = '../uploads/';
         </nav>
 
         <div class="mt-8 pt-6 border-t border-slate-700">
-            <a href="../logout.php" class="sidebar-btn text-red-400 hover:text-white hover:bg-red-600">
+            <a href="logout.php" class="sidebar-btn text-red-400 hover:text-white hover:bg-red-600">
                 <i class="fas fa-sign-out-alt w-6"></i> Dekonekte
             </a>
         </div>

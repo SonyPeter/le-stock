@@ -65,7 +65,7 @@ try {
     $all_colors = [];
     $all_sizes = [];
     $all_brands = [];
-    
+
     if ($has_color) {
         $all_colors = $pdo->query("SELECT DISTINCT color FROM products WHERE color IS NOT NULL AND color != ''")->fetchAll(PDO::FETCH_COLUMN);
     }
@@ -75,13 +75,13 @@ try {
     if ($has_brand) {
         $all_brands = $pdo->query("SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand != ''")->fetchAll(PDO::FETCH_COLUMN);
     }
-
 } catch (PDOException $e) {
     die("Erè: " . $e->getMessage());
 }
 
 // Fonksyon pou tronke tèks
-function truncate($text, $length = 50) {
+function truncate($text, $length = 50)
+{
     if (strlen($text) > $length) {
         return substr($text, 0, $length) . '...';
     }
@@ -89,12 +89,14 @@ function truncate($text, $length = 50) {
 }
 
 // Fonksyon pou verifye si pwodwi an promosyon
-function isPromo($product) {
+function isPromo($product)
+{
     return !empty($product['price_promo']) && $product['price_promo'] > 0 && $product['price_promo'] < $product['price'];
 }
 
 // Fonksyon pou kalkule pousantaj rabè
-function getDiscountPercent($product) {
+function getDiscountPercent($product)
+{
     if (isPromo($product)) {
         return round((1 - $product['price_promo'] / $product['price']) * 100);
     }
@@ -115,21 +117,21 @@ $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $items_per_page = 12;
 
 // Filtre pwodwi yo
-$filtered_products = array_filter($all_products, function($product) use ($selected_category, $selected_color, $selected_size, $selected_brand, $price_min, $price_max, $search_query, $has_color, $has_size, $has_brand) {
+$filtered_products = array_filter($all_products, function ($product) use ($selected_category, $selected_color, $selected_size, $selected_brand, $price_min, $price_max, $search_query, $has_color, $has_size, $has_brand) {
     $match_category = $selected_category === 'All' || $product['category_name'] === $selected_category;
     $match_color = !$has_color || $selected_color === 'All' || (isset($product['color']) && $product['color'] === $selected_color);
     $match_size = !$has_size || $selected_size === 'All' || (isset($product['size']) && $product['size'] === $selected_size);
     $match_brand = !$has_brand || $selected_brand === 'All' || (isset($product['brand']) && $product['brand'] === $selected_brand);
     $match_price = $product['price'] >= $price_min && $product['price'] <= $price_max;
-    $match_search = $search_query === '' || 
+    $match_search = $search_query === '' ||
         stripos($product['name'], $search_query) !== false ||
         (isset($product['description']) && stripos($product['description'], $search_query) !== false);
-    
+
     return $match_category && $match_color && $match_size && $match_brand && $match_price && $match_search;
 });
 
 // Tri pwodwi yo
-usort($filtered_products, function($a, $b) use ($sort_by) {
+usort($filtered_products, function ($a, $b) use ($sort_by) {
     switch ($sort_by) {
         case 'price-low':
             return $a['price'] - $b['price'];
@@ -179,6 +181,7 @@ $hero_videos = [
 
 <!DOCTYPE html>
 <html lang="ht">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -197,18 +200,21 @@ $hero_videos = [
             width: 8px;
             height: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
-            background: #7c2d12; /* brick fonse */
+            background: #36dc9cff;
+            /* brick fonse */
         }
-        
+
         ::-webkit-scrollbar-thumb {
-            background: #c2410c; /* brick mwayen */
+            background: #c2410c;
+            /* brick mwayen */
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
-            background: #ea580c; /* brick kle */
+            background: #ea580c;
+            /* brick kle */
         }
 
         /* Logo container styles */
@@ -247,7 +253,8 @@ $hero_videos = [
             width: 100%;
             height: 400px;
             overflow: hidden;
-            background-color: #431407; /* brick tre fonse */
+            background-color: #44f1e8ff;
+            /* brick tre fonse */
         }
 
         @media (min-width: 768px) {
@@ -310,6 +317,7 @@ $hero_videos = [
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -322,16 +330,18 @@ $hero_videos = [
             font-weight: 800;
             margin-bottom: 1rem;
             /* Glassmorphism effect pi fò */
-            background: rgba(124, 45, 18, 0.5); /* brick fonse transparent */
+            background: rgba(52, 213, 227, 0.34);
+            /* brick fonse transparent */
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 16px;
             padding: 1rem 2rem;
-            border: 1px solid rgba(251, 146, 60, 0.4); /* orange kle */
-            box-shadow: 0 8px 32px rgba(124, 45, 18, 0.4);
+            border: 1px solid rgba(52, 213, 227, 0.34);
+            /* orange kle */
+            box-shadow: 0 8px 32px rgba(52, 213, 227, 0.34);
             display: inline-block;
             color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         @media (min-width: 768px) {
@@ -352,33 +362,38 @@ $hero_videos = [
             font-size: 1.25rem;
             margin-bottom: 0.75rem;
             /* Glassmorphism effect pi fò */
-            background: rgba(124, 45, 18, 0.45); /* brick fonse transparent */
+            background: rgba(191, 231, 14, 0.34);
+            /* brick fonse transparent */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 0.75rem 1.5rem;
-            border: 1px solid rgba(251, 146, 60, 0.35); /* orange kle */
-            box-shadow: 0 6px 24px rgba(124, 45, 18, 0.35);
+            border: 1px solid rgba(191, 231, 14, 0.34);
+            /* orange kle */
+            box-shadow: 0 6px 24pxrgba(191, 231, 14, 0.34));
             display: inline-block;
             color: #ffffff;
             font-weight: 500;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
         }
 
         .glass-caption {
             font-size: 1rem;
             /* Glassmorphism effect pi fò */
-            background: rgba(124, 45, 18, 0.4); /* brick fonse transparent */
+            background: rgba(236, 71, 181, 0.4);
+            /* brick fonse transparent */
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-radius: 10px;
             padding: 0.5rem 1.25rem;
-            border: 1px solid rgba(251, 146, 60, 0.3); /* orange kle */
-            box-shadow: 0 4px 20px rgba(124, 45, 18, 0.3);
+            border: 1px solid rgba(236, 71, 181, 0.4);
+            /* orange kle */
+            box-shadow: 0 4px 20px rgba(236, 71, 181, 0.4);
             display: inline-block;
-            color: #ffedd5; /* orange tre kle */
+            color: #ffedd5;
+            /* orange tre kle */
             font-weight: 400;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
         /* Kontwòl karysel */
@@ -396,7 +411,8 @@ $hero_videos = [
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: rgba(255, 237, 213, 0.4); /* orange tre kle */
+            background-color: rgba(255, 237, 213, 0.4);
+            /* orange tre kle */
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
@@ -408,7 +424,8 @@ $hero_videos = [
         }
 
         .carousel-dot.active {
-            background-color: #ea580c; /* orange kle */
+            background-color: #ea580c;
+            /* orange kle */
             border-color: #ffedd5;
             transform: scale(1.2);
         }
@@ -420,13 +437,16 @@ $hero_videos = [
             transform: translateY(-50%);
             width: 50px;
             height: 50px;
-            background-color: rgba(124, 45, 18, 0.8); /* brick fonse */
-            border: 2px solid rgba(251, 146, 60, 0.4); /* orange kle */
+            background-color: rgba(124, 45, 18, 0.8);
+            /* brick fonse */
+            border: 2px solid rgba(251, 146, 60, 0.4);
+            /* orange kle */
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffedd5; /* orange tre kle */
+            color: #ffedd5;
+            /* orange tre kle */
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 10;
@@ -434,8 +454,10 @@ $hero_videos = [
         }
 
         .carousel-arrow:hover {
-            background-color: rgba(194, 65, 12, 0.9); /* brick mwayen */
-            border-color: #fb923c; /* orange kle */
+            background-color: rgba(194, 65, 12, 0.9);
+            /* brick mwayen */
+            border-color: #fb923c;
+            /* orange kle */
             transform: translateY(-50%) scale(1.1);
         }
 
@@ -453,11 +475,11 @@ $hero_videos = [
                 height: 40px;
                 font-size: 1rem;
             }
-            
+
             .carousel-arrow.prev {
                 left: 10px;
             }
-            
+
             .carousel-arrow.next {
                 right: 10px;
             }
@@ -469,7 +491,8 @@ $hero_videos = [
             bottom: 0;
             left: 0;
             height: 4px;
-            background-color: #ea580c; /* orange kle */
+            background-color: #ea580c;
+            /* orange kle */
             transition: width 0.1s linear;
             z-index: 10;
         }
@@ -540,11 +563,13 @@ $hero_videos = [
 
         .products-section-beige .product-card:hover {
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: #ea580c; /* orange kle */
+            border-color: #ea580c;
+            /* orange kle */
         }
 
         .products-section-beige .text-blue-400 {
-            color: #c2410c !important; /* brick */
+            color: #c2410c !important;
+            /* brick */
         }
 
         .products-section-beige .text-red-400 {
@@ -555,7 +580,7 @@ $hero_videos = [
             color: #059669 !important;
         }
 
-        .products-section-beige h2, 
+        .products-section-beige h2,
         .products-section-beige h3,
         .products-section-beige h4 {
             color: #111827 !important;
@@ -570,11 +595,13 @@ $hero_videos = [
         }
 
         .products-section-beige .bg-primary {
-            background-color: #c2410c !important; /* brick */
+            background-color: #c2410c !important;
+            /* brick */
         }
 
         .products-section-beige .bg-primary:hover {
-            background-color: #9a3412 !important; /* brick fonse */
+            background-color: #9a3412 !important;
+            /* brick fonse */
         }
 
         /* Sidebar sticky nan beige section */
@@ -585,22 +612,26 @@ $hero_videos = [
 
         /* NOUVO HEADER STYLE - FLAMME PAL (BRICK/TERACOTTA) */
         .main-header {
-            background: linear-gradient(135deg, #7c2d12 0%, #9a3412 50%, #c2410c 100%); /* brick fonse -> brick kle */
+            background: linear-gradient(135deg, #c14802ff 0%, #c14802ff, #c14802ff);
+            /* brick fonse -> brick kle */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .main-header a {
-            color: #ffedd5; /* orange tre kle */
+            color: #ffffffff;
+            /* orange tre kle */
             font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .main-header a:hover {
-            color: #fdba74; /* orange kle */
+            color: #ffffffff;
+            /* orange kle */
         }
 
         .main-header .nav-link {
-            color: #fed7aa; /* orange mwayen */
+            color: #ffac91ff;
+            /* orange mwayen */
             transition: all 0.3s ease;
             position: relative;
         }
@@ -610,7 +641,8 @@ $hero_videos = [
         }
 
         .main-header .nav-link.active {
-            color: #fb923c; /* orange kle */
+            color: #9a3412;
+            /* orange kle */
             font-weight: 600;
         }
 
@@ -621,7 +653,8 @@ $hero_videos = [
             left: 0;
             width: 0;
             height: 2px;
-            background-color: #fb923c; /* orange kle */
+            background-color: #9a3412;
+            /* orange kle */
             transition: width 0.3s ease;
         }
 
@@ -631,34 +664,41 @@ $hero_videos = [
 
         .main-header button,
         .main-header .icon-btn {
-            color: #fed7aa; /* orange mwayen */
+            color: #fed7aa;
+            /* orange mwayen */
             transition: all 0.3s ease;
         }
 
         .main-header button:hover,
         .main-header .icon-btn:hover {
             color: #ffffff;
-            background-color: rgba(251, 146, 60, 0.2); /* orange kle transparent */
+            background-color: rgba(251, 146, 60, 0.2);
+            /* orange kle transparent */
         }
 
         .main-header .cart-badge {
-            background-color: #ea580c; /* orange kle */
+            background-color: #ea580c;
+            /* orange kle */
             color: white;
             font-weight: 700;
         }
 
         /* NOUVO FOOTER STYLE - FLAMME PAL (BRICK/TERACOTTA) */
         .main-footer-new {
-            background: linear-gradient(135deg, #431407 0%, #7c2d12 50%, #9a3412 100%); /* brick tre fonse -> brick fonse -> brick mwayen */
-            color: #fed7aa; /* orange mwayen */
+            background: linear-gradient(135deg, #431407 0%, #7c2d12 50%, #9a3412 100%);
+            /* brick tre fonse -> brick fonse -> brick mwayen */
+            color: #fed7aa;
+            /* orange mwayen */
             padding: 4rem 0 2rem;
-            border-top: 4px solid #ea580c; /* orange kle */
+            border-top: 4px solid #ea580c;
+            /* orange kle */
         }
 
         .main-footer-new .footer-logo-icon {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); /* orange kle */
+            background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+            /* orange kle */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -673,7 +713,7 @@ $hero_videos = [
             color: #ffffff;
             font-weight: 800;
             font-size: 1.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .main-footer-new h4 {
@@ -692,18 +732,21 @@ $hero_videos = [
             left: 0;
             width: 40px;
             height: 3px;
-            background: linear-gradient(90deg, #fb923c, #ea580c); /* orange */
+            background: linear-gradient(90deg, #fb923c, #ea580c);
+            /* orange */
             border-radius: 2px;
         }
 
         .main-footer-new p,
         .main-footer-new .footer-description {
-            color: #fdba74; /* orange kle */
+            color: #fdba74;
+            /* orange kle */
             line-height: 1.7;
         }
 
         .main-footer-new .footer-links a {
-            color: #fdba74; /* orange kle */
+            color: #fdba74;
+            /* orange kle */
             text-decoration: none;
             font-size: 0.95rem;
             transition: all 0.3s ease;
@@ -717,7 +760,8 @@ $hero_videos = [
         }
 
         .main-footer-new .contact-info li {
-            color: #fdba74; /* orange kle */
+            color: #fdba74;
+            /* orange kle */
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
@@ -725,7 +769,8 @@ $hero_videos = [
         }
 
         .main-footer-new .contact-info i {
-            color: #fb923c; /* orange kle */
+            color: #fb923c;
+            /* orange kle */
             margin-top: 0.25rem;
             font-size: 1.1rem;
         }
@@ -733,8 +778,10 @@ $hero_videos = [
         .main-footer-new .social-links a {
             width: 42px;
             height: 42px;
-            background: rgba(251, 146, 60, 0.15); /* orange kle transparent */
-            border: 2px solid rgba(251, 146, 60, 0.3); /* orange kle */
+            background: rgba(251, 146, 60, 0.15);
+            /* orange kle transparent */
+            border: 2px solid rgba(251, 146, 60, 0.3);
+            /* orange kle */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -746,14 +793,18 @@ $hero_videos = [
         }
 
         .main-footer-new .social-links a:hover {
-            background: #ea580c; /* orange kle */
-            border-color: #fb923c; /* orange kle */
+            background: #ea580c;
+            /* orange kle */
+            border-color: #fb923c;
+            /* orange kle */
             transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.4); /* orange shadow */
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.4);
+            /* orange shadow */
         }
 
         .main-footer-new .footer-bottom {
-            border-top: 1px solid rgba(251, 146, 60, 0.2); /* orange kle transparent */
+            border-top: 1px solid rgba(251, 146, 60, 0.2);
+            /* orange kle transparent */
             margin-top: 3rem;
             padding-top: 2rem;
             display: flex;
@@ -770,14 +821,18 @@ $hero_videos = [
         }
 
         .main-footer-new .copyright {
-            color: #fb923c; /* orange kle */
+            color: #fb923c;
+            /* orange kle */
             font-size: 0.9rem;
         }
 
         .main-footer-new .footer-selector {
-            background: rgba(251, 146, 60, 0.15); /* orange kle transparent */
-            color: #fed7aa; /* orange mwayen */
-            border: 1px solid rgba(251, 146, 60, 0.3); /* orange kle */
+            background: rgba(251, 146, 60, 0.15);
+            /* orange kle transparent */
+            color: #fed7aa;
+            /* orange mwayen */
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            /* orange kle */
             padding: 0.5rem 1rem;
             border-radius: 6px;
             font-size: 0.875rem;
@@ -789,15 +844,18 @@ $hero_videos = [
         }
 
         .main-footer-new .footer-selector:hover {
-            background: rgba(251, 146, 60, 0.25); /* orange kle transparent */
+            background: rgba(251, 146, 60, 0.25);
+            /* orange kle transparent */
             color: #ffffff;
         }
 
         /* Features section FLAMME PAL */
         .features-section-new {
-            background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%); /* brick fonse -> brick */
+            background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%);
+            /* brick fonse -> brick */
             padding: 3rem 0;
-            border-bottom: 1px solid rgba(251, 146, 60, 0.2); /* orange kle transparent */
+            border-bottom: 1px solid rgba(251, 146, 60, 0.2);
+            /* orange kle transparent */
         }
 
         .features-section-new .feature-card {
@@ -814,19 +872,22 @@ $hero_videos = [
         .features-section-new .feature-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-            border-color: #ea580c; /* orange kle */
+            border-color: #ea580c;
+            /* orange kle */
         }
 
         .features-section-new .feature-icon {
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); /* orange -> brick */
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            /* orange -> brick */
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); /* orange shadow */
+            box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4);
+            /* orange shadow */
         }
 
         .features-section-new .feature-icon i {
@@ -835,7 +896,8 @@ $hero_videos = [
         }
 
         .features-section-new .feature-content h3 {
-            color: #7c2d12; /* brick fonse */
+            color: #7c2d12;
+            /* brick fonse */
             font-weight: 700;
             font-size: 1.1rem;
             margin-bottom: 0.25rem;
@@ -851,6 +913,7 @@ $hero_videos = [
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -862,8 +925,15 @@ $hero_videos = [
         }
 
         @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
         }
 
         /* MODIFICATION POU PRODUIT GRID - 2 kolòn sou mobil */
@@ -899,24 +969,24 @@ $hero_videos = [
             .product-card .h-56 {
                 height: 140px;
             }
-            
+
             .product-card h3 {
                 font-size: 0.875rem;
                 height: 2.4em;
             }
-            
+
             .product-card .text-xl {
                 font-size: 1rem;
             }
-            
+
             .product-card .text-sm {
                 font-size: 0.75rem;
             }
-            
+
             .product-card .p-5 {
                 padding: 0.75rem;
             }
-            
+
             .product-card button {
                 padding: 0.5rem 0.75rem;
             }
@@ -928,91 +998,113 @@ $hero_videos = [
         }
 
         .border-slate-700 {
-            border-color: #fed7aa !important; /* orange mwayen */
+            border-color: #fed7aa !important;
+            /* orange mwayen */
         }
 
         .bg-slate-900 {
-            background-color: #fff7ed !important; /* orange tre tre kle */
+            background-color: #fff7ed !important;
+            /* orange tre tre kle */
         }
 
         .text-gray-100 {
-            color: #431407 !important; /* brick tre fonse */
+            color: #431407 !important;
+            /* brick tre fonse */
         }
 
         .placeholder-gray-500::placeholder {
-            color: #9a3412; /* brick */
+            color: #9a3412;
+            /* brick */
         }
 
         .focus\:ring-blue-500:focus {
-            --tw-ring-color: #ea580c !important; /* orange kle */
+            --tw-ring-color: #ea580c !important;
+            /* orange kle */
         }
 
         .bg-primary {
-            background-color: #c2410c !important; /* brick */
+            background-color: #c2410c !important;
+            /* brick */
         }
 
         .bg-primary:hover {
-            background-color: #9a3412 !important; /* brick fonse */
+            background-color: #9a3412 !important;
+            /* brick fonse */
         }
 
         .bg-slate-700 {
-            background-color: #ffedd5 !important; /* orange tre kle */
-            color: #7c2d12 !important; /* brick fonse */
+            background-color: #ffedd5 !important;
+            /* orange tre kle */
+            color: #7c2d12 !important;
+            /* brick fonse */
         }
 
         .bg-slate-700:hover {
-            background-color: #fed7aa !important; /* orange mwayen */
+            background-color: #fed7aa !important;
+            /* orange mwayen */
         }
 
         /* Pagination FLAMME PAL */
         .hover\:bg-gray-100:hover {
-            background-color: #fff7ed !important; /* orange tre tre kle */
+            background-color: #fff7ed !important;
+            /* orange tre tre kle */
         }
 
         .bg-blue-600 {
-            background-color: #c2410c !important; /* brick */
+            background-color: #c2410c !important;
+            /* brick */
         }
 
         .border-blue-600 {
-            border-color: #c2410c !important; /* brick */
+            border-color: #c2410c !important;
+            /* brick */
         }
 
         .hover\:bg-blue-700:hover {
-            background-color: #9a3412 !important; /* brick fonse */
+            background-color: #9a3412 !important;
+            /* brick fonse */
         }
 
         /* Quick View Modal FLAMME PAL */
         #quickViewModal {
-            background-color: rgba(67, 20, 7, 0.8) !important; /* brick tre fonse transparent */
+            background-color: rgba(67, 20, 7, 0.8) !important;
+            /* brick tre fonse transparent */
         }
 
         .text-blue-600 {
-            color: #c2410c !important; /* brick */
+            color: #c2410c !important;
+            /* brick */
         }
 
         .hover\:text-blue-800:hover {
-            color: #7c2d12 !important; /* brick fonse */
+            color: #7c2d12 !important;
+            /* brick fonse */
         }
 
         .bg-blue-600 {
-            background-color: #c2410c !important; /* brick */
+            background-color: #c2410c !important;
+            /* brick */
         }
 
         .hover\:bg-blue-700:hover {
-            background-color: #9a3412 !important; /* brick fonse */
+            background-color: #9a3412 !important;
+            /* brick fonse */
         }
 
         /* Notification FLAMME PAL */
         .bg-emerald-100 {
-            background-color: #fff7ed !important; /* orange tre tre kle */
+            background-color: #fff7ed !important;
+            /* orange tre tre kle */
         }
 
         .text-emerald-800 {
-            color: #9a3412 !important; /* brick */
+            color: #9a3412 !important;
+            /* brick */
         }
 
         .border-emerald-300 {
-            border-color: #fb923c !important; /* orange kle */
+            border-color: #fb923c !important;
+            /* orange kle */
         }
 
         /* Mobile filters FLAMME PAL */
@@ -1021,30 +1113,37 @@ $hero_videos = [
         }
 
         #mobileFilters .border-gray-200 {
-            border-color: #fed7aa !important; /* orange mwayen */
+            border-color: #fed7aa !important;
+            /* orange mwayen */
         }
 
         #mobileFilters .text-gray-800 {
-            color: #431407 !important; /* brick tre fonse */
+            color: #431407 !important;
+            /* brick tre fonse */
         }
 
         #mobileFilters .hover\:bg-gray-100:hover {
-            background-color: #fff7ed !important; /* orange tre tre kle */
+            background-color: #fff7ed !important;
+            /* orange tre tre kle */
         }
 
         #mobileFilters .bg-blue-600 {
-            background-color: #c2410c !important; /* brick */
+            background-color: #c2410c !important;
+            /* brick */
         }
 
         #mobileFilters .text-gray-600 {
-            color: #7c2d12 !important; /* brick fonse */
+            color: #7c2d12 !important;
+            /* brick fonse */
         }
 
         #mobileFilters .hover\:text-gray-600:hover {
-            color: #9a3412 !important; /* brick */
+            color: #9a3412 !important;
+            /* brick */
         }
     </style>
 </head>
+
 <body class="bg-slate-900 text-slate-200 font-sans antialiased">
     <!-- Header - NOUVO STYLE FLAMME PAL -->
     <header class="main-header z-[100]">
@@ -1053,32 +1152,30 @@ $hero_videos = [
                 <!-- Logo - GWO E RESPONSIVE -->
                 <a href="accueil.php" class="logo-container flex-shrink-0">
                     <!-- Ranplase src la ak logo antrepriz ou a -->
-                    <img src="\le-stock\assets\img\le stock entreprise copy2.png" 
-                         alt="Logo Antrepriz" 
-                         class="logo-image"
-                         style="filter: brightness(0) invert(1);"
-                         onerror="this.src='https://via.placeholder.com/200x80/ffffff/7c2d12?text=LE-STOCK'; this.style.backgroundColor='#7c2d12'; this.style.padding='10px'; this.style.borderRadius='8px'; this.style.filter='none';">
+                    <img src="\le-stock\assets\img\le stock entreprise copy2.png"
+                        alt="Logo Antrepriz"
+                        class="logo-image"
+                        style="filter: brightness(0) invert(1);"
+                        onerror="this.src='https://via.placeholder.com/200x80/ffffff/7c2d12?text=LE-STOCK'; this.style.backgroundColor='#7c2d12'; this.style.padding='10px'; this.style.borderRadius='8px'; this.style.filter='none';">
                 </a>
 
                 <!-- Navigation Desktop -->
                 <nav class="hidden lg:flex items-center gap-8">
-                    <a href="accueil.php" class="nav-link text-sm">Akèy</a>
-                    <a href="boutique.php" class="nav-link text-sm">Boutik</a>
-                    <a href="galerie.php" class="nav-link active text-sm">Galeri</a>
-                    <a href="promotions.php" class="nav-link text-sm">Promosyons</a>
-                    <a href="contact.php" class="nav-link text-sm">Kontakte Nou</a>
-                    <a href="blog.php" class="nav-link text-sm">Blog</a>
+                    <a href="../index.php" class="nav-link text-sm">Akèy</a>
+                    <a href="promotion.php" class="nav-link text-sm">Promosyons</a>
+                    <a href="hot_deal.php" class="nav-link text-sm">Hot-Deal</a>
+
                 </nav>
 
                 <!-- Icons -->
                 <div class="flex items-center gap-2 md:gap-4">
-                    <button onclick="focusSearch()" class="icon-btn p-2 rounded-full transition-colors" title="Chache">
+                    <!-- <button onclick="focusSearch()" class="icon-btn p-2 rounded-full transition-colors" title="Chache">
                         <i class="fas fa-search text-lg"></i>
                     </button>
                     <a href="favoris.php" class="icon-btn p-2 rounded-full transition-colors relative" title="Favori">
                         <i class="fas fa-heart text-lg"></i>
-                    </a>
-                    <a href="panier.php" class="icon-btn p-2 rounded-full transition-colors relative" title="Panier">
+                    </a> -->
+                    <a href="panier/Panier.php" class="icon-btn p-2 rounded-full transition-colors relative" title="Panier">
                         <i class="fas fa-shopping-cart text-lg"></i>
                         <span id="cart-badge" class="cart-badge absolute -top-1 -right-1 text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
                     </a>
@@ -1099,24 +1196,24 @@ $hero_videos = [
     <!-- NOUVO KARYSEL VIDEO - Ranplase Hero Section -->
     <section class="video-carousel-section">
         <?php foreach ($hero_videos as $index => $video): ?>
-        <div class="video-slide <?= $index === 0 ? 'active' : '' ?>" data-index="<?= $index ?>">
-            <video 
-                muted 
-                loop 
-                playsinline
-                poster="<?= htmlspecialchars($video['poster']) ?>"
-                preload="metadata">
-                <source src="<?= htmlspecialchars($video['src']) ?>" type="video/mp4">
-                Navigatè ou a pa sipòte videyo.
-            </video>
-            <div class="video-overlay">
-                <div class="video-content">
-                    <h1 class="glass-title"><?= htmlspecialchars($video['title']) ?></h1>
-                    <p class="glass-subtitle"><?= htmlspecialchars($video['subtitle']) ?></p>
-                    <p class="glass-caption">Navige nan <?= count($all_products) ?> pwodwi primye kalite</p>
+            <div class="video-slide <?= $index === 0 ? 'active' : '' ?>" data-index="<?= $index ?>">
+                <video
+                    muted
+                    loop
+                    playsinline
+                    poster="<?= htmlspecialchars($video['poster']) ?>"
+                    preload="metadata">
+                    <source src="<?= htmlspecialchars($video['src']) ?>" type="video/mp4">
+                    Navigatè ou a pa sipòte videyo.
+                </video>
+                <div class="video-overlay">
+                    <div class="video-content">
+                        <h1 class="glass-title"><?= htmlspecialchars($video['title']) ?></h1>
+                        <p class="glass-subtitle"><?= htmlspecialchars($video['subtitle']) ?></p>
+                        <p class="glass-caption">Navige nan <?= count($all_products) ?> pwodwi primye kalite</p>
+                    </div>
                 </div>
             </div>
-        </div>
         <?php endforeach; ?>
 
         <!-- Progress Bar -->
@@ -1133,7 +1230,7 @@ $hero_videos = [
         <!-- Dots -->
         <div class="carousel-controls">
             <?php foreach ($hero_videos as $index => $video): ?>
-            <div class="carousel-dot <?= $index === 0 ? 'active' : '' ?>" onclick="goToSlide(<?= $index ?>)" data-index="<?= $index ?>"></div>
+                <div class="carousel-dot <?= $index === 0 ? 'active' : '' ?>" onclick="goToSlide(<?= $index ?>)" data-index="<?= $index ?>"></div>
             <?php endforeach; ?>
         </div>
     </section>
@@ -1144,10 +1241,10 @@ $hero_videos = [
             <form method="GET" class="flex flex-col sm:flex-row items-center gap-4">
                 <div class="flex-1 relative w-full">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" name="search" id="searchInput" 
-                           placeholder="Chache pwodwi pa non..." 
-                           value="<?= htmlspecialchars($search_query) ?>"
-                           class="w-full pl-12 pr-4 py-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-slate-900 text-gray-100 placeholder-gray-500 transition-all">
+                    <input type="text" name="search" id="searchInput"
+                        placeholder="Chache pwodwi pa non..."
+                        value="<?= htmlspecialchars($search_query) ?>"
+                        class="w-full pl-12 pr-4 py-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-slate-900 text-gray-100 placeholder-gray-500 transition-all">
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
                     <button type="submit" class="flex-1 sm:flex-none px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium">
@@ -1178,13 +1275,13 @@ $hero_videos = [
                             <div>
                                 <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Kategori</h3>
                                 <div class="space-y-2 max-h-48 overflow-y-auto pr-2">
-                                    <button onclick="window.location.href='?category=All<?= $search_query ? '&search='.urlencode($search_query) : '' ?>'" 
-                                            class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === 'All' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                                    <button onclick="window.location.href='?category=All<?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'"
+                                        class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === 'All' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
                                         Tout Kategori
                                     </button>
                                     <?php foreach ($all_categories as $cat): ?>
-                                        <button onclick="window.location.href='?category=<?= urlencode($cat['name']) ?><?= $search_query ? '&search='.urlencode($search_query) : '' ?>'" 
-                                                class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === $cat['name'] ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                                        <button onclick="window.location.href='?category=<?= urlencode($cat['name']) ?><?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'"
+                                            class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === $cat['name'] ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
                                             <?= htmlspecialchars($cat['name']) ?>
                                         </button>
                                     <?php endforeach; ?>
@@ -1205,41 +1302,41 @@ $hero_videos = [
 
                             <!-- Color Filter -->
                             <?php if ($has_color && !empty($all_colors)): ?>
-                            <div>
-                                <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Koulè</h3>
-                                <select onchange="updateFilter('color', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                    <option value="All" <?= $selected_color === 'All' ? 'selected' : '' ?>>Tout Koulè</option>
-                                    <?php foreach ($all_colors as $color): ?>
-                                        <option value="<?= htmlspecialchars($color) ?>" <?= $selected_color === $color ? 'selected' : '' ?>><?= htmlspecialchars($color) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Koulè</h3>
+                                    <select onchange="updateFilter('color', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
+                                        <option value="All" <?= $selected_color === 'All' ? 'selected' : '' ?>>Tout Koulè</option>
+                                        <?php foreach ($all_colors as $color): ?>
+                                            <option value="<?= htmlspecialchars($color) ?>" <?= $selected_color === $color ? 'selected' : '' ?>><?= htmlspecialchars($color) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             <?php endif; ?>
 
                             <!-- Size Filter -->
                             <?php if ($has_size && !empty($all_sizes)): ?>
-                            <div>
-                                <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Tail</h3>
-                                <select onchange="updateFilter('size', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                    <option value="All" <?= $selected_size === 'All' ? 'selected' : '' ?>>Tout Tail</option>
-                                    <?php foreach ($all_sizes as $size): ?>
-                                        <option value="<?= htmlspecialchars($size) ?>" <?= $selected_size === $size ? 'selected' : '' ?>><?= htmlspecialchars($size) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Tail</h3>
+                                    <select onchange="updateFilter('size', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
+                                        <option value="All" <?= $selected_size === 'All' ? 'selected' : '' ?>>Tout Tail</option>
+                                        <?php foreach ($all_sizes as $size): ?>
+                                            <option value="<?= htmlspecialchars($size) ?>" <?= $selected_size === $size ? 'selected' : '' ?>><?= htmlspecialchars($size) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             <?php endif; ?>
 
                             <!-- Brand Filter -->
                             <?php if ($has_brand && !empty($all_brands)): ?>
-                            <div>
-                                <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Mak</h3>
-                                <select onchange="updateFilter('brand', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                    <option value="All" <?= $selected_brand === 'All' ? 'selected' : '' ?>>Tout Mak</option>
-                                    <?php foreach ($all_brands as $brand): ?>
-                                        <option value="<?= htmlspecialchars($brand) ?>" <?= $selected_brand === $brand ? 'selected' : '' ?>><?= htmlspecialchars($brand) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Mak</h3>
+                                    <select onchange="updateFilter('brand', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
+                                        <option value="All" <?= $selected_brand === 'All' ? 'selected' : '' ?>>Tout Mak</option>
+                                        <?php foreach ($all_brands as $brand): ?>
+                                            <option value="<?= htmlspecialchars($brand) ?>" <?= $selected_brand === $brand ? 'selected' : '' ?>><?= htmlspecialchars($brand) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -1254,19 +1351,19 @@ $hero_videos = [
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                        
+
                         <div class="p-6 space-y-6">
                             <!-- Category Filter Mobile -->
                             <div>
                                 <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Kategori</h3>
                                 <div class="space-y-2 max-h-48 overflow-y-auto">
-                                    <button onclick="window.location.href='?category=All<?= $search_query ? '&search='.urlencode($search_query) : '' ?>'" 
-                                            class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === 'All' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                                    <button onclick="window.location.href='?category=All<?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'"
+                                        class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === 'All' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
                                         Tout Kategori
                                     </button>
                                     <?php foreach ($all_categories as $cat): ?>
-                                        <button onclick="window.location.href='?category=<?= urlencode($cat['name']) ?><?= $search_query ? '&search='.urlencode($search_query) : '' ?>'" 
-                                                class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === $cat['name'] ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
+                                        <button onclick="window.location.href='?category=<?= urlencode($cat['name']) ?><?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'"
+                                            class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= $selected_category === $cat['name'] ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">
                                             <?= htmlspecialchars($cat['name']) ?>
                                         </button>
                                     <?php endforeach; ?>
@@ -1287,41 +1384,41 @@ $hero_videos = [
 
                             <!-- Color Filter Mobile -->
                             <?php if ($has_color && !empty($all_colors)): ?>
-                            <div>
-                                <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Koulè</h3>
-                                <select onchange="updateFilter('color', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                    <option value="All" <?= $selected_color === 'All' ? 'selected' : '' ?>>Tout Koulè</option>
-                                    <?php foreach ($all_colors as $color): ?>
-                                        <option value="<?= htmlspecialchars($color) ?>" <?= $selected_color === $color ? 'selected' : '' ?>><?= htmlspecialchars($color) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Koulè</h3>
+                                    <select onchange="updateFilter('color', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
+                                        <option value="All" <?= $selected_color === 'All' ? 'selected' : '' ?>>Tout Koulè</option>
+                                        <?php foreach ($all_colors as $color): ?>
+                                            <option value="<?= htmlspecialchars($color) ?>" <?= $selected_color === $color ? 'selected' : '' ?>><?= htmlspecialchars($color) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             <?php endif; ?>
 
                             <!-- Size Filter Mobile -->
                             <?php if ($has_size && !empty($all_sizes)): ?>
-                            <div>
-                                <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Tail</h3>
-                                <select onchange="updateFilter('size', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                    <option value="All" <?= $selected_size === 'All' ? 'selected' : '' ?>>Tout Tail</option>
-                                    <?php foreach ($all_sizes as $size): ?>
-                                        <option value="<?= htmlspecialchars($size) ?>" <?= $selected_size === $size ? 'selected' : '' ?>><?= htmlspecialchars($size) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Tail</h3>
+                                    <select onchange="updateFilter('size', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
+                                        <option value="All" <?= $selected_size === 'All' ? 'selected' : '' ?>>Tout Tail</option>
+                                        <?php foreach ($all_sizes as $size): ?>
+                                            <option value="<?= htmlspecialchars($size) ?>" <?= $selected_size === $size ? 'selected' : '' ?>><?= htmlspecialchars($size) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             <?php endif; ?>
 
                             <!-- Brand Filter Mobile -->
                             <?php if ($has_brand && !empty($all_brands)): ?>
-                            <div>
-                                <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Mak</h3>
-                                <select onchange="updateFilter('brand', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                    <option value="All" <?= $selected_brand === 'All' ? 'selected' : '' ?>>Tout Mak</option>
-                                    <?php foreach ($all_brands as $brand): ?>
-                                        <option value="<?= htmlspecialchars($brand) ?>" <?= $selected_brand === $brand ? 'selected' : '' ?>><?= htmlspecialchars($brand) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Mak</h3>
+                                    <select onchange="updateFilter('brand', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
+                                        <option value="All" <?= $selected_brand === 'All' ? 'selected' : '' ?>>Tout Mak</option>
+                                        <?php foreach ($all_brands as $brand): ?>
+                                            <option value="<?= htmlspecialchars($brand) ?>" <?= $selected_brand === $brand ? 'selected' : '' ?>><?= htmlspecialchars($brand) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -1334,7 +1431,7 @@ $hero_videos = [
                         <div class="flex items-center gap-4">
                             <p class="text-sm text-gray-600">
                                 Afiche <span class="font-semibold text-gray-900"><?= $start_index + 1 ?></span>-
-                                <span class="font-semibold text-gray-900"><?= min($start_index + $items_per_page, $total_products) ?></span> nan 
+                                <span class="font-semibold text-gray-900"><?= min($start_index + $items_per_page, $total_products) ?></span> nan
                                 <span class="font-semibold text-gray-900"><?= $total_products ?></span> pwodwi
                             </p>
                         </div>
@@ -1351,7 +1448,7 @@ $hero_videos = [
                             </div>
 
                             <!-- Sort -->
-                            <select onchange="window.location.href='?sort='+this.value<?= $selected_category !== 'All' ? "+'&category=".urlencode($selected_category)."'" : "''" ?><?= $search_query ? "+'&search=".urlencode($search_query)."'" : "''" ?>" class="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-800">
+                            <select onchange="window.location.href='?sort='+this.value<?= $selected_category !== 'All' ? "+'&category=" . urlencode($selected_category) . "'" : "''" ?><?= $search_query ? "+'&search=" . urlencode($search_query) . "'" : "''" ?>" class="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-800">
                                 <option value="featured" <?= $sort_by === 'featured' ? 'selected' : '' ?>>En Vitrine</option>
                                 <option value="newest" <?= $sort_by === 'newest' ? 'selected' : '' ?>>Pi Nouvo</option>
                                 <option value="price-low" <?= $sort_by === 'price-low' ? 'selected' : '' ?>>Prix: Ki pi ba</option>
@@ -1375,143 +1472,143 @@ $hero_videos = [
                     <?php else: ?>
                         <!-- Grid View -->
                         <?php if ($view_mode === 'grid'): ?>
-                        <div class="products-grid-container">
-                            <?php foreach ($current_products as $product): ?>
-                                <?php $is_promo = isPromo($product); ?>
-                                <div class="product-card bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative border border-gray-200 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-500 group">
-                                    <!-- Image -->
-                                    <div class="h-56 relative overflow-hidden bg-gray-100">
-                                        <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>" 
-                                             alt="<?= htmlspecialchars($product['name']) ?>" 
-                                             loading="lazy" 
-                                             onerror="this.src='../assets/img/placeholder.png'"
-                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                        
-                                        <!-- Badges -->
-                                        <?php if ($is_promo): ?>
-                                            <div class="absolute top-4 left-4 flex flex-col gap-2">
-                                                <span class="bg-red-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">-<?= getDiscountPercent($product) ?>%</span>
-                                            </div>
-                                        <?php elseif (isset($product['created_at']) && strtotime($product['created_at']) > strtotime('-7 days')): ?>
-                                            <div class="absolute top-4 left-4 flex flex-col gap-2">
-                                                <span class="bg-emerald-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">NOUVO</span>
-                                            </div>
-                                        <?php endif; ?>
+                            <div class="products-grid-container">
+                                <?php foreach ($current_products as $product): ?>
+                                    <?php $is_promo = isPromo($product); ?>
+                                    <div class="product-card bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative border border-gray-200 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-500 group">
+                                        <!-- Image -->
+                                        <div class="h-56 relative overflow-hidden bg-gray-100">
+                                            <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>"
+                                                alt="<?= htmlspecialchars($product['name']) ?>"
+                                                loading="lazy"
+                                                onerror="this.src='../assets/img/placeholder.png'"
+                                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
 
-                                        <!-- Actions -->
-                                        <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-2.5 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                                            <button onclick="addToFavorites(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-600 flex items-center justify-center shadow-lg transition-all duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600" title="Ajoute nan favori">
-                                                <i class="fas fa-heart"></i>
-                                            </button>
-                                            <button onclick="quickView(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-600 flex items-center justify-center shadow-lg transition-all duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600" title="Gade rapid">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Info -->
-                                    <div class="p-5">
-                                        <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2"><?= htmlspecialchars($product['category_name']) ?></div>
-                                        <h3 class="text-base font-bold text-gray-900 mb-3 leading-snug line-clamp-2" style="height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><?= htmlspecialchars(truncate($product['name'], 40)) ?></h3>
-                                        <div class="flex justify-between items-center">
-                                            <div class="flex flex-col">
-                                                <?php if ($is_promo): ?>
-                                                    <span class="text-xl font-extrabold text-red-600"><?= number_format($product['price_promo']) ?> HTG</span>
-                                                    <span class="text-sm text-gray-500 line-through"><?= number_format($product['price']) ?> HTG</span>
-                                                <?php else: ?>
-                                                    <span class="text-xl font-extrabold text-gray-900"><?= number_format($product['price']) ?> HTG</span>
-                                                <?php endif; ?>
-                                            </div>
-                                            <button onclick="addToCart(<?= $product['id'] ?>, this)" class="bg-blue-600 text-white border-0 px-5 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-200 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed">
-                                                <i class="fas fa-cart-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <!-- List View -->
-                        <?php else: ?>
-                        <div class="flex flex-col gap-4">
-                            <?php foreach ($current_products as $product): ?>
-                                <?php $is_promo = isPromo($product); ?>
-                                <div class="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative border border-gray-200 hover:border-blue-500 flex flex-col sm:flex-row">
-                                    <!-- Image -->
-                                    <div class="w-full sm:w-48 h-48 sm:h-auto relative overflow-hidden bg-gray-100 flex-shrink-0">
-                                        <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>" 
-                                             alt="<?= htmlspecialchars($product['name']) ?>" 
-                                             loading="lazy" 
-                                             onerror="this.src='../assets/img/placeholder.png'"
-                                             class="w-full h-full object-cover">
-                                        
-                                        <!-- Badges -->
-                                        <?php if ($is_promo): ?>
-                                            <div class="absolute top-4 left-4">
-                                                <span class="bg-red-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">-<?= getDiscountPercent($product) ?>%</span>
-                                            </div>
-                                        <?php elseif (isset($product['created_at']) && strtotime($product['created_at']) > strtotime('-7 days')): ?>
-                                            <div class="absolute top-4 left-4">
-                                                <span class="bg-emerald-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">NOUVO</span>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <!-- Info -->
-                                    <div class="p-5 flex-1 flex flex-col justify-between">
-                                        <div>
-                                            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2"><?= htmlspecialchars($product['category_name']) ?></div>
-                                            <h3 class="text-lg font-bold text-gray-900 mb-2"><?= htmlspecialchars($product['name']) ?></h3>
-                                            <p class="text-gray-600 text-sm mb-4 line-clamp-2"><?= htmlspecialchars(truncate($product['description'] ?? '', 100)) ?></p>
-                                        </div>
-                                        
-                                        <div class="flex justify-between items-center">
-                                            <div class="flex flex-col">
-                                                <?php if ($is_promo): ?>
-                                                    <span class="text-2xl font-extrabold text-red-600"><?= number_format($product['price_promo']) ?> HTG</span>
-                                                    <span class="text-sm text-gray-500 line-through"><?= number_format($product['price']) ?> HTG</span>
-                                                <?php else: ?>
-                                                    <span class="text-2xl font-extrabold text-gray-900"><?= number_format($product['price']) ?> HTG</span>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="flex gap-2">
-                                                <button onclick="addToFavorites(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center transition-all duration-200 hover:bg-blue-600 hover:text-white" title="Ajoute nan favori">
+                                            <!-- Badges -->
+                                            <?php if ($is_promo): ?>
+                                                <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                                    <span class="bg-red-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">-<?= getDiscountPercent($product) ?>%</span>
+                                                </div>
+                                            <?php elseif (isset($product['created_at']) && strtotime($product['created_at']) > strtotime('-7 days')): ?>
+                                                <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                                    <span class="bg-emerald-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">NOUVO</span>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            <!-- Actions -->
+                                            <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 translate-x-2.5 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                                                <button onclick="addToFavorites(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-600 flex items-center justify-center shadow-lg transition-all duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600" title="Ajoute nan favori">
                                                     <i class="fas fa-heart"></i>
                                                 </button>
-                                                <button onclick="quickView(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center transition-all duration-200 hover:bg-blue-600 hover:text-white" title="Gade rapid">
+                                                <button onclick="quickView(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-600 flex items-center justify-center shadow-lg transition-all duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600" title="Gade rapid">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
-                                                <button onclick="addToCart(<?= $product['id'] ?>, this)" class="bg-blue-600 text-white border-0 px-5 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all duration-200 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed">
-                                                    <i class="fas fa-cart-plus mr-1"></i> Ajoute
+                                            </div>
+                                        </div>
+
+                                        <!-- Info -->
+                                        <div class="p-5">
+                                            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2"><?= htmlspecialchars($product['category_name']) ?></div>
+                                            <h3 class="text-base font-bold text-gray-900 mb-3 leading-snug line-clamp-2" style="height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><?= htmlspecialchars(truncate($product['name'], 40)) ?></h3>
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex flex-col">
+                                                    <?php if ($is_promo): ?>
+                                                        <span class="text-xl font-extrabold text-red-600"><?= number_format($product['price_promo']) ?> HTG</span>
+                                                        <span class="text-sm text-gray-500 line-through"><?= number_format($product['price']) ?> HTG</span>
+                                                    <?php else: ?>
+                                                        <span class="text-xl font-extrabold text-gray-900"><?= number_format($product['price']) ?> HTG</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <button onclick="addToCart(<?= $product['id'] ?>, this)" class="bg-blue-600 text-white border-0 px-5 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all duration-200 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                                                    <i class="fas fa-cart-plus"></i>
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <!-- List View -->
+                        <?php else: ?>
+                            <div class="flex flex-col gap-4">
+                                <?php foreach ($current_products as $product): ?>
+                                    <?php $is_promo = isPromo($product); ?>
+                                    <div class="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative border border-gray-200 hover:border-blue-500 flex flex-col sm:flex-row">
+                                        <!-- Image -->
+                                        <div class="w-full sm:w-48 h-48 sm:h-auto relative overflow-hidden bg-gray-100 flex-shrink-0">
+                                            <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>"
+                                                alt="<?= htmlspecialchars($product['name']) ?>"
+                                                loading="lazy"
+                                                onerror="this.src='../assets/img/placeholder.png'"
+                                                class="w-full h-full object-cover">
+
+                                            <!-- Badges -->
+                                            <?php if ($is_promo): ?>
+                                                <div class="absolute top-4 left-4">
+                                                    <span class="bg-red-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">-<?= getDiscountPercent($product) ?>%</span>
+                                                </div>
+                                            <?php elseif (isset($product['created_at']) && strtotime($product['created_at']) > strtotime('-7 days')): ?>
+                                                <div class="absolute top-4 left-4">
+                                                    <span class="bg-emerald-500 text-white px-3.5 py-1 rounded-full text-xs font-bold">NOUVO</span>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Info -->
+                                        <div class="p-5 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2"><?= htmlspecialchars($product['category_name']) ?></div>
+                                                <h3 class="text-lg font-bold text-gray-900 mb-2"><?= htmlspecialchars($product['name']) ?></h3>
+                                                <p class="text-gray-600 text-sm mb-4 line-clamp-2"><?= htmlspecialchars(truncate($product['description'] ?? '', 100)) ?></p>
+                                            </div>
+
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex flex-col">
+                                                    <?php if ($is_promo): ?>
+                                                        <span class="text-2xl font-extrabold text-red-600"><?= number_format($product['price_promo']) ?> HTG</span>
+                                                        <span class="text-sm text-gray-500 line-through"><?= number_format($product['price']) ?> HTG</span>
+                                                    <?php else: ?>
+                                                        <span class="text-2xl font-extrabold text-gray-900"><?= number_format($product['price']) ?> HTG</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <button onclick="addToFavorites(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center transition-all duration-200 hover:bg-blue-600 hover:text-white" title="Ajoute nan favori">
+                                                        <i class="fas fa-heart"></i>
+                                                    </button>
+                                                    <button onclick="quickView(<?= $product['id'] ?>)" class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center transition-all duration-200 hover:bg-blue-600 hover:text-white" title="Gade rapid">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button onclick="addToCart(<?= $product['id'] ?>, this)" class="bg-blue-600 text-white border-0 px-5 py-2 rounded-xl font-semibold flex items-center gap-2 transition-all duration-200 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                                                        <i class="fas fa-cart-plus mr-1"></i> Ajoute
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         <?php endif; ?>
 
                         <!-- Pagination -->
                         <?php if ($total_pages > 1): ?>
                             <div class="mt-8 flex items-center justify-center gap-2 flex-wrap">
-                                <?php 
+                                <?php
                                 $base_url = '?';
-                                if ($selected_category !== 'All') $base_url .= 'category='.urlencode($selected_category).'&';
-                                if ($search_query) $base_url .= 'search='.urlencode($search_query).'&';
-                                if ($sort_by !== 'featured') $base_url .= 'sort='.$sort_by.'&';
-                                if ($view_mode !== 'grid') $base_url .= 'view='.$view_mode.'&';
+                                if ($selected_category !== 'All') $base_url .= 'category=' . urlencode($selected_category) . '&';
+                                if ($search_query) $base_url .= 'search=' . urlencode($search_query) . '&';
+                                if ($sort_by !== 'featured') $base_url .= 'sort=' . $sort_by . '&';
+                                if ($view_mode !== 'grid') $base_url .= 'view=' . $view_mode . '&';
                                 ?>
 
-                                <a href="<?= $base_url ?>page=<?= max(1, $page - 1) ?>" 
-                                   class="px-4 py-2 border border-gray-300 rounded-lg transition-all duration-200 text-gray-700 bg-white hover:bg-gray-100 <?= $page === 1 ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' ?>">
+                                <a href="<?= $base_url ?>page=<?= max(1, $page - 1) ?>"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg transition-all duration-200 text-gray-700 bg-white hover:bg-gray-100 <?= $page === 1 ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' ?>">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
-                                
-                                <?php 
+
+                                <?php
                                 $start_page = max(1, $page - 2);
                                 $end_page = min($total_pages, $page + 2);
-                                
+
                                 if ($start_page > 1): ?>
                                     <a href="<?= $base_url ?>page=1" class="px-4 py-2 border border-gray-300 rounded-lg transition-all duration-200 text-gray-700 bg-white hover:bg-gray-100">1</a>
                                     <?php if ($start_page > 2): ?>
@@ -1531,9 +1628,9 @@ $hero_videos = [
                                     <?php endif; ?>
                                     <a href="<?= $base_url ?>page=<?= $total_pages ?>" class="px-4 py-2 border border-gray-300 rounded-lg transition-all duration-200 text-gray-700 bg-white hover:bg-gray-100"><?= $total_pages ?></a>
                                 <?php endif; ?>
-                                
-                                <a href="<?= $base_url ?>page=<?= min($total_pages, $page + 1) ?>" 
-                                   class="px-4 py-2 border border-gray-300 rounded-lg transition-all duration-200 text-gray-700 bg-white hover:bg-gray-100 <?= $page === $total_pages ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' ?>">
+
+                                <a href="<?= $base_url ?>page=<?= min($total_pages, $page + 1) ?>"
+                                    class="px-4 py-2 border border-gray-300 rounded-lg transition-all duration-200 text-gray-700 bg-white hover:bg-gray-100 <?= $page === $total_pages ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' ?>">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </div>
@@ -1718,17 +1815,17 @@ $hero_videos = [
                 slide.classList.remove('active');
                 pauseVideo(i);
             });
-            
+
             // Retire klas active nan tout dots
             dots.forEach(dot => dot.classList.remove('active'));
-            
+
             // Ajoute klas active nan slide ak dot ki koresponn
             slides[index].classList.add('active');
             dots[index].classList.add('active');
-            
+
             // Jwe videyo a
             playVideo(index);
-            
+
             // Reyajiste progress bar
             resetProgressBar();
         }
@@ -1758,7 +1855,7 @@ $hero_videos = [
         function resetProgressBar() {
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
-            
+
             setTimeout(() => {
                 progressBar.style.transition = `width ${slideDuration}ms linear`;
                 progressBar.style.width = '100%';
@@ -1769,10 +1866,10 @@ $hero_videos = [
         function initCarousel() {
             // Jwe premye videyo a
             playVideo(0);
-            
+
             // Kòmanse progress bar
             resetProgressBar();
-            
+
             // Kòmanse entèval pou chanjman otomatik
             slideInterval = setInterval(nextSlide, slideDuration);
         }
@@ -1799,7 +1896,7 @@ $hero_videos = [
         function toggleFilters() {
             const mobileFilters = document.getElementById('mobileFilters');
             const isHidden = mobileFilters.classList.contains('hidden');
-            
+
             if (isHidden) {
                 mobileFilters.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
@@ -1846,7 +1943,7 @@ $hero_videos = [
                         const oldCount = parseInt(badge.textContent) || 0;
                         const newCount = data.count || 0;
                         badge.textContent = newCount;
-                        
+
                         if (newCount !== oldCount && oldCount !== 0) {
                             badge.classList.add('badge-bounce');
                             setTimeout(() => badge.classList.remove('badge-bounce'), 500);
@@ -1865,62 +1962,62 @@ $hero_videos = [
             }
 
             fetch('panier/add_to_cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'product_id=' + productId + '&qty=1'
-            })
-            .then(response => response.text())
-            .then(text => {
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    throw new Error('Repons pa valide');
-                }
-            })
-            .then(data => {
-                if (data.success) {
-                    updateCartBadge();
-                    showNotification('Pwodwi ajoute nan panier!', 'success');
-                } else {
-                    showNotification(data.message || 'Erè, eseye ankò.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Erè: ' + error.message, 'error');
-            })
-            .finally(() => {
-                if (buttonElement) {
-                    setTimeout(() => {
-                        buttonElement.disabled = false;
-                        buttonElement.innerHTML = '<i class="fas fa-cart-plus"></i>';
-                    }, 500);
-                }
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'product_id=' + productId + '&qty=1'
+                })
+                .then(response => response.text())
+                .then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('Repons pa valide');
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        updateCartBadge();
+                        showNotification('Pwodwi ajoute nan panier!', 'success');
+                    } else {
+                        showNotification(data.message || 'Erè, eseye ankò.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Erè: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    if (buttonElement) {
+                        setTimeout(() => {
+                            buttonElement.disabled = false;
+                            buttonElement.innerHTML = '<i class="fas fa-cart-plus"></i>';
+                        }, 500);
+                    }
+                });
         }
 
         // Ajoute nan favori
         function addToFavorites(productId) {
             fetch('add_to_favorites.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'product_id=' + productId
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Ajoute nan favori!', 'success');
-                } else {
-                    showNotification(data.message || 'Ou dwe konekte anvan.', 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('Erè rezo, eseye ankò.', 'error');
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'product_id=' + productId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Ajoute nan favori!', 'success');
+                    } else {
+                        showNotification(data.message || 'Ou dwe konekte anvan.', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Erè rezo, eseye ankò.', 'error');
+                });
         }
 
         // Gade rapid
@@ -2006,4 +2103,5 @@ $hero_videos = [
         });
     </script>
 </body>
+
 </html>

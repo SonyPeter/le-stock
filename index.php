@@ -32,7 +32,7 @@ include 'includes/header.php';
 
         <!-- Boutons en colonne sur très petits écrans -->
         <div class="flex flex-col xs:flex-row gap-3 sm:gap-5 justify-center lg:justify-start w-full sm:w-auto px-4 sm:px-0">
-          <a href="boutik.php" class="group bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 sm:px-10 rounded-full transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap">
+          <a href="page/acceuil.php" class="group bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 sm:px-10 rounded-full transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap">
             Visiter
             <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
           </a>

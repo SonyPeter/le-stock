@@ -74,10 +74,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
                     <!-- Barre de recherche -->
                     <div class="hidden md:flex flex-1 max-w-lg mx-4">
-                        <form action="pages/recherche.php" method="GET" class="relative w-full group">
+                        <form action="page/acceuil.php" method="GET" class="relative w-full group">
                             <input type="text"
-                                name="q"
+                                name="search"
                                 placeholder="Rechercher un produit..."
+                                value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
                                 class="w-full pl-12 pr-24 py-2.5 rounded-full border-2 border-gray-200 focus:border-blue-600 focus:outline-none bg-gray-50 focus:bg-white transition shadow-sm focus:shadow-md">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition"></i>
                             <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full hover:bg-blue-700 transition text-sm font-medium">
@@ -103,8 +104,8 @@ if (session_status() === PHP_SESSION_NONE) {
                         <!-- Panier -->
                         <a href="page/panier/panier.php" class="p-2 hover:bg-gray-100 rounded-full transition relative group">
                             <i class="fas fa-shopping-cart text-xl text-gray-700 group-hover:text-blue-600 transition"></i>
-                            <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
-                                <?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>
+                            <span id="cart-count" class="cart-count absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+                                0
                             </span>
                         </a>
 
@@ -135,7 +136,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                         <a href="page/commandes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                             <i class="fas fa-box text-blue-600"></i>Mes commandes
                                         </a>
-                                        <a href="page/parametres.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                        <a href="page/profile.php/?tab=settings" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                             <i class="fas fa-cog text-blue-600"></i>Paramètres
                                         </a>
                                         <hr class="my-2 border-gray-100">
@@ -158,7 +159,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- Barre de recherche mobile -->
         <div id="mobile-search" class="hidden md:hidden border-t border-gray-100 px-4 py-3 bg-white">
-            <form action="pages/recherche.php" method="GET" class="relative flex gap-2">
+            <form action="page/acceuil.php" method="GET" class="relative flex gap-2">
                 <div class="relative flex-1">
                     <input type="text"
                         name="q"
@@ -222,13 +223,41 @@ if (session_status() === PHP_SESSION_NONE) {
             });
         }
 
-        // Fonction pour mettre à jour le compteur panier
-        function updateCartCount(count) {
+
+        // Fonksyon pou mete ajou kantite panier a
+        function updateCartCount() {
             const cartCount = document.getElementById('cart-count');
             if (cartCount) {
-                cartCount.textContent = count;
-                cartCount.classList.add('animate-bounce');
-                setTimeout(() => cartCount.classList.remove('animate-bounce'), 1000);
+                fetch('/le-stock/page/panier/get_cart_count.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        cartCount.textContent = data.count || 0;
+                        if (data.count > 0) {
+                            cartCount.classList.add('badge-bounce');
+                            setTimeout(() => cartCount.classList.remove('badge-bounce'), 500);
+                        }
+                    })
+                    .catch(error => console.error('Erè:', error));
             }
+        }
+
+        // Rele fonksyon an lè paj la chaje
+        document.addEventListener('DOMContentLoaded', updateCartCount);
+
+        // Fonksyon pou ajoute nan panier (si ou bezwen li nan header)
+        function addToCart(productId) {
+            fetch('/le-stock/page/panier/add_to_cart.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'product_id=' + productId + '&qty=1'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartCount();
+                    }
+                });
         }
     </script>

@@ -19,6 +19,108 @@ function imageExists($imageName)
     return file_exists($fullPath) && is_file($fullPath);
 }
 
+// REKIPERE pwodwi ki asosye ak hot deals yo pou panye a
+function getProductForDeal($deal, $pdo)
+{
+    // Eseye jwenn pwodwi a nan tab products la dapre non deal la
+    $stmt = $pdo->prepare("SELECT id FROM products WHERE name LIKE ? LIMIT 1");
+    $stmt->execute(['%' . $deal['titre'] . '%']);
+    $product = $stmt->fetch();
+
+    if ($product) {
+        return $product['id'];
+    }
+
+    // Si pa jwenn, kreye yon pwodwi tanporè oswa retounen ID espesyal
+    // Opsyon 2: Ajoute yon kolòn product_id nan tab hot_deals
+    return null;
+}
+
+// REKIPERE pwodwi ID si li egziste nan URL (pou lyen direk)
+$product_id_from_url = $_GET['product_id'] ?? null;
+
+// AJOUTE NAN PANYE - si fòm soumèt
+$cart_message = '';
+$cart_success = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
+    session_start();
+
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+        exit();
+    }
+
+    $user_id = $_SESSION['user_id'];
+    $deal_id = intval($_POST['deal_id']);
+    $quantity = intval($_POST['quantity'] ?? 1);
+
+    try {
+        // Jwenn enfòmasyon deal la
+        $stmt = $pdo->prepare("SELECT * FROM hot_deals WHERE id = ? AND en_stock = 1 AND (date_fin IS NULL OR date_fin > NOW())");
+        $stmt->execute([$deal_id]);
+        $deal = $stmt->fetch();
+
+        if (!$deal) {
+            $cart_message = 'Deal sa a pa disponib ankò!';
+        } else {
+            // Verifye si pwodwi a egziste nan tab products la
+            $stmt = $pdo->prepare("SELECT id, stock_qty FROM products WHERE name = ? LIMIT 1");
+            $stmt->execute([$deal['titre']]);
+            $product = $stmt->fetch();
+
+            $product_id = null;
+
+            if ($product) {
+                $product_id = $product['id'];
+            } else {
+                // Kreye pwodwi a nan tab products si li pa egziste
+                $stmt = $pdo->prepare("
+                    INSERT INTO products (name, description, price, price_promo, stock_qty, status, category_id, created_at) 
+                    VALUES (?, ?, ?, ?, ?, 'active', 1, NOW())
+                ");
+                $stmt->execute([
+                    $deal['titre'],
+                    $deal['description'],
+                    $deal['prix_original'],
+                    $deal['prix_deal'],
+                    $deal['quantite_limite'] ?? 100
+                ]);
+                $product_id = $pdo->lastInsertId();
+
+                // Ajoute imaj pwodwi a si genyen
+                if (!empty($deal['images'])) {
+                    $first_image = $deal['images'][0];
+                    $stmt = $pdo->prepare("UPDATE products SET image = ? WHERE id = ?");
+                    $stmt->execute([$first_image['image_name'], $product_id]);
+                }
+            }
+
+            // Verifye si pwodwi a deja nan panier
+            $stmt = $pdo->prepare("SELECT id, quantity FROM panier WHERE user_id = ? AND product_id = ?");
+            $stmt->execute([$user_id, $product_id]);
+            $existing = $stmt->fetch();
+
+            if ($existing) {
+                // Mete ajou kantite a
+                $new_qty = $existing['quantity'] + $quantity;
+                $stmt = $pdo->prepare("UPDATE panier SET quantity = ? WHERE id = ?");
+                $stmt->execute([$new_qty, $existing['id']]);
+            } else {
+                // Ajoute nouvo atik nan panier
+                $stmt = $pdo->prepare("INSERT INTO panier (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())");
+                $stmt->execute([$user_id, $product_id, $quantity]);
+            }
+
+            $cart_success = true;
+            $cart_message = 'Deal la ajoute nan panye ou a!';
+        }
+    } catch (PDOException $e) {
+        error_log("Erè ajoute nan panier: " . $e->getMessage());
+        $cart_message = 'Erè nan ajoute deal la. Eseye ankò.';
+    }
+}
+
 // Rekipere Hot Deals yo
 $hot_deals = [];
 try {
@@ -323,6 +425,76 @@ $showDebug = false; // Mete true pou debug
             color: #92400e;
         }
 
+        /* NOUVO: Styles pou mesaj panye a */
+        .cart-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .cart-notification.show {
+            transform: translateX(0);
+        }
+
+        .cart-notification.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .cart-notification.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .cart-notification a {
+            color: white;
+            text-decoration: underline;
+            margin-left: 8px;
+        }
+
+        /* NOUVO: Styles pou chwazi kantite */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .qty-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .qty-input {
+            width: 60px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 6px;
+        }
+
         @media (max-width: 768px) {
             .page-header h1 {
                 font-size: 32px;
@@ -340,6 +512,17 @@ $showDebug = false; // Mete true pou debug
 </head>
 
 <body>
+
+    <!-- NOUVO: Notifikasyon Panye -->
+    <?php if ($cart_message): ?>
+        <div id="cart-notification" class="cart-notification <?php echo $cart_success ? 'success' : 'error'; ?> show">
+            <i class="fas <?php echo $cart_success ? 'fa-check-circle' : 'fa-exclamation-circle'; ?> mr-2"></i>
+            <?php echo htmlspecialchars($cart_message); ?>
+            <?php if ($cart_success): ?>
+                <a href="panier/panier.php"><i class="fas fa-shopping-cart"></i> Wè Panye a</a>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="page-header">
         <h1>
@@ -382,12 +565,13 @@ $showDebug = false; // Mete true pou debug
                     $savings = $deal['prix_original'] - $deal['prix_deal'];
                     $image_count = count($deal['images']);
                     $expired = $deal['date_fin'] && strtotime($deal['date_fin']) < time();
+                    $out_of_stock = !$deal['en_stock'] || ($deal['quantite_limite'] !== null && $deal['quantite_limite'] <= 0);
                 ?>
-                    <div class="deal-card <?= $expired ? 'opacity-60' : '' ?>">
+                    <div class="deal-card <?= $expired ? 'opacity-60' : '' ?>" id="deal-<?= $deal['id'] ?>">
                         <div class="image-slider" id="slider-<?= $deal['id'] ?>">
                             <div class="discount-badge">-<?= $discount ?>%</div>
 
-                            <?php if (!$deal['en_stock']): ?>
+                            <?php if ($out_of_stock): ?>
                                 <div class="stock-badge out">Epuize</div>
                             <?php else: ?>
                                 <div class="stock-badge">An Stock</div>
@@ -461,9 +645,35 @@ $showDebug = false; // Mete true pou debug
                                 </div>
                             <?php endif; ?>
 
-                            <button class="w-full mt-6 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg" <?= $expired || !$deal['en_stock'] ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : '' ?>>
-                                <i class="fas fa-shopping-cart mr-2"></i> <?= $expired ? 'Ekspire' : ($deal['en_stock'] ? 'Achte Kounye a' : 'Epuize') ?>
-                            </button>
+                            <!-- NOUVO: Fòm pou ajoute nan panye a -->
+                            <?php if (!$expired && !$out_of_stock): ?>
+                                <form method="POST" action="" class="mt-6">
+                                    <input type="hidden" name="deal_id" value="<?= $deal['id'] ?>">
+                                    <input type="hidden" name="add_to_cart" value="1">
+
+                                    <!-- Chwazi kantite -->
+                                    <div class="quantity-selector">
+                                        <button type="button" class="qty-btn" onclick="changeQty(<?= $deal['id'] ?>, -1)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="quantity" id="qty-<?= $deal['id'] ?>" value="1" min="1"
+                                            max="<?= $deal['quantite_limite'] ?? 10 ?>" class="qty-input" readonly>
+                                        <button type="button" class="qty-btn" onclick="changeQty(<?= $deal['id'] ?>, 1)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+
+                                    <button type="submit" class="w-full py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <span>Achte Kounye a</span>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <button disabled class="w-full mt-6 py-4 bg-gray-400 text-white rounded-xl font-bold text-lg cursor-not-allowed opacity-50">
+                                    <i class="fas fa-times-circle mr-2"></i>
+                                    <?= $expired ? 'Ekspire' : 'Epuize' ?>
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -544,6 +754,26 @@ $showDebug = false; // Mete true pou debug
                 total: slider.querySelectorAll('.slide').length
             };
         });
+
+        // NOUVO: Fonksyon pou chanje kantite a
+        function changeQty(dealId, change) {
+            const input = document.getElementById('qty-' + dealId);
+            let newVal = parseInt(input.value) + change;
+            const max = parseInt(input.max) || 10;
+            const min = parseInt(input.min) || 1;
+
+            if (newVal >= min && newVal <= max) {
+                input.value = newVal;
+            }
+        }
+
+        // NOUVO: Kache notifikasyon apre 5 segond
+        setTimeout(() => {
+            const notif = document.getElementById('cart-notification');
+            if (notif) {
+                notif.classList.remove('show');
+            }
+        }, 5000);
     </script>
 
 </body>
