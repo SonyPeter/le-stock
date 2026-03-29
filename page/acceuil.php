@@ -94,7 +94,7 @@ function isPromo($product)
     return !empty($product['price_promo']) && $product['price_promo'] > 0 && $product['price_promo'] < $product['price'];
 }
 
-// Fonksyon pou kalkule pousantaj rabè
+// Fonksyon pou kalkile pousantaj rabè
 function getDiscountPercent($product)
 {
     if (isPromo($product)) {
@@ -156,7 +156,7 @@ $total_pages = ceil($total_products / $items_per_page);
 $start_index = ($page - 1) * $items_per_page;
 $current_products = array_slice($filtered_products, $start_index, $items_per_page);
 
-// Lis videyo pou karysel la - Ou ka modifye sa yo
+// Lis videyo pou karysel la
 $hero_videos = [
     [
         'src' => '\le-stock\assets\video\copy.mp4',
@@ -203,18 +203,15 @@ $hero_videos = [
 
         ::-webkit-scrollbar-track {
             background: #36dc9cff;
-            /* brick fonse */
         }
 
         ::-webkit-scrollbar-thumb {
             background: #c2410c;
-            /* brick mwayen */
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: #ea580c;
-            /* brick kle */
         }
 
         /* Logo container styles */
@@ -254,7 +251,6 @@ $hero_videos = [
             height: 400px;
             overflow: hidden;
             background-color: #44f1e8ff;
-            /* brick tre fonse */
         }
 
         @media (min-width: 768px) {
@@ -324,20 +320,17 @@ $hero_videos = [
             }
         }
 
-        /* GLASSMORPHISM STYLES POU TÈKS YO - AMELYORE POU LIZIBITE */
+        /* GLASSMORPHISM STYLES POU TÈKS YO */
         .glass-title {
             font-size: 2.5rem;
             font-weight: 800;
             margin-bottom: 1rem;
-            /* Glassmorphism effect pi fò */
             background: rgba(52, 213, 227, 0.34);
-            /* brick fonse transparent */
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 16px;
             padding: 1rem 2rem;
             border: 1px solid rgba(52, 213, 227, 0.34);
-            /* orange kle */
             box-shadow: 0 8px 32px rgba(52, 213, 227, 0.34);
             display: inline-block;
             color: #ffffff;
@@ -361,16 +354,13 @@ $hero_videos = [
         .glass-subtitle {
             font-size: 1.25rem;
             margin-bottom: 0.75rem;
-            /* Glassmorphism effect pi fò */
             background: rgba(191, 231, 14, 0.34);
-            /* brick fonse transparent */
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 0.75rem 1.5rem;
             border: 1px solid rgba(191, 231, 14, 0.34);
-            /* orange kle */
-            box-shadow: 0 6px 24pxrgba(191, 231, 14, 0.34));
+            box-shadow: 0 6px 24px rgba(191, 231, 14, 0.34);
             display: inline-block;
             color: #ffffff;
             font-weight: 500;
@@ -379,19 +369,15 @@ $hero_videos = [
 
         .glass-caption {
             font-size: 1rem;
-            /* Glassmorphism effect pi fò */
             background: rgba(236, 71, 181, 0.4);
-            /* brick fonse transparent */
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-radius: 10px;
             padding: 0.5rem 1.25rem;
             border: 1px solid rgba(236, 71, 181, 0.4);
-            /* orange kle */
             box-shadow: 0 4px 20px rgba(236, 71, 181, 0.4);
             display: inline-block;
             color: #ffedd5;
-            /* orange tre kle */
             font-weight: 400;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
@@ -412,7 +398,6 @@ $hero_videos = [
             height: 12px;
             border-radius: 50%;
             background-color: rgba(255, 237, 213, 0.4);
-            /* orange tre kle */
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
@@ -425,7 +410,6 @@ $hero_videos = [
 
         .carousel-dot.active {
             background-color: #ea580c;
-            /* orange kle */
             border-color: #ffedd5;
             transform: scale(1.2);
         }
@@ -438,15 +422,12 @@ $hero_videos = [
             width: 50px;
             height: 50px;
             background-color: rgba(124, 45, 18, 0.8);
-            /* brick fonse */
             border: 2px solid rgba(251, 146, 60, 0.4);
-            /* orange kle */
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffedd5;
-            /* orange tre kle */
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 10;
@@ -455,9 +436,7 @@ $hero_videos = [
 
         .carousel-arrow:hover {
             background-color: rgba(194, 65, 12, 0.9);
-            /* brick mwayen */
             border-color: #fb923c;
-            /* orange kle */
             transform: translateY(-50%) scale(1.1);
         }
 
@@ -492,7 +471,6 @@ $hero_videos = [
             left: 0;
             height: 4px;
             background-color: #ea580c;
-            /* orange kle */
             transition: width 0.1s linear;
             z-index: 10;
         }
@@ -564,12 +542,10 @@ $hero_videos = [
         .products-section-beige .product-card:hover {
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             border-color: #ea580c;
-            /* orange kle */
         }
 
         .products-section-beige .text-blue-400 {
             color: #c2410c !important;
-            /* brick */
         }
 
         .products-section-beige .text-red-400 {
@@ -596,12 +572,10 @@ $hero_videos = [
 
         .products-section-beige .bg-primary {
             background-color: #c2410c !important;
-            /* brick */
         }
 
         .products-section-beige .bg-primary:hover {
             background-color: #9a3412 !important;
-            /* brick fonse */
         }
 
         /* Sidebar sticky nan beige section */
@@ -613,25 +587,21 @@ $hero_videos = [
         /* NOUVO HEADER STYLE - FLAMME PAL (BRICK/TERACOTTA) */
         .main-header {
             background: linear-gradient(135deg, #c14802ff 0%, #c14802ff, #c14802ff);
-            /* brick fonse -> brick kle */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .main-header a {
             color: #ffffffff;
-            /* orange tre kle */
             font-weight: 500;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .main-header a:hover {
             color: #ffffffff;
-            /* orange kle */
         }
 
         .main-header .nav-link {
             color: #ffac91ff;
-            /* orange mwayen */
             transition: all 0.3s ease;
             position: relative;
         }
@@ -642,7 +612,6 @@ $hero_videos = [
 
         .main-header .nav-link.active {
             color: #9a3412;
-            /* orange kle */
             font-weight: 600;
         }
 
@@ -654,7 +623,6 @@ $hero_videos = [
             width: 0;
             height: 2px;
             background-color: #9a3412;
-            /* orange kle */
             transition: width 0.3s ease;
         }
 
@@ -665,7 +633,6 @@ $hero_videos = [
         .main-header button,
         .main-header .icon-btn {
             color: #fed7aa;
-            /* orange mwayen */
             transition: all 0.3s ease;
         }
 
@@ -673,12 +640,10 @@ $hero_videos = [
         .main-header .icon-btn:hover {
             color: #ffffff;
             background-color: rgba(251, 146, 60, 0.2);
-            /* orange kle transparent */
         }
 
         .main-header .cart-badge {
             background-color: #ea580c;
-            /* orange kle */
             color: white;
             font-weight: 700;
         }
@@ -686,19 +651,15 @@ $hero_videos = [
         /* NOUVO FOOTER STYLE - FLAMME PAL (BRICK/TERACOTTA) */
         .main-footer-new {
             background: linear-gradient(135deg, #431407 0%, #7c2d12 50%, #9a3412 100%);
-            /* brick tre fonse -> brick fonse -> brick mwayen */
             color: #fed7aa;
-            /* orange mwayen */
             padding: 4rem 0 2rem;
             border-top: 4px solid #ea580c;
-            /* orange kle */
         }
 
         .main-footer-new .footer-logo-icon {
             width: 50px;
             height: 50px;
             background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
-            /* orange kle */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -733,20 +694,17 @@ $hero_videos = [
             width: 40px;
             height: 3px;
             background: linear-gradient(90deg, #fb923c, #ea580c);
-            /* orange */
             border-radius: 2px;
         }
 
         .main-footer-new p,
         .main-footer-new .footer-description {
             color: #fdba74;
-            /* orange kle */
             line-height: 1.7;
         }
 
         .main-footer-new .footer-links a {
             color: #fdba74;
-            /* orange kle */
             text-decoration: none;
             font-size: 0.95rem;
             transition: all 0.3s ease;
@@ -761,7 +719,6 @@ $hero_videos = [
 
         .main-footer-new .contact-info li {
             color: #fdba74;
-            /* orange kle */
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
@@ -770,7 +727,6 @@ $hero_videos = [
 
         .main-footer-new .contact-info i {
             color: #fb923c;
-            /* orange kle */
             margin-top: 0.25rem;
             font-size: 1.1rem;
         }
@@ -779,9 +735,7 @@ $hero_videos = [
             width: 42px;
             height: 42px;
             background: rgba(251, 146, 60, 0.15);
-            /* orange kle transparent */
             border: 2px solid rgba(251, 146, 60, 0.3);
-            /* orange kle */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -794,17 +748,13 @@ $hero_videos = [
 
         .main-footer-new .social-links a:hover {
             background: #ea580c;
-            /* orange kle */
             border-color: #fb923c;
-            /* orange kle */
             transform: translateY(-3px);
             box-shadow: 0 4px 12px rgba(234, 88, 12, 0.4);
-            /* orange shadow */
         }
 
         .main-footer-new .footer-bottom {
             border-top: 1px solid rgba(251, 146, 60, 0.2);
-            /* orange kle transparent */
             margin-top: 3rem;
             padding-top: 2rem;
             display: flex;
@@ -822,17 +772,13 @@ $hero_videos = [
 
         .main-footer-new .copyright {
             color: #fb923c;
-            /* orange kle */
             font-size: 0.9rem;
         }
 
         .main-footer-new .footer-selector {
             background: rgba(251, 146, 60, 0.15);
-            /* orange kle transparent */
             color: #fed7aa;
-            /* orange mwayen */
             border: 1px solid rgba(251, 146, 60, 0.3);
-            /* orange kle */
             padding: 0.5rem 1rem;
             border-radius: 6px;
             font-size: 0.875rem;
@@ -845,17 +791,14 @@ $hero_videos = [
 
         .main-footer-new .footer-selector:hover {
             background: rgba(251, 146, 60, 0.25);
-            /* orange kle transparent */
             color: #ffffff;
         }
 
         /* Features section FLAMME PAL */
         .features-section-new {
             background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%);
-            /* brick fonse -> brick */
             padding: 3rem 0;
             border-bottom: 1px solid rgba(251, 146, 60, 0.2);
-            /* orange kle transparent */
         }
 
         .features-section-new .feature-card {
@@ -873,21 +816,18 @@ $hero_videos = [
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
             border-color: #ea580c;
-            /* orange kle */
         }
 
         .features-section-new .feature-icon {
             width: 56px;
             height: 56px;
             background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-            /* orange -> brick */
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4);
-            /* orange shadow */
         }
 
         .features-section-new .feature-icon i {
@@ -897,7 +837,6 @@ $hero_videos = [
 
         .features-section-new .feature-content h3 {
             color: #7c2d12;
-            /* brick fonse */
             font-weight: 700;
             font-size: 1.1rem;
             margin-bottom: 0.25rem;
@@ -999,112 +938,82 @@ $hero_videos = [
 
         .border-slate-700 {
             border-color: #fed7aa !important;
-            /* orange mwayen */
         }
 
         .bg-slate-900 {
             background-color: #fff7ed !important;
-            /* orange tre tre kle */
         }
 
         .text-gray-100 {
             color: #431407 !important;
-            /* brick tre fonse */
         }
 
         .placeholder-gray-500::placeholder {
             color: #9a3412;
-            /* brick */
         }
 
         .focus\:ring-blue-500:focus {
             --tw-ring-color: #ea580c !important;
-            /* orange kle */
         }
 
         .bg-primary {
             background-color: #c2410c !important;
-            /* brick */
         }
 
         .bg-primary:hover {
             background-color: #9a3412 !important;
-            /* brick fonse */
         }
 
         .bg-slate-700 {
             background-color: #ffedd5 !important;
-            /* orange tre kle */
             color: #7c2d12 !important;
-            /* brick fonse */
         }
 
         .bg-slate-700:hover {
             background-color: #fed7aa !important;
-            /* orange mwayen */
         }
 
         /* Pagination FLAMME PAL */
         .hover\:bg-gray-100:hover {
             background-color: #fff7ed !important;
-            /* orange tre tre kle */
         }
 
         .bg-blue-600 {
             background-color: #c2410c !important;
-            /* brick */
         }
 
         .border-blue-600 {
             border-color: #c2410c !important;
-            /* brick */
         }
 
         .hover\:bg-blue-700:hover {
             background-color: #9a3412 !important;
-            /* brick fonse */
         }
 
         /* Quick View Modal FLAMME PAL */
         #quickViewModal {
             background-color: rgba(67, 20, 7, 0.8) !important;
-            /* brick tre fonse transparent */
         }
 
         .text-blue-600 {
             color: #c2410c !important;
-            /* brick */
         }
 
         .hover\:text-blue-800:hover {
             color: #7c2d12 !important;
-            /* brick fonse */
-        }
-
-        .bg-blue-600 {
-            background-color: #c2410c !important;
-            /* brick */
-        }
-
-        .hover\:bg-blue-700:hover {
-            background-color: #9a3412 !important;
-            /* brick fonse */
         }
 
         /* Notification FLAMME PAL */
         .bg-emerald-100 {
             background-color: #fff7ed !important;
-            /* orange tre tre kle */
         }
 
         .text-emerald-800 {
             color: #9a3412 !important;
-            /* brick */
         }
 
         .border-emerald-300 {
             border-color: #fb923c !important;
-            /* orange kle */
         }
 
         /* Mobile filters FLAMME PAL */
@@ -1114,32 +1023,26 @@ $hero_videos = [
 
         #mobileFilters .border-gray-200 {
             border-color: #fed7aa !important;
-            /* orange mwayen */
         }
 
         #mobileFilters .text-gray-800 {
             color: #431407 !important;
-            /* brick tre fonse */
         }
 
         #mobileFilters .hover\:bg-gray-100:hover {
             background-color: #fff7ed !important;
-            /* orange tre tre kle */
         }
 
         #mobileFilters .bg-blue-600 {
             background-color: #c2410c !important;
-            /* brick */
         }
 
         #mobileFilters .text-gray-600 {
             color: #7c2d12 !important;
-            /* brick fonse */
         }
 
         #mobileFilters .hover\:text-gray-600:hover {
             color: #9a3412 !important;
-            /* brick */
         }
     </style>
 </head>
@@ -1151,7 +1054,6 @@ $hero_videos = [
             <div class="flex items-center justify-between h-20 sm:h-24 lg:h-28">
                 <!-- Logo - GWO E RESPONSIVE -->
                 <a href="accueil.php" class="logo-container flex-shrink-0">
-                    <!-- Ranplase src la ak logo antrepriz ou a -->
                     <img src="\le-stock\assets\img\le stock entreprise copy2.png"
                         alt="Logo Antrepriz"
                         class="logo-image"
@@ -1169,12 +1071,6 @@ $hero_videos = [
 
                 <!-- Icons -->
                 <div class="flex items-center gap-2 md:gap-4">
-                    <!-- <button onclick="focusSearch()" class="icon-btn p-2 rounded-full transition-colors" title="Chache">
-                        <i class="fas fa-search text-lg"></i>
-                    </button>
-                    <a href="favoris.php" class="icon-btn p-2 rounded-full transition-colors relative" title="Favori">
-                        <i class="fas fa-heart text-lg"></i>
-                    </a> -->
                     <a href="panier/Panier.php" class="icon-btn p-2 rounded-full transition-colors relative" title="Panier">
                         <i class="fas fa-shopping-cart text-lg"></i>
                         <span id="cart-badge" class="cart-badge absolute -top-1 -right-1 text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
@@ -1299,45 +1195,6 @@ $hero_videos = [
                                     <button onclick="setPriceRange(10000, 999999)" class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= ($price_min == 10000) ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">Pi wo 10,000 HTG</button>
                                 </div>
                             </div>
-
-                            <!-- Color Filter -->
-                            <?php if ($has_color && !empty($all_colors)): ?>
-                                <div>
-                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Koulè</h3>
-                                    <select onchange="updateFilter('color', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                        <option value="All" <?= $selected_color === 'All' ? 'selected' : '' ?>>Tout Koulè</option>
-                                        <?php foreach ($all_colors as $color): ?>
-                                            <option value="<?= htmlspecialchars($color) ?>" <?= $selected_color === $color ? 'selected' : '' ?>><?= htmlspecialchars($color) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
-
-                            <!-- Size Filter -->
-                            <?php if ($has_size && !empty($all_sizes)): ?>
-                                <div>
-                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Tail</h3>
-                                    <select onchange="updateFilter('size', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                        <option value="All" <?= $selected_size === 'All' ? 'selected' : '' ?>>Tout Tail</option>
-                                        <?php foreach ($all_sizes as $size): ?>
-                                            <option value="<?= htmlspecialchars($size) ?>" <?= $selected_size === $size ? 'selected' : '' ?>><?= htmlspecialchars($size) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
-
-                            <!-- Brand Filter -->
-                            <?php if ($has_brand && !empty($all_brands)): ?>
-                                <div>
-                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Mak</h3>
-                                    <select onchange="updateFilter('brand', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                        <option value="All" <?= $selected_brand === 'All' ? 'selected' : '' ?>>Tout Mak</option>
-                                        <?php foreach ($all_brands as $brand): ?>
-                                            <option value="<?= htmlspecialchars($brand) ?>" <?= $selected_brand === $brand ? 'selected' : '' ?>><?= htmlspecialchars($brand) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </aside>
@@ -1381,45 +1238,6 @@ $hero_videos = [
                                     <button onclick="setPriceRange(10000, 999999)" class="w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 <?= ($price_min == 10000) ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' ?>">Pi wo 10,000 HTG</button>
                                 </div>
                             </div>
-
-                            <!-- Color Filter Mobile -->
-                            <?php if ($has_color && !empty($all_colors)): ?>
-                                <div>
-                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Koulè</h3>
-                                    <select onchange="updateFilter('color', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                        <option value="All" <?= $selected_color === 'All' ? 'selected' : '' ?>>Tout Koulè</option>
-                                        <?php foreach ($all_colors as $color): ?>
-                                            <option value="<?= htmlspecialchars($color) ?>" <?= $selected_color === $color ? 'selected' : '' ?>><?= htmlspecialchars($color) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
-
-                            <!-- Size Filter Mobile -->
-                            <?php if ($has_size && !empty($all_sizes)): ?>
-                                <div>
-                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Tail</h3>
-                                    <select onchange="updateFilter('size', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                        <option value="All" <?= $selected_size === 'All' ? 'selected' : '' ?>>Tout Tail</option>
-                                        <?php foreach ($all_sizes as $size): ?>
-                                            <option value="<?= htmlspecialchars($size) ?>" <?= $selected_size === $size ? 'selected' : '' ?>><?= htmlspecialchars($size) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
-
-                            <!-- Brand Filter Mobile -->
-                            <?php if ($has_brand && !empty($all_brands)): ?>
-                                <div>
-                                    <h3 class="text-sm font-semibold mb-3 uppercase tracking-wide text-gray-600">Mak</h3>
-                                    <select onchange="updateFilter('brand', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white text-gray-800">
-                                        <option value="All" <?= $selected_brand === 'All' ? 'selected' : '' ?>>Tout Mak</option>
-                                        <?php foreach ($all_brands as $brand): ?>
-                                            <option value="<?= htmlspecialchars($brand) ?>" <?= $selected_brand === $brand ? 'selected' : '' ?>><?= htmlspecialchars($brand) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -1478,11 +1296,14 @@ $hero_videos = [
                                     <div class="product-card bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative border border-gray-200 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-500 group">
                                         <!-- Image -->
                                         <div class="h-56 relative overflow-hidden bg-gray-100">
-                                            <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>"
-                                                alt="<?= htmlspecialchars($product['name']) ?>"
-                                                loading="lazy"
-                                                onerror="this.src='../assets/img/placeholder.png'"
-                                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                            <!-- KOREKSYON: Ajoute Link sou Foto -->
+                                            <a href="product-view.php?id=<?= $product['id'] ?>" class="block w-full h-full">
+                                                <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>"
+                                                    alt="<?= htmlspecialchars($product['name']) ?>"
+                                                    loading="lazy"
+                                                    onerror="this.src='../assets/img/placeholder.png'"
+                                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                            </a>
 
                                             <!-- Badges -->
                                             <?php if ($is_promo): ?>
@@ -1509,7 +1330,12 @@ $hero_videos = [
                                         <!-- Info -->
                                         <div class="p-5">
                                             <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2"><?= htmlspecialchars($product['category_name']) ?></div>
-                                            <h3 class="text-base font-bold text-gray-900 mb-3 leading-snug line-clamp-2" style="height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><?= htmlspecialchars(truncate($product['name'], 40)) ?></h3>
+
+                                            <!-- KOREKSYON: Ajoute Link sou Tit -->
+                                            <a href="product-view.php?id=<?= $product['id'] ?>" class="hover:text-blue-600 transition-colors">
+                                                <h3 class="text-base font-bold text-gray-900 mb-3 leading-snug line-clamp-2" style="height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><?= htmlspecialchars(truncate($product['name'], 40)) ?></h3>
+                                            </a>
+
                                             <div class="flex justify-between items-center">
                                                 <div class="flex flex-col">
                                                     <?php if ($is_promo): ?>
@@ -1536,11 +1362,14 @@ $hero_videos = [
                                     <div class="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative border border-gray-200 hover:border-blue-500 flex flex-col sm:flex-row">
                                         <!-- Image -->
                                         <div class="w-full sm:w-48 h-48 sm:h-auto relative overflow-hidden bg-gray-100 flex-shrink-0">
-                                            <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>"
-                                                alt="<?= htmlspecialchars($product['name']) ?>"
-                                                loading="lazy"
-                                                onerror="this.src='../assets/img/placeholder.png'"
-                                                class="w-full h-full object-cover">
+                                            <!-- KOREKSYON: Ajoute Link sou Foto -->
+                                            <a href="product-view.php?id=<?= $product['id'] ?>" class="block w-full h-full">
+                                                <img src="../uploads/products/<?= htmlspecialchars($product['image'] ?? 'placeholder.png') ?>"
+                                                    alt="<?= htmlspecialchars($product['name']) ?>"
+                                                    loading="lazy"
+                                                    onerror="this.src='../assets/img/placeholder.png'"
+                                                    class="w-full h-full object-cover">
+                                            </a>
 
                                             <!-- Badges -->
                                             <?php if ($is_promo): ?>
@@ -1558,7 +1387,12 @@ $hero_videos = [
                                         <div class="p-5 flex-1 flex flex-col justify-between">
                                             <div>
                                                 <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2"><?= htmlspecialchars($product['category_name']) ?></div>
-                                                <h3 class="text-lg font-bold text-gray-900 mb-2"><?= htmlspecialchars($product['name']) ?></h3>
+
+                                                <!-- KOREKSYON: Ajoute Link sou Tit -->
+                                                <a href="product-view.php?id=<?= $product['id'] ?>" class="hover:text-blue-600 transition-colors">
+                                                    <h3 class="text-lg font-bold text-gray-900 mb-2"><?= htmlspecialchars($product['name']) ?></h3>
+                                                </a>
+
                                                 <p class="text-gray-600 text-sm mb-4 line-clamp-2"><?= htmlspecialchars(truncate($product['description'] ?? '', 100)) ?></p>
                                             </div>
 
@@ -1788,10 +1622,9 @@ $hero_videos = [
         const progressBar = document.getElementById('progressBar');
         const totalSlides = slides.length;
         let slideInterval;
-        const slideDuration = 6000; // 6 segond pou chak videyo
+        const slideDuration = 6000;
         let progressInterval;
 
-        // Fonksyon pou kòmanse videyo a
         function playVideo(index) {
             const video = slides[index].querySelector('video');
             if (video) {
@@ -1800,7 +1633,6 @@ $hero_videos = [
             }
         }
 
-        // Fonksyon pou kanpe videyo a
         function pauseVideo(index) {
             const video = slides[index].querySelector('video');
             if (video) {
@@ -1808,50 +1640,39 @@ $hero_videos = [
             }
         }
 
-        // Fonksyon pou montre yon slide espesifik
         function showSlide(index) {
-            // Retire klas active nan tout slides
             slides.forEach((slide, i) => {
                 slide.classList.remove('active');
                 pauseVideo(i);
             });
 
-            // Retire klas active nan tout dots
             dots.forEach(dot => dot.classList.remove('active'));
 
-            // Ajoute klas active nan slide ak dot ki koresponn
             slides[index].classList.add('active');
             dots[index].classList.add('active');
 
-            // Jwe videyo a
             playVideo(index);
 
-            // Reyajiste progress bar
             resetProgressBar();
         }
 
-        // Fonksyon pou slide pwochen
         function nextSlide() {
             currentSlide = (currentSlide + 1) % totalSlides;
             showSlide(currentSlide);
         }
 
-        // Fonksyon pou slide anvan
         function prevSlide() {
             currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
             showSlide(currentSlide);
         }
 
-        // Fonksyon pou ale nan yon slide espesifik
         function goToSlide(index) {
             currentSlide = index;
             showSlide(currentSlide);
-            // Reyajiste entèval la
             clearInterval(slideInterval);
             slideInterval = setInterval(nextSlide, slideDuration);
         }
 
-        // Progress bar animation
         function resetProgressBar() {
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
@@ -1862,19 +1683,12 @@ $hero_videos = [
             }, 50);
         }
 
-        // Kòmanse karysel la
         function initCarousel() {
-            // Jwe premye videyo a
             playVideo(0);
-
-            // Kòmanse progress bar
             resetProgressBar();
-
-            // Kòmanse entèval pou chanjman otomatik
             slideInterval = setInterval(nextSlide, slideDuration);
         }
 
-        // Kanpe karysel la lè moun an nan paj la (pou ekonomize resous)
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 clearInterval(slideInterval);
@@ -1886,13 +1700,11 @@ $hero_videos = [
             }
         });
 
-        // Lè paj la fin chaje
         document.addEventListener('DOMContentLoaded', function() {
             initCarousel();
             updateCartBadge();
         });
 
-        // Fonksyon pou montre/kache filtè yo (mobile)
         function toggleFilters() {
             const mobileFilters = document.getElementById('mobileFilters');
             const isHidden = mobileFilters.classList.contains('hidden');
@@ -1906,19 +1718,16 @@ $hero_videos = [
             }
         }
 
-        // Fonksyon pou mete focus sou rechèch
         function focusSearch() {
             document.getElementById('searchInput').focus();
         }
 
-        // Fonksyon pou chanje view mode
         function setViewMode(mode) {
             const url = new URL(window.location.href);
             url.searchParams.set('view', mode);
             window.location.href = url.toString();
         }
 
-        // Fonksyon pou mete paj pri
         function setPriceRange(min, max) {
             const url = new URL(window.location.href);
             url.searchParams.set('price_min', min);
@@ -1926,14 +1735,12 @@ $hero_videos = [
             window.location.href = url.toString();
         }
 
-        // Fonksyon pou mete ajou filtè
         function updateFilter(type, value) {
             const url = new URL(window.location.href);
             url.searchParams.set(type, value);
             window.location.href = url.toString();
         }
 
-        // Chaje kantite panier a
         function updateCartBadge() {
             fetch('panier/get_cart_count.php')
                 .then(response => response.json())
@@ -1953,7 +1760,6 @@ $hero_videos = [
                 .catch(error => console.error('Erè:', error));
         }
 
-        // Ajoute nan panier
         function addToCart(productId, buttonElement) {
             if (buttonElement) {
                 buttonElement.disabled = true;
@@ -1998,7 +1804,6 @@ $hero_videos = [
                 });
         }
 
-        // Ajoute nan favori
         function addToFavorites(productId) {
             fetch('add_to_favorites.php', {
                     method: 'POST',
@@ -2020,7 +1825,6 @@ $hero_videos = [
                 });
         }
 
-        // Gade rapid
         function quickView(productId) {
             const modal = document.getElementById('quickViewModal');
             const content = document.getElementById('quickViewContent');
@@ -2076,7 +1880,6 @@ $hero_videos = [
             }
         }
 
-        // Notifikasyon
         function showNotification(message, type) {
             const existingNotif = document.querySelector('.notification');
             if (existingNotif) existingNotif.remove();
@@ -2094,7 +1897,6 @@ $hero_videos = [
             }, 3000);
         }
 
-        // Gere chanjman gwosè ekran
         window.addEventListener('resize', function() {
             if (window.innerWidth >= 1024) {
                 document.getElementById('mobileFilters').classList.add('hidden');

@@ -119,7 +119,7 @@ $rejectedOrders = [];
 $cancelledOrders = [];
 $allOrders = [];
 
-// Fonksyon pou koreje chemen imaj la
+// ============ KOREKSYON: Fonksyon pou koreje chemen imaj la ============
 function getImageUrl($receiptPath)
 {
     if (empty($receiptPath)) return '';
@@ -130,9 +130,13 @@ function getImageUrl($receiptPath)
     }
 
     // Si chemen an gen ../../, ranplase l ak chemen absoli relatif nan root sit la
-    // ../../uploads/payments/fichye.jpg → /le-stock/uploads/payments/fichye.jpg
     if (strpos($receiptPath, '../../') === 0) {
         return str_replace('../../', '/le-stock/', $receiptPath);
+    }
+
+    // Si chemen an gen ../, ranplase l
+    if (strpos($receiptPath, '../') === 0) {
+        return str_replace('../', '/le-stock/', $receiptPath);
     }
 
     // Si chemen an kòmanse ak uploads/, ajoute /le-stock/ devan l
@@ -150,7 +154,7 @@ function getImageUrl($receiptPath)
 }
 
 try {
-    // REQUÊT KOREJE - ak tout kolon wallet yo ki korek
+    // ============ KOREKSYON: Requète ki pran tout kolon ki nesesè yo ============
     $stmt = $pdo->query("
         SELECT 
             o.*,
@@ -271,7 +275,6 @@ function formatPrice($price)
     return number_format($price, 2) . ' HTG';
 }
 
-// Fonksyon pou jwenn non bèl pou metòd peman
 function getPaymentMethodName($method)
 {
     switch ($method) {
@@ -451,7 +454,6 @@ function getPaymentMethodName($method)
             border: 1px solid;
         }
 
-        /* Modal styles */
         .modal {
             display: none;
             position: fixed;
@@ -488,7 +490,7 @@ function getPaymentMethodName($method)
             }
         }
 
-        /* STYLES POU ENFÒMASYON PEMAN MONCASH/NATCASH - KOREJE */
+        /* ============ KOREKSYON: Styles enfòmasyon peman ============ */
         .payment-info-box {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             border-left: 4px solid #3b82f6;
@@ -525,7 +527,7 @@ function getPaymentMethodName($method)
         }
 
         .moncash-badge {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
@@ -558,6 +560,29 @@ function getPaymentMethodName($method)
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        /* ============ KOREKSYON: Styles adrès livrezon ============ */
+        .delivery-info-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-left: 4px solid #22c55e;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .delivery-info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #166534;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .delivery-info-value {
+            color: #14532d;
+            font-weight: 600;
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -622,7 +647,6 @@ function getPaymentMethodName($method)
         </div>
 
         <?php if (empty($allOrders)): ?>
-            <!-- Empty State -->
             <div class="bg-white p-10 rounded-3xl text-center text-slate-400 shadow-lg">
                 <i class="fas fa-shopping-bag text-6xl mb-4 text-slate-200"></i>
                 <p class="text-xl">Pa gen kòmand nan sistèm nan</p>
@@ -633,43 +657,27 @@ function getPaymentMethodName($method)
             <div class="bg-white rounded-t-xl border-b border-gray-200 overflow-x-auto shadow-sm">
                 <div class="flex min-w-max">
                     <button onclick="switchTab('pending')" id="tab-pending" class="order-tab active px-5 py-4 text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-2">
-                        <i class="fas fa-clock text-yellow-500"></i>
-                        An kou
-                        <?php if (count($pendingOrders) > 0): ?>
-                            <span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($pendingOrders) ?></span>
-                        <?php endif; ?>
+                        <i class="fas fa-clock text-yellow-500"></i> An kou
+                        <?php if (count($pendingOrders) > 0): ?><span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($pendingOrders) ?></span><?php endif; ?>
                     </button>
                     <button onclick="switchTab('validated')" id="tab-validated" class="order-tab px-5 py-4 text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-2">
-                        <i class="fas fa-check-circle text-blue-500"></i>
-                        Valide
-                        <?php if (count($validatedOrders) > 0): ?>
-                            <span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($validatedOrders) ?></span>
-                        <?php endif; ?>
+                        <i class="fas fa-check-circle text-blue-500"></i> Valide
+                        <?php if (count($validatedOrders) > 0): ?><span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($validatedOrders) ?></span><?php endif; ?>
                     </button>
                     <button onclick="switchTab('delivered')" id="tab-delivered" class="order-tab px-5 py-4 text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-2">
-                        <i class="fas fa-box text-green-500"></i>
-                        Livre
-                        <?php if (count($deliveredOrders) > 0): ?>
-                            <span class="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($deliveredOrders) ?></span>
-                        <?php endif; ?>
+                        <i class="fas fa-box text-green-500"></i> Livre
+                        <?php if (count($deliveredOrders) > 0): ?><span class="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($deliveredOrders) ?></span><?php endif; ?>
                     </button>
                     <button onclick="switchTab('rejected')" id="tab-rejected" class="order-tab px-5 py-4 text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-2">
-                        <i class="fas fa-times-circle text-red-500"></i>
-                        Rejte
-                        <?php if (count($rejectedOrders) > 0): ?>
-                            <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($rejectedOrders) ?></span>
-                        <?php endif; ?>
+                        <i class="fas fa-times-circle text-red-500"></i> Rejte
+                        <?php if (count($rejectedOrders) > 0): ?><span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($rejectedOrders) ?></span><?php endif; ?>
                     </button>
                     <button onclick="switchTab('cancelled')" id="tab-cancelled" class="order-tab px-5 py-4 text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-2">
-                        <i class="fas fa-ban text-gray-500"></i>
-                        Anile
-                        <?php if (count($cancelledOrders) > 0): ?>
-                            <span class="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($cancelledOrders) ?></span>
-                        <?php endif; ?>
+                        <i class="fas fa-ban text-gray-500"></i> Anile
+                        <?php if (count($cancelledOrders) > 0): ?><span class="bg-gray-500 text-white text-xs px-2 py-0.5 rounded-full"><?= count($cancelledOrders) ?></span><?php endif; ?>
                     </button>
                     <button onclick="switchTab('all')" id="tab-all" class="order-tab px-5 py-4 text-sm font-medium text-gray-700 whitespace-nowrap flex items-center gap-2">
-                        <i class="fas fa-list text-slate-500"></i>
-                        Tout
+                        <i class="fas fa-list text-slate-500"></i> Tout
                     </button>
                 </div>
             </div>
@@ -689,10 +697,12 @@ function getPaymentMethodName($method)
                         <?php foreach ($pendingOrders as $order):
                             $statusBadge = getStatusBadge($order['status']);
                             $items = $order['items_summary'] ? explode('||', $order['items_summary']) : [];
-                            // KOREKSYON: Verifye si se mobile_wallet oswa natcash/moncash
+                            // ============ KOREKSYON: Detekte wallet korèkteman ============
                             $isWallet = in_array($order['payment_method'], ['mobile_wallet', 'moncash', 'natcash']);
-                            // KOREJE chemen imaj la
-                            $receiptUrl = getImageUrl($order['wallet_receipt_path'] ?? '');
+                            $walletType = $order['wallet_type'] ?? $order['payment_method'];
+                            // ============ KOREKSYON: Chenen imaj ============
+                            $receiptPath = $order['wallet_receipt_path'] ?? '';
+                            $receiptUrl = getImageUrl($receiptPath);
                         ?>
                             <div class="order-card bg-white rounded-xl p-6 border-2 border-yellow-200 hover-lift shadow-sm">
                                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
@@ -707,9 +717,9 @@ function getPaymentMethodName($method)
                                                     <span class="pulse-dot bg-yellow-500"></span>
                                                     <?= $statusBadge[1] ?>
                                                 </span>
-                                                <?php if ($order['wallet_type'] === 'moncash' || $order['payment_method'] === 'moncash'): ?>
+                                                <?php if ($walletType === 'moncash'): ?>
                                                     <span class="moncash-badge"><i class="fas fa-mobile-alt"></i> MonCash</span>
-                                                <?php elseif ($order['wallet_type'] === 'natcash' || $order['payment_method'] === 'natcash'): ?>
+                                                <?php elseif ($walletType === 'natcash'): ?>
                                                     <span class="natcash-badge"><i class="fas fa-mobile-alt"></i> NatCash</span>
                                                 <?php elseif ($isWallet): ?>
                                                     <span class="wallet-badge"><i class="fas fa-wallet"></i> Wallet</span>
@@ -747,76 +757,105 @@ function getPaymentMethodName($method)
                                     </div>
                                 </div>
 
-                                <!-- ENFÒMASYON PEMAN MOBILE WALLET - KOREJE -->
+                                <!-- ============ KOREKSYON: ENFÒMASYON PEMAN MOBILE WALLET ============ -->
                                 <?php if ($isWallet): ?>
                                     <div class="payment-info-box mb-4">
                                         <div class="flex items-center gap-2 mb-3">
                                             <i class="fas fa-mobile-alt text-blue-600 text-xl"></i>
-                                            <h4 class="font-bold text-blue-900">Enfòmasyon Peman <?= getPaymentMethodName($order['wallet_type'] ?? $order['payment_method']) ?></h4>
+                                            <h4 class="font-bold text-blue-900">Enfòmasyon Peman <?= getPaymentMethodName($walletType) ?></h4>
                                         </div>
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <!-- Non Konplè -->
                                             <?php if (!empty($order['wallet_full_name'])): ?>
                                                 <div>
-                                                    <p class="payment-info-label">Non Konplè</p>
-                                                    <p class="payment-info-value"><i class="fas fa-user mr-2"></i><?= htmlspecialchars($order['wallet_full_name']) ?></p>
+                                                    <p class="payment-info-label"><i class="fas fa-user mr-1"></i> Non Konplè</p>
+                                                    <p class="payment-info-value"><?= htmlspecialchars($order['wallet_full_name']) ?></p>
                                                 </div>
                                             <?php endif; ?>
 
-                                            <!-- Imèl -->
                                             <?php if (!empty($order['wallet_email'])): ?>
                                                 <div>
-                                                    <p class="payment-info-label">Imèl</p>
-                                                    <p class="payment-info-value"><i class="fas fa-envelope mr-2"></i><?= htmlspecialchars($order['wallet_email']) ?></p>
+                                                    <p class="payment-info-label"><i class="fas fa-envelope mr-1"></i> Imèl</p>
+                                                    <p class="payment-info-value"><?= htmlspecialchars($order['wallet_email']) ?></p>
                                                 </div>
                                             <?php endif; ?>
 
-                                            <!-- Nimewo Telefòn (moun ki fè transfè a) - KOREJE -->
                                             <?php if (!empty($order['wallet_sender_phone'])): ?>
                                                 <div>
-                                                    <p class="payment-info-label">Nimewo Telefòn (Moun ki fè transfè a)</p>
-                                                    <p class="payment-info-value"><i class="fas fa-phone mr-2"></i><?= htmlspecialchars($order['wallet_sender_phone']) ?></p>
+                                                    <p class="payment-info-label"><i class="fas fa-phone mr-1"></i> Telefòn (ki fè transfè a)</p>
+                                                    <p class="payment-info-value"><?= htmlspecialchars($order['wallet_sender_phone']) ?></p>
                                                 </div>
                                             <?php endif; ?>
 
-                                            <!-- ID Transaksyon - KOREJE -->
                                             <?php if (!empty($order['wallet_transaction_id'])): ?>
                                                 <div>
-                                                    <p class="payment-info-label">ID Transaksyon</p>
-                                                    <p class="payment-info-value"><i class="fas fa-hashtag mr-2"></i><?= htmlspecialchars($order['wallet_transaction_id']) ?></p>
+                                                    <p class="payment-info-label"><i class="fas fa-hashtag mr-1"></i> ID Transaksyon</p>
+                                                    <p class="payment-info-value"><?= htmlspecialchars($order['wallet_transaction_id']) ?></p>
                                                 </div>
                                             <?php endif; ?>
 
-                                            <!-- Tip Wallet -->
-                                            <?php if (!empty($order['wallet_type'])): ?>
+                                            <?php if (!empty($walletType)): ?>
                                                 <div>
-                                                    <p class="payment-info-label">Sèvis</p>
-                                                    <p class="payment-info-value"><i class="fas fa-wallet mr-2"></i><?= htmlspecialchars(ucfirst($order['wallet_type'])) ?></p>
+                                                    <p class="payment-info-label"><i class="fas fa-wallet mr-1"></i> Sèvis</p>
+                                                    <p class="payment-info-value"><?= htmlspecialchars(ucfirst($walletType)) ?></p>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
 
-                                        <!-- Foto Prev Peman - KOREJE AK CHEMIN KOREK -->
+                                        <!-- ============ KOREKSYON: Foto prev peman ============ -->
                                         <?php if (!empty($receiptUrl)): ?>
                                             <div class="mt-4">
-                                                <p class="payment-info-label mb-2"><i class="fas fa-image mr-2"></i>Foto Prev Peman:</p>
-                                                <!-- KOREKSYON: Sèvi ak chemen absoli -->
+                                                <p class="payment-info-label mb-2"><i class="fas fa-image mr-1"></i> Foto Prev Peman:</p>
                                                 <img src="<?= htmlspecialchars($receiptUrl) ?>"
                                                     alt="Prev Peman"
                                                     class="payment-proof-image"
                                                     onclick="openImageModal(this.src)"
-                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                                <div class="hidden bg-red-100 border border-red-400 rounded-lg p-3">
-                                                    <p class="text-red-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Pa ka chaje imaj la. <br><small>Chemen: <?= htmlspecialchars($receiptUrl) ?></small></p>
-                                                </div>
+                                                    onerror="handleImageError(this, '<?= htmlspecialchars($receiptUrl) ?>')">
                                                 <p class="text-xs text-blue-600 mt-2"><i class="fas fa-hand-pointer mr-1"></i>Klike sou imaj la pou agrandi l</p>
                                             </div>
                                         <?php else: ?>
                                             <div class="bg-yellow-100 border border-yellow-400 rounded-lg p-3 mt-4">
-                                                <p class="text-yellow-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Pa gen foto prev peman ankò!</p>
+                                                <p class="text-yellow-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Pa gen foto prev peman!</p>
                                             </div>
                                         <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- ============ KOREKSYON: ADRESÈ LIVREZON ============ -->
+                                <?php if (!empty($order['delivery_address'])): ?>
+                                    <div class="delivery-info-box mb-4">
+                                        <div class="flex items-center gap-2 mb-3">
+                                            <i class="fas fa-map-marker-alt text-green-600 text-xl"></i>
+                                            <h4 class="font-bold text-green-900">Adrès Livrezon</h4>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="md:col-span-2">
+                                                <p class="delivery-info-label"><i class="fas fa-home mr-1"></i> Adrès</p>
+                                                <p class="delivery-info-value"><?= htmlspecialchars($order['delivery_address']) ?></p>
+                                            </div>
+                                            <?php if (!empty($order['delivery_city'])): ?>
+                                                <div>
+                                                    <p class="delivery-info-label"><i class="fas fa-city mr-1"></i> Vil / Komin</p>
+                                                    <p class="delivery-info-value"><?= htmlspecialchars($order['delivery_city']) ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($order['delivery_phone'])): ?>
+                                                <div>
+                                                    <p class="delivery-info-label"><i class="fas fa-phone mr-1"></i> Telefòn Livrezon</p>
+                                                    <p class="delivery-info-value"><?= htmlspecialchars($order['delivery_phone']) ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($order['delivery_notes'])): ?>
+                                                <div class="md:col-span-2">
+                                                    <p class="delivery-info-label"><i class="fas fa-sticky-note mr-1"></i> Nòt</p>
+                                                    <p class="delivery-info-value text-sm"><?= htmlspecialchars($order['delivery_notes']) ?></p>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="bg-orange-50 border-l-4 border-orange-400 p-3 mb-4 rounded-r-lg">
+                                        <p class="text-orange-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Pa gen adrès livrezon pou kòmand sa a!</p>
                                     </div>
                                 <?php endif; ?>
 
@@ -862,7 +901,7 @@ function getPaymentMethodName($method)
                                         <p class="text-xs text-gray-500 mb-1">Peman</p>
                                         <p class="font-semibold flex items-center gap-1">
                                             <i class="fas <?= getPaymentIcon($order['payment_method']) ?> text-blue-500"></i>
-                                            <?= getPaymentMethodName($order['payment_method']) ?>
+                                            <?= getPaymentMethodName($isWallet ? $walletType : $order['payment_method']) ?>
                                         </p>
                                     </div>
                                     <div>
@@ -876,7 +915,7 @@ function getPaymentMethodName($method)
                                     <div>
                                         <p class="text-xs text-gray-500 mb-1">Referans</p>
                                         <p class="font-semibold text-xs truncate" title="<?= $order['wallet_transaction_id'] ?? 'N/A' ?>">
-                                            <?= !empty($order['wallet_transaction_id']) ? substr($order['wallet_transaction_id'], -10) : 'N/A' ?>
+                                            <?= !empty($order['wallet_transaction_id']) ? substr($order['wallet_transaction_id'], -12) : 'N/A' ?>
                                         </p>
                                     </div>
                                 </div>
@@ -884,14 +923,12 @@ function getPaymentMethodName($method)
                                 <!-- Actions -->
                                 <div class="flex flex-col sm:flex-row gap-3 justify-end">
                                     <button onclick="openRejectModal(<?= $order['id'] ?>)" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 font-bold transition-all">
-                                        <i class="fas fa-times"></i>
-                                        Rejte
+                                        <i class="fas fa-times"></i> Rejte
                                     </button>
                                     <form method="POST" class="inline" onsubmit="return confirm('Èske ou sèten ou vle valide kòmand sa a?');">
                                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
                                         <button type="submit" name="validate_order" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 font-bold transition-all shadow-lg hover:shadow-green-500/25">
-                                            <i class="fas fa-check"></i>
-                                            Valide Kòmand
+                                            <i class="fas fa-check"></i> Valide Kòmand
                                         </button>
                                     </form>
                                 </div>
@@ -912,6 +949,8 @@ function getPaymentMethodName($method)
                         <?php foreach ($validatedOrders as $order):
                             $statusBadge = getStatusBadge($order['status']);
                             $items = $order['items_summary'] ? explode('||', $order['items_summary']) : [];
+                            $isWallet = in_array($order['payment_method'], ['mobile_wallet', 'moncash', 'natcash']);
+                            $walletType = $order['wallet_type'] ?? $order['payment_method'];
                         ?>
                             <div class="order-card bg-white rounded-xl p-6 border-2 border-blue-200 hover-lift shadow-sm">
                                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
@@ -922,15 +961,10 @@ function getPaymentMethodName($method)
                                         <div>
                                             <div class="flex items-center gap-2 flex-wrap mb-1">
                                                 <h3 class="text-lg font-bold text-gray-900">Kòmand #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></h3>
-                                                <span class="status-indicator <?= $statusBadge[0] ?>">
-                                                    <i class="fas fa-shield-alt text-xs"></i>
-                                                    <?= $statusBadge[1] ?>
-                                                </span>
+                                                <span class="status-indicator <?= $statusBadge[0] ?>"><i class="fas fa-shield-alt text-xs"></i> <?= $statusBadge[1] ?></span>
+                                                <?php if ($walletType === 'moncash'): ?><span class="moncash-badge"><i class="fas fa-mobile-alt"></i> MonCash</span><?php elseif ($walletType === 'natcash'): ?><span class="natcash-badge"><i class="fas fa-mobile-alt"></i> NatCash</span><?php elseif ($isWallet): ?><span class="wallet-badge"><i class="fas fa-wallet"></i> Wallet</span><?php endif; ?>
                                             </div>
-                                            <p class="text-gray-500 text-sm">
-                                                <i class="far fa-calendar-check mr-1"></i>
-                                                <?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?>
-                                            </p>
+                                            <p class="text-gray-500 text-sm"><i class="far fa-calendar-check mr-1"></i><?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?></p>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -938,63 +972,79 @@ function getPaymentMethodName($method)
                                         <p class="text-sm text-gray-500"><?= $order['item_count'] ?> atik</p>
                                     </div>
                                 </div>
-
-                                <!-- Timeline -->
                                 <div class="timeline mb-6">
                                     <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-check text-xs"></i></div>
-                                        <span class="text-xs text-green-600">Kreye</span>
+                                        <div class="timeline-dot completed"><i class="fas fa-check text-xs"></i></div><span class="text-xs text-green-600">Kreye</span>
                                     </div>
                                     <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-check text-xs"></i></div>
-                                        <span class="text-xs text-green-600">Tann</span>
+                                        <div class="timeline-dot completed"><i class="fas fa-check text-xs"></i></div><span class="text-xs text-green-600">Tann</span>
                                     </div>
                                     <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-check-circle text-xs"></i></div>
-                                        <span class="text-xs text-green-600 font-semibold">Valide</span>
+                                        <div class="timeline-dot completed"><i class="fas fa-check-circle text-xs"></i></div><span class="text-xs text-green-600 font-semibold">Valide</span>
                                     </div>
                                     <div class="timeline-step">
-                                        <div class="timeline-dot pending"><i class="fas fa-box text-xs"></i></div>
-                                        <span class="text-xs text-gray-400">Livre</span>
+                                        <div class="timeline-dot pending"><i class="fas fa-box text-xs"></i></div><span class="text-xs text-gray-400">Livre</span>
                                     </div>
                                 </div>
 
-                                <!-- Client Info -->
+                                <!-- ============ ADRESÈ LIVREZON POU VALIDATED ============ -->
+                                <?php if (!empty($order['delivery_address'])): ?>
+                                    <div class="delivery-info-box mb-4">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <i class="fas fa-map-marker-alt text-green-600"></i>
+                                            <h4 class="font-bold text-green-900 text-sm">Adrès Livrezon</h4>
+                                        </div>
+                                        <p class="delivery-info-value text-sm"><?= htmlspecialchars($order['delivery_address']) ?></p>
+                                        <?php if (!empty($order['delivery_phone'])): ?>
+                                            <p class="text-sm text-green-700 mt-1"><i class="fas fa-phone mr-1"></i> <?= htmlspecialchars($order['delivery_phone']) ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <!-- Wallet Info pou validated -->
+                                <?php if ($isWallet): ?>
+                                    <div class="payment-info-box mb-4">
+                                        <div class="grid grid-cols-2 gap-3 text-sm">
+                                            <?php if (!empty($order['wallet_full_name'])): ?><div><span class="payment-info-label">Non</span>
+                                                    <p class="payment-info-value text-sm"><?= htmlspecialchars($order['wallet_full_name']) ?></p>
+                                                </div><?php endif; ?>
+                                            <?php if (!empty($order['wallet_sender_phone'])): ?><div><span class="payment-info-label">Telefòn</span>
+                                                    <p class="payment-info-value text-sm"><?= htmlspecialchars($order['wallet_sender_phone']) ?></p>
+                                                </div><?php endif; ?>
+                                            <?php if (!empty($order['wallet_transaction_id'])): ?><div><span class="payment-info-label">ID Transaksyon</span>
+                                                    <p class="payment-info-value text-sm"><?= htmlspecialchars($order['wallet_transaction_id']) ?></p>
+                                                </div><?php endif; ?>
+                                        </div>
+                                        <?php if (!empty($order['wallet_receipt_path'])): ?>
+                                            <div class="mt-3">
+                                                <img src="<?= getImageUrl($order['wallet_receipt_path']) ?>" alt="Prev" class="payment-proof-image" style="max-height: 200px;" onclick="openImageModal(this.src)" onerror="this.style.display='none'">
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+
                                 <div class="bg-slate-50 rounded-xl p-4 mb-4">
-                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase">
-                                        <i class="fas fa-user mr-2 text-blue-500"></i>Klian:
-                                    </h4>
+                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase"><i class="fas fa-user mr-2 text-blue-500"></i>Klian:</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                        <div>
-                                            <span class="text-gray-500">Non:</span>
+                                        <div><span class="text-gray-500">Non:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['prenom'] . ' ' . $order['nom']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Email:</span>
+                                        <div><span class="text-gray-500">Email:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['email']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Telefòn:</span>
+                                        <div><span class="text-gray-500">Telefòn:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['telephone'] ?? 'N/A') ?></p>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Actions -->
                                 <div class="flex flex-col sm:flex-row gap-3 justify-end">
                                     <form method="POST" class="inline" onsubmit="return confirm('Èske ou sèten ou vle anile kòmand sa a?');">
                                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                        <button type="submit" name="admin_cancel_order" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold transition-all">
-                                            <i class="fas fa-ban"></i>
-                                            Anile
-                                        </button>
+                                        <button type="submit" name="admin_cancel_order" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold transition-all"><i class="fas fa-ban"></i> Anile</button>
                                     </form>
                                     <form method="POST" class="inline" onsubmit="return confirm('Èske ou sèten ou vle make kòmand sa a kòm livre?');">
                                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                        <button type="submit" name="mark_delivered" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 font-bold transition-all shadow-lg hover:shadow-green-500/25">
-                                            <i class="fas fa-box"></i>
-                                            Make kòm Livre
-                                        </button>
+                                        <button type="submit" name="mark_delivered" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 font-bold transition-all shadow-lg hover:shadow-green-500/25"><i class="fas fa-box"></i> Make kòm Livre</button>
                                     </form>
                                 </div>
                             </div>
@@ -1005,8 +1055,7 @@ function getPaymentMethodName($method)
                 <!-- Delivered Orders -->
                 <div id="content-delivered" class="tab-content hidden space-y-4">
                     <?php if (empty($deliveredOrders)): ?>
-                        <div class="text-center py-10">
-                            <i class="fas fa-box text-5xl mb-4 text-green-200"></i>
+                        <div class="text-center py-10"><i class="fas fa-box text-5xl mb-4 text-green-200"></i>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Pa gen kòmand livre</h3>
                             <p class="text-gray-600">Kòmand yo poko livre.</p>
                         </div>
@@ -1017,21 +1066,13 @@ function getPaymentMethodName($method)
                             <div class="order-card bg-white rounded-xl p-6 border-2 border-green-200 opacity-80 shadow-sm">
                                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                                            <i class="fas fa-box text-2xl text-white"></i>
-                                        </div>
+                                        <div class="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0"><i class="fas fa-box text-2xl text-white"></i></div>
                                         <div>
                                             <div class="flex items-center gap-2 flex-wrap mb-1">
                                                 <h3 class="text-lg font-bold text-gray-900">Kòmand #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></h3>
-                                                <span class="status-indicator <?= $statusBadge[0] ?>">
-                                                    <i class="fas fa-check-double text-xs"></i>
-                                                    <?= $statusBadge[1] ?>
-                                                </span>
+                                                <span class="status-indicator <?= $statusBadge[0] ?>"><i class="fas fa-check-double text-xs"></i> <?= $statusBadge[1] ?></span>
                                             </div>
-                                            <p class="text-gray-500 text-sm">
-                                                <i class="far fa-calendar-check mr-1"></i>
-                                                <?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?>
-                                            </p>
+                                            <p class="text-gray-500 text-sm"><i class="far fa-calendar-check mr-1"></i><?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?></p>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -1039,43 +1080,21 @@ function getPaymentMethodName($method)
                                         <p class="text-sm text-gray-500"><?= $order['item_count'] ?> atik</p>
                                     </div>
                                 </div>
-
-                                <!-- Timeline -->
-                                <div class="timeline mb-6">
-                                    <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-check text-xs"></i></div>
-                                        <span class="text-xs text-green-600">Kreye</span>
+                                <?php if (!empty($order['delivery_address'])): ?>
+                                    <div class="delivery-info-box mb-4">
+                                        <p class="delivery-info-value text-sm"><i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($order['delivery_address']) ?></p>
                                     </div>
-                                    <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-check text-xs"></i></div>
-                                        <span class="text-xs text-green-600">Valide</span>
-                                    </div>
-                                    <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-truck text-xs"></i></div>
-                                        <span class="text-xs text-green-600">Livre</span>
-                                    </div>
-                                    <div class="timeline-step">
-                                        <div class="timeline-dot completed"><i class="fas fa-check-double text-xs"></i></div>
-                                        <span class="text-xs text-green-600 font-semibold">Fini</span>
-                                    </div>
-                                </div>
-
-                                <!-- Client Info -->
+                                <?php endif; ?>
                                 <div class="bg-slate-50 rounded-xl p-4">
-                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase">
-                                        <i class="fas fa-user mr-2 text-blue-500"></i>Klian:
-                                    </h4>
+                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase"><i class="fas fa-user mr-2 text-blue-500"></i>Klian:</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                        <div>
-                                            <span class="text-gray-500">Non:</span>
+                                        <div><span class="text-gray-500">Non:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['prenom'] . ' ' . $order['nom']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Email:</span>
+                                        <div><span class="text-gray-500">Email:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['email']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Telefòn:</span>
+                                        <div><span class="text-gray-500">Telefòn:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['telephone'] ?? 'N/A') ?></p>
                                         </div>
                                     </div>
@@ -1088,8 +1107,7 @@ function getPaymentMethodName($method)
                 <!-- Rejected Orders -->
                 <div id="content-rejected" class="tab-content hidden space-y-4">
                     <?php if (empty($rejectedOrders)): ?>
-                        <div class="text-center py-10">
-                            <i class="fas fa-times-circle text-5xl mb-4 text-red-200"></i>
+                        <div class="text-center py-10"><i class="fas fa-times-circle text-5xl mb-4 text-red-200"></i>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Pa gen kòmand rejte</h3>
                             <p class="text-gray-600">Okenn kòmand pa rejte.</p>
                         </div>
@@ -1100,21 +1118,13 @@ function getPaymentMethodName($method)
                             <div class="order-card bg-white rounded-xl p-6 border-2 border-red-200 opacity-80 shadow-sm">
                                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-14 h-14 bg-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                                            <i class="fas fa-times-circle text-2xl text-white"></i>
-                                        </div>
+                                        <div class="w-14 h-14 bg-red-500 rounded-xl flex items-center justify-center flex-shrink-0"><i class="fas fa-times-circle text-2xl text-white"></i></div>
                                         <div>
                                             <div class="flex items-center gap-2 flex-wrap mb-1">
                                                 <h3 class="text-lg font-bold text-gray-900 line-through">Kòmand #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></h3>
-                                                <span class="status-indicator <?= $statusBadge[0] ?>">
-                                                    <i class="fas fa-times text-xs"></i>
-                                                    <?= $statusBadge[1] ?>
-                                                </span>
+                                                <span class="status-indicator <?= $statusBadge[0] ?>"><i class="fas fa-times text-xs"></i> <?= $statusBadge[1] ?></span>
                                             </div>
-                                            <p class="text-gray-500 text-sm">
-                                                <i class="far fa-calendar-times mr-1"></i>
-                                                <?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?>
-                                            </p>
+                                            <p class="text-gray-500 text-sm"><i class="far fa-calendar-times mr-1"></i><?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?></p>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -1122,32 +1132,21 @@ function getPaymentMethodName($method)
                                         <p class="text-sm text-gray-500"><?= $order['item_count'] ?> atik</p>
                                     </div>
                                 </div>
-
                                 <?php if (!empty($order['reject_reason'])): ?>
                                     <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
-                                        <p class="text-sm text-red-700">
-                                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                                            <strong>Rezon rejte:</strong> <?= htmlspecialchars($order['reject_reason']) ?>
-                                        </p>
+                                        <p class="text-sm text-red-700"><i class="fas fa-exclamation-triangle mr-2"></i><strong>Rezon rejte:</strong> <?= htmlspecialchars($order['reject_reason']) ?></p>
                                     </div>
                                 <?php endif; ?>
-
-                                <!-- Client Info -->
                                 <div class="bg-slate-50 rounded-xl p-4">
-                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase">
-                                        <i class="fas fa-user mr-2 text-blue-500"></i>Klian:
-                                    </h4>
+                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase"><i class="fas fa-user mr-2 text-blue-500"></i>Klian:</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                        <div>
-                                            <span class="text-gray-500">Non:</span>
+                                        <div><span class="text-gray-500">Non:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['prenom'] . ' ' . $order['nom']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Email:</span>
+                                        <div><span class="text-gray-500">Email:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['email']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Telefòn:</span>
+                                        <div><span class="text-gray-500">Telefòn:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['telephone'] ?? 'N/A') ?></p>
                                         </div>
                                     </div>
@@ -1160,8 +1159,7 @@ function getPaymentMethodName($method)
                 <!-- Cancelled Orders -->
                 <div id="content-cancelled" class="tab-content hidden space-y-4">
                     <?php if (empty($cancelledOrders)): ?>
-                        <div class="text-center py-10">
-                            <i class="fas fa-ban text-5xl mb-4 text-gray-200"></i>
+                        <div class="text-center py-10"><i class="fas fa-ban text-5xl mb-4 text-gray-200"></i>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Pa gen kòmand anile</h3>
                             <p class="text-gray-600">Okenn kòmand pa anile.</p>
                         </div>
@@ -1172,21 +1170,13 @@ function getPaymentMethodName($method)
                             <div class="order-card bg-white rounded-xl p-6 border-2 border-gray-200 opacity-60 shadow-sm">
                                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-14 h-14 bg-gray-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                                            <i class="fas fa-ban text-2xl text-white"></i>
-                                        </div>
+                                        <div class="w-14 h-14 bg-gray-500 rounded-xl flex items-center justify-center flex-shrink-0"><i class="fas fa-ban text-2xl text-white"></i></div>
                                         <div>
                                             <div class="flex items-center gap-2 flex-wrap mb-1">
                                                 <h3 class="text-lg font-bold text-gray-900 line-through">Kòmand #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></h3>
-                                                <span class="status-indicator <?= $statusBadge[0] ?>">
-                                                    <i class="fas fa-user-slash text-xs"></i>
-                                                    <?= $statusBadge[1] ?>
-                                                </span>
+                                                <span class="status-indicator <?= $statusBadge[0] ?>"><i class="fas fa-user-slash text-xs"></i> <?= $statusBadge[1] ?></span>
                                             </div>
-                                            <p class="text-gray-500 text-sm">
-                                                <i class="far fa-calendar-times mr-1"></i>
-                                                <?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?>
-                                            </p>
+                                            <p class="text-gray-500 text-sm"><i class="far fa-calendar-times mr-1"></i><?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?></p>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -1194,23 +1184,16 @@ function getPaymentMethodName($method)
                                         <p class="text-sm text-gray-500"><?= $order['item_count'] ?> atik</p>
                                     </div>
                                 </div>
-
-                                <!-- Client Info -->
                                 <div class="bg-slate-50 rounded-xl p-4">
-                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase">
-                                        <i class="fas fa-user mr-2 text-blue-500"></i>Klian:
-                                    </h4>
+                                    <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase"><i class="fas fa-user mr-2 text-blue-500"></i>Klian:</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                        <div>
-                                            <span class="text-gray-500">Non:</span>
+                                        <div><span class="text-gray-500">Non:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['prenom'] . ' ' . $order['nom']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Email:</span>
+                                        <div><span class="text-gray-500">Email:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['email']) ?></p>
                                         </div>
-                                        <div>
-                                            <span class="text-gray-500">Telefòn:</span>
+                                        <div><span class="text-gray-500">Telefòn:</span>
                                             <p class="font-semibold"><?= htmlspecialchars($order['telephone'] ?? 'N/A') ?></p>
                                         </div>
                                     </div>
@@ -1227,29 +1210,23 @@ function getPaymentMethodName($method)
                         $statusColor = getStatusColor($order['status']);
                         $isCancelled = $order['status'] === 'cancelled';
                         $isRejected = in_array($order['status'], ['rejected', 'refused']);
+                        $isWallet = in_array($order['payment_method'], ['mobile_wallet', 'moncash', 'natcash']);
+                        $walletType = $order['wallet_type'] ?? $order['payment_method'];
                     ?>
                         <div class="order-card bg-white rounded-xl p-6 border-2 <?= $isCancelled ? 'border-gray-200 opacity-60' : ($isRejected ? 'border-red-200 opacity-80' : 'border-slate-200') ?> hover-lift shadow-sm">
                             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-14 h-14 <?= $statusColor ?> rounded-xl flex items-center justify-center flex-shrink-0">
-                                        <i class="fas <?= $statusBadge[2] ?> text-2xl text-white"></i>
-                                    </div>
+                                    <div class="w-14 h-14 <?= $statusColor ?> rounded-xl flex items-center justify-center flex-shrink-0"><i class="fas <?= $statusBadge[2] ?> text-2xl text-white"></i></div>
                                     <div>
                                         <div class="flex items-center gap-2 flex-wrap mb-1">
                                             <h3 class="text-lg font-bold text-gray-900 <?= ($isCancelled || $isRejected) ? 'line-through' : '' ?>">Kòmand #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></h3>
                                             <span class="status-indicator <?= $statusBadge[0] ?>">
-                                                <?php if ($order['status'] === 'pending'): ?>
-                                                    <span class="pulse-dot <?= $statusBadge[3] ?>"></span>
-                                                <?php else: ?>
-                                                    <i class="fas <?= $statusBadge[2] ?> text-xs"></i>
-                                                <?php endif; ?>
+                                                <?php if ($order['status'] === 'pending'): ?><span class="pulse-dot <?= $statusBadge[3] ?>"></span><?php else: ?><i class="fas <?= $statusBadge[2] ?> text-xs"></i><?php endif; ?>
                                                 <?= $statusBadge[1] ?>
                                             </span>
+                                            <?php if ($walletType === 'moncash'): ?><span class="moncash-badge"><i class="fas fa-mobile-alt"></i> MonCash</span><?php elseif ($walletType === 'natcash'): ?><span class="natcash-badge"><i class="fas fa-mobile-alt"></i> NatCash</span><?php elseif ($isWallet): ?><span class="wallet-badge"><i class="fas fa-wallet"></i> Wallet</span><?php endif; ?>
                                         </div>
-                                        <p class="text-gray-500 text-sm">
-                                            <i class="far fa-calendar<?= ($isCancelled || $isRejected) ? '-times' : '-alt' ?> mr-1"></i>
-                                            <?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?>
-                                        </p>
+                                        <p class="text-gray-500 text-sm"><i class="far fa-calendar<?= ($isCancelled || $isRejected) ? '-times' : '-alt' ?> mr-1"></i><?= date('d/m/Y à H:i', strtotime($order['created_at'])) ?></p>
                                     </div>
                                 </div>
                                 <div class="text-right">
@@ -1257,23 +1234,21 @@ function getPaymentMethodName($method)
                                     <p class="text-sm text-gray-500"><?= $order['item_count'] ?> atik</p>
                                 </div>
                             </div>
-
-                            <!-- Client Info -->
+                            <?php if (!empty($order['delivery_address'])): ?>
+                                <div class="delivery-info-box mb-4">
+                                    <p class="delivery-info-value text-sm"><i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($order['delivery_address']) ?></p>
+                                </div>
+                            <?php endif; ?>
                             <div class="bg-slate-50 rounded-xl p-4">
-                                <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase">
-                                    <i class="fas fa-user mr-2 text-blue-500"></i>Klian:
-                                </h4>
+                                <h4 class="font-bold text-sm text-gray-700 mb-2 uppercase"><i class="fas fa-user mr-2 text-blue-500"></i>Klian:</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                    <div>
-                                        <span class="text-gray-500">Non:</span>
+                                    <div><span class="text-gray-500">Non:</span>
                                         <p class="font-semibold"><?= htmlspecialchars($order['prenom'] . ' ' . $order['nom']) ?></p>
                                     </div>
-                                    <div>
-                                        <span class="text-gray-500">Email:</span>
+                                    <div><span class="text-gray-500">Email:</span>
                                         <p class="font-semibold"><?= htmlspecialchars($order['email']) ?></p>
                                     </div>
-                                    <div>
-                                        <span class="text-gray-500">Telefòn:</span>
+                                    <div><span class="text-gray-500">Telefòn:</span>
                                         <p class="font-semibold"><?= htmlspecialchars($order['telephone'] ?? 'N/A') ?></p>
                                     </div>
                                 </div>
@@ -1291,9 +1266,7 @@ function getPaymentMethodName($method)
         <div class="modal-content p-6">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-black uppercase text-gray-900">Rejte Kòmand</h3>
-                <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
             <form method="POST" id="rejectForm">
                 <input type="hidden" name="order_id" id="rejectOrderId">
@@ -1302,25 +1275,19 @@ function getPaymentMethodName($method)
                     <textarea name="reject_reason" rows="4" class="w-full p-4 bg-slate-50 rounded-xl outline-none ring-1 ring-slate-200 focus:ring-red-500" placeholder="Antre rezon ki fè ou rejte kòmand sa a..."></textarea>
                 </div>
                 <div class="flex gap-3">
-                    <button type="button" onclick="closeRejectModal()" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all">
-                        Anile
-                    </button>
-                    <button type="submit" name="reject_order" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all">
-                        <i class="fas fa-times mr-2"></i>Konfime Rejte
-                    </button>
+                    <button type="button" onclick="closeRejectModal()" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all">Anile</button>
+                    <button type="submit" name="reject_order" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all"><i class="fas fa-times mr-2"></i>Konfime Rejte</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Image Modal pou agrandi foto prev peman -->
+    <!-- Image Modal -->
     <div id="imageModal" class="modal" style="z-index: 200;">
         <div class="modal-content p-2" style="max-width: 90%; max-height: 90%;">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="text-lg font-bold text-gray-900">Prev Peman</h3>
-                <button onclick="closeImageModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button onclick="closeImageModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
             <img id="modalImage" src="" alt="Prev Peman" style="max-width: 100%; max-height: 80vh; border-radius: 0.5rem;">
         </div>
@@ -1329,23 +1296,10 @@ function getPaymentMethodName($method)
     <script>
         // Tab switching
         function switchTab(tabName) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-
-            // Remove active class from all tabs
-            document.querySelectorAll('.order-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.querySelectorAll('.order-tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('content-' + tabName).classList.remove('hidden');
-
-            // Add active class to selected tab
             document.getElementById('tab-' + tabName).classList.add('active');
-
-            // Add animation to cards
             const cards = document.querySelectorAll('#content-' + tabName + ' .order-card');
             cards.forEach((card, index) => {
                 card.style.animation = 'none';
@@ -1356,7 +1310,6 @@ function getPaymentMethodName($method)
             });
         }
 
-        // Modal functions pou rejte
         function openRejectModal(orderId) {
             document.getElementById('rejectOrderId').value = orderId;
             document.getElementById('rejectModal').classList.add('active');
@@ -1366,7 +1319,6 @@ function getPaymentMethodName($method)
             document.getElementById('rejectModal').classList.remove('active');
         }
 
-        // Modal functions pou imaj
         function openImageModal(src) {
             document.getElementById('modalImage').src = src;
             document.getElementById('imageModal').classList.add('active');
@@ -1376,25 +1328,26 @@ function getPaymentMethodName($method)
             document.getElementById('imageModal').classList.remove('active');
         }
 
-        // Close modal when clicking outside
+        // ============ KOREKSYON: Fonksyon pou montre mesaj erè si imaj pa chaje ============
+        function handleImageError(img, path) {
+            img.style.display = 'none';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-100 border border-red-400 rounded-lg p-3 mt-2';
+            errorDiv.innerHTML = `<p class="text-red-800 text-sm"><i class="fas fa-exclamation-triangle mr-2"></i>Pa ka chaje imaj la.</p><p class="text-xs text-red-600 mt-1">Chemen: ${path}</p>`;
+            img.parentNode.appendChild(errorDiv);
+        }
+
         document.getElementById('rejectModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeRejectModal();
-            }
+            if (e.target === this) closeRejectModal();
         });
-
         document.getElementById('imageModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeImageModal();
-            }
+            if (e.target === this) closeImageModal();
         });
 
-        // Initialize with pending tab
         document.addEventListener('DOMContentLoaded', function() {
             switchTab('pending');
         });
 
-        // Auto-hide alerts
         setTimeout(function() {
             const alerts = document.querySelectorAll('.bg-green-600, .bg-red-600');
             alerts.forEach(alert => {
