@@ -539,7 +539,7 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
 
                 <!-- Nav Desktop -->
                 <nav style="display:none; align-items:center; gap:2rem;" class="lg-nav">
-                    <a href="../index.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Akèy</a>
+                    <a href="../index.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Galerie</a>
                     <a href="promotion.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Promosyons</a>
                     <a href="hot_deal.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Hot-Deal</a>
                 </nav>

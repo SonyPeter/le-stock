@@ -7,14 +7,13 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+ $user_id = $_SESSION['user_id'];
 
 try {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Fetch user stats
     $userStats = [
         'total_orders' => 0,
         'total_spent' => 0,
@@ -60,7 +59,7 @@ try {
     die("Erè baz de done: " . $e->getMessage());
 }
 
-$activeTab = $_GET['tab'] ?? 'overview';
+ $activeTab = $_GET['tab'] ?? 'overview';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_info'])) {
     $prenom = htmlspecialchars($_POST['prenom']);
@@ -75,11 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_info'])) {
     }
 }
 
-$isAdmin = strtolower($user['role'] ?? '') === 'admin';
-$isMerchant = strtolower($user['role'] ?? '') === 'merchant';
-
-// Verifye si itilizatè a gen yon demann an kou
-$status_demann = strtolower($user['merchant_status'] ?? '');
+ $isAdmin = strtolower($user['role'] ?? '') === 'admin';
+ $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
+ $status_demann = strtolower($user['merchant_status'] ?? '');
 ?>
 
 <!DOCTYPE html>
@@ -92,299 +89,43 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
     <link rel="stylesheet" href="/le-stock/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-            background: #f5f5f5;
-        }
-
-        .bg-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            overflow: hidden;
-        }
-
-        .bg-image {
-            width: 100%;
-            height: 100%;
-            background-image: url('/le-stock/assets/img/stock7.png');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            filter: blur(5px);
-            -webkit-filter: blur(5px);
-            transform: scale(1.03);
-        }
-
-        .bg-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.25);
-            z-index: -1;
-        }
-
-        .font-display {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .glass-input {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .glass-input:focus {
-            background: rgba(255, 255, 255, 1);
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 8px 30px rgba(0, 0, 0, 0.12);
-            transform: translateY(-2px);
-        }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-        }
-
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-slide-up {
-            animation: slideUp 0.5s ease-out forwards;
-        }
-
-        @keyframes pulse-slow {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .animate-pulse-slow {
-            animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .nav-tab {
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .nav-tab::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .nav-tab.active::after,
-        .nav-tab:hover::after {
-            width: 100%;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .badge-merchant {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        }
-
-        .badge-admin {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .activity-item {
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-
-        .activity-item:hover {
-            background: rgba(255, 255, 255, 0.98);
-            transform: translateX(10px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .avatar-glow {
-            box-shadow: 0 0 60px rgba(99, 102, 241, 0.4);
-        }
-
-        .text-shadow {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Progress bar styles */
-        .progress-container {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 9999px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            transition: width 1s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                transform: translateX(-100%);
-            }
-
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .bg-image {
-                background-attachment: scroll;
-                filter: blur(4px);
-                -webkit-filter: blur(4px);
-                transform: scale(1.05);
-            }
-
-            .glass-input {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .bg-image {
-                filter: blur(3px);
-                -webkit-filter: blur(3px);
-                transform: scale(1.08);
-            }
-        }
-
-        @media (max-width: 640px) {
-            .nav-tab {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.75rem;
-            }
-        }
-    </style>
 </head>
 
-<body class="text-slate-800">
+<body class="font-['Inter',sans-serif] min-h-screen relative overflow-x-hidden bg-[#f5f5f5] text-slate-800">
 
-    <div class="bg-container">
-        <div class="bg-image"></div>
+    <div class="fixed inset-0 z-[-2] overflow-hidden">
+        <div class="w-full h-full bg-cover bg-center bg-no-repeat bg-fixed blur-[5px] scale-[1.03] max-md:blur-[4px] max-md:bg-scroll max-md:scale-105 max-[480px]:blur-[3px] max-[480px]:scale-[110%]" style="background-image: url('/le-stock/assets/img/stock7.png')"></div>
     </div>
-    <div class="bg-overlay"></div>
+    <div class="fixed inset-0 bg-black/25 z-[-1]"></div>
+
+    <!-- Overlay mobile -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/40 z-40 md:hidden opacity-0 invisible transition-all duration-300" onclick="closeMobileMenu()"></div>
 
     <!-- Navigation -->
-    <nav class="glass-panel fixed w-full z-50 top-0 left-0 border-b border-white/20">
+    <nav class="bg-white/95 backdrop-blur-[20px] border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.1)] fixed w-full z-50 top-0 left-0 border-b border-white/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-lg animate-pulse-slow">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-lg animate-pulse">
                         <i class="fas fa-bolt text-lg sm:text-xl"></i>
                     </div>
-                    <span class="text-xl sm:text-2xl font-display font-bold text-slate-800 tracking-tight">LE-STOCK</span>
+                    <span class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800" style="font-family: 'Space Grotesk', sans-serif;">LE-STOCK</span>
                 </div>
 
+                <!-- Menu Desktop -->
                 <div class="hidden md:flex items-center gap-6 lg:gap-8">
                     <?php if ($isAdmin): ?>
+                        <a href="acceuil.php" class="flex items-center gap-2 text-red-600 hover:text-red-700 font-bold transition-colors text-sm">
+                            <i class="fas fa-tachometer-alt"></i> Acceuil
+                        </a>
                         <a href="admin_dashboard.php" class="flex items-center gap-2 text-red-600 hover:text-red-700 font-bold transition-colors text-sm">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <a href="panier/Panier.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none; position:relative;" title="Panier">
+                        <i class="fas fa-shopping-cart" style="font-size:1.15rem;"></i>
+                        <span id="cart-badge" class="cart-badge" style="position:absolute; top:-2px; right:-2px; font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:9999px;">0</span>
+                    </a>
                     <?php else: ?>
                         <a href="panier.php" class="flex items-center gap-2 text-slate-600 hover:text-indigo-500 font-medium transition-colors text-sm">
                             <i class="fas fa-shopping-bag"></i> Panier
@@ -408,9 +149,75 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                     </div>
                 </div>
 
-                <button class="md:hidden text-slate-600 text-xl">
-                    <i class="fas fa-bars"></i>
+                <!-- Bouton Hamburger -->
+                <button id="hamburger-btn" class="md:hidden text-slate-600 text-xl p-2 rounded-lg hover:bg-slate-100 transition-colors" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars" id="hamburger-icon"></i>
                 </button>
+            </div>
+
+            <!-- Menu Mobile -->
+            <div id="mobile-menu" class="md:hidden max-h-0 overflow-hidden opacity-0 transition-all duration-300">
+                <div class="pt-4 pb-2 border-t border-slate-200/60 mt-4">
+                    <div class="flex items-center gap-3 pb-4 mb-3 border-b border-slate-200/60">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                            <?= strtoupper(substr($user['prenom'] ?? '', 0, 1) . substr($user['nom'] ?? '', 0, 1)) ?>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-800 truncate"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></p>
+                            <p class="text-xs text-slate-500"><?= ucfirst($user['role'] ?? 'User') ?></p>
+                        </div>
+                    </div>
+
+                    <?php if ($isAdmin): ?>
+                        <a href="admin_dashboard.php" class="flex items-center gap-3 px-3 py-3 rounded-xl text-red-600 hover:bg-red-50 font-bold transition-colors text-sm">
+                            <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                <i class="fas fa-tachometer-alt text-xs"></i>
+                            </div>
+                            Dashboard
+                        </a>
+                    <?php else: ?>
+                        <a href="panier.php" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-slate-50 font-medium transition-colors text-sm">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-xs text-indigo-600"></i>
+                            </div>
+                            Panier
+                        </a>
+                        <a href="commandes.php" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-slate-50 font-medium transition-colors text-sm">
+                            <div class="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
+                                <i class="fas fa-receipt text-xs text-pink-600"></i>
+                            </div>
+                            Commandes
+                        </a>
+                        <a href="favoris.php" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-slate-50 font-medium transition-colors text-sm">
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                                <i class="fas fa-heart text-xs text-amber-600"></i>
+                            </div>
+                            Favoris
+                        </a>
+                    <?php endif; ?>
+
+                    <a href="?tab=overview" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-slate-50 font-medium transition-colors text-sm">
+                        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-chart-pie text-xs text-green-600"></i>
+                        </div>
+                        Apèsi pwofil
+                    </a>
+                    <a href="?tab=settings" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-700 hover:bg-slate-50 font-medium transition-colors text-sm">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                            <i class="fas fa-cog text-xs text-slate-600"></i>
+                        </div>
+                        Paramèt
+                    </a>
+
+                    <div class="pt-3 mt-2 border-t border-slate-200/60">
+                        <a href="logout.php" class="flex items-center gap-3 px-3 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium transition-colors text-sm">
+                            <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                <i class="fas fa-sign-out-alt text-xs"></i>
+                            </div>
+                            Dekonekte
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -419,12 +226,12 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
     <main class="pt-20 sm:pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto relative z-10">
 
         <!-- Profile Header -->
-        <div class="glass-panel rounded-2xl sm:rounded-3xl p-6 sm:p-8 mb-6 sm:mb-8 animate-slide-up relative overflow-hidden">
+        <div class="bg-white/95 backdrop-blur-[20px] border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-br from-indigo-500/20 to-pink-500/20 rounded-full blur-3xl -mr-10 sm:-mr-20 -mt-10 sm:-mt-20"></div>
 
             <div class="relative z-10 flex flex-col lg:flex-row items-center gap-6 sm:gap-8">
                 <div class="relative">
-                    <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-3xl sm:text-4xl font-display font-bold shadow-2xl avatar-glow animate-float">
+                    <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold shadow-[0_0_60px_rgba(99,102,241,0.4)]" style="font-family: 'Space Grotesk', sans-serif;">
                         <?= strtoupper(substr($user['prenom'] ?? '', 0, 1) . substr($user['nom'] ?? '', 0, 1)) ?>
                     </div>
                     <div class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full border-2 sm:border-4 border-white flex items-center justify-center" title="Online">
@@ -433,7 +240,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                 </div>
 
                 <div class="flex-1 text-center lg:text-left">
-                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-display font-bold text-slate-800 mb-2 text-shadow">
+                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-2 [text-shadow:0_2px_8px_rgba(0,0,0,0.4)]" style="font-family: 'Space Grotesk', sans-serif;">
                         <?= htmlspecialchars(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')) ?>
                     </h1>
                     <p class="text-slate-600 mb-4 flex items-center justify-center lg:justify-start gap-2 text-sm sm:text-base">
@@ -447,11 +254,11 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             ID: #LS-<?= str_pad($user['id'], 4, '0', STR_PAD_LEFT) ?>
                         </span>
                         <?php if ($isMerchant): ?>
-                            <span class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full badge-merchant text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg">
+                            <span class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg">
                                 <i class="fas fa-crown"></i> Machann Premium
                             </span>
                         <?php elseif ($isAdmin): ?>
-                            <span class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full badge-admin text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg">
+                            <span class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg">
                                 <i class="fas fa-shield-alt"></i> Admin
                             </span>
                         <?php endif; ?>
@@ -471,103 +278,103 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 stat-card">
+            <div class="bg-white/85 backdrop-blur-[10px] border border-white/40 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                 <div class="flex items-center justify-between mb-3 sm:mb-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
                         <i class="fas fa-shopping-bag text-lg sm:text-xl"></i>
                     </div>
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</span>
                 </div>
-                <div class="text-2xl sm:text-3xl font-display font-bold text-slate-800 mb-1"><?= $userStats['total_orders'] ?? 0 ?></div>
+                <div class="text-2xl sm:text-3xl font-bold text-slate-800 mb-1" data-counter style="font-family: 'Space Grotesk', sans-serif;"><?= $userStats['total_orders'] ?? 0 ?></div>
                 <div class="text-xs sm:text-sm text-slate-600">Komand yo</div>
             </div>
 
-            <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 stat-card">
+            <div class="bg-white/85 backdrop-blur-[10px] border border-white/40 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                 <div class="flex items-center justify-between mb-3 sm:mb-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-pink-100 flex items-center justify-center text-pink-600">
                         <i class="fas fa-wallet text-lg sm:text-xl"></i>
                     </div>
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Depans</span>
                 </div>
-                <div class="text-2xl sm:text-3xl font-display font-bold text-slate-800 mb-1">
+                <div class="text-2xl sm:text-3xl font-bold text-slate-800 mb-1" data-counter style="font-family: 'Space Grotesk', sans-serif;">
                     <?= number_format($userStats['total_spent'] ?? 0, 0, ',', ' ') ?> Gdes
                 </div>
                 <div class="text-xs sm:text-sm text-slate-600">Total depanse</div>
             </div>
 
-            <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 stat-card">
+            <div class="bg-white/85 backdrop-blur-[10px] border border-white/40 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                 <div class="flex items-center justify-between mb-3 sm:mb-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
                         <i class="fas fa-heart text-lg sm:text-xl"></i>
                     </div>
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Favori</span>
                 </div>
-                <div class="text-2xl sm:text-3xl font-display font-bold text-slate-800 mb-1"><?= $userStats['total_favorites'] ?? 0 ?></div>
+                <div class="text-2xl sm:text-3xl font-bold text-slate-800 mb-1" data-counter style="font-family: 'Space Grotesk', sans-serif;"><?= $userStats['total_favorites'] ?? 0 ?></div>
                 <div class="text-xs sm:text-sm text-slate-600">Atik favori</div>
             </div>
         </div>
 
         <!-- Tabs Navigation -->
-        <div class="glass-panel rounded-xl sm:rounded-2xl p-1.5 sm:p-2 mb-6 sm:mb-8 inline-flex gap-1 sm:gap-2 overflow-x-auto max-w-full">
-            <a href="?tab=overview" class="nav-tab px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap <?= $activeTab === 'overview' ? 'active bg-white shadow-md text-indigo-600' : 'text-slate-600 hover:text-slate-800' ?>">
+        <div class="bg-white/95 backdrop-blur-[20px] border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-xl sm:rounded-2xl p-1.5 sm:p-2 mb-6 sm:mb-8 inline-flex gap-1 sm:gap-2 overflow-x-auto max-w-full">
+            <a href="?tab=overview" class="px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all border-b-[3px] <?= $activeTab === 'overview' ? 'bg-white shadow-md text-indigo-600 border-indigo-500' : 'text-slate-600 hover:text-slate-800 border-transparent' ?>">
                 <i class="fas fa-chart-pie mr-1 sm:mr-2"></i>Apèsi
             </a>
-            <a href="?tab=about" class="nav-tab px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap <?= $activeTab === 'about' ? 'active bg-white shadow-md text-indigo-600' : 'text-slate-600 hover:text-slate-800' ?>">
+            <a href="?tab=about" class="px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all border-b-[3px] <?= $activeTab === 'about' ? 'bg-white shadow-md text-indigo-600 border-indigo-500' : 'text-slate-600 hover:text-slate-800 border-transparent' ?>">
                 <i class="fas fa-user mr-1 sm:mr-2"></i>Enfòmasyon
             </a>
-            <a href="?tab=settings" class="nav-tab px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap <?= $activeTab === 'settings' ? 'active bg-white shadow-md text-indigo-600' : 'text-slate-600 hover:text-slate-800' ?>">
+            <a href="?tab=settings" class="px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all border-b-[3px] <?= $activeTab === 'settings' ? 'bg-white shadow-md text-indigo-600 border-indigo-500' : 'text-slate-600 hover:text-slate-800 border-transparent' ?>">
                 <i class="fas fa-sliders-h mr-1 sm:mr-2"></i>Paramèt
             </a>
-            <a href="?tab=security" class="nav-tab px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap <?= $activeTab === 'security' ? 'active bg-white shadow-md text-indigo-600' : 'text-slate-600 hover:text-slate-800' ?>">
+            <a href="?tab=security" class="px-4 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all border-b-[3px] <?= $activeTab === 'security' ? 'bg-white shadow-md text-indigo-600 border-indigo-500' : 'text-slate-600 hover:text-slate-800 border-transparent' ?>">
                 <i class="fas fa-shield-alt mr-1 sm:mr-2"></i>Sekirite
             </a>
         </div>
 
         <!-- Tab Content -->
-        <div class="glass-panel rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[300px] sm:min-h-[400px]">
+        <div class="bg-white/95 backdrop-blur-[20px] border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-2xl sm:rounded-3xl p-6 sm:p-8 min-h-[300px] sm:min-h-[400px]">
 
             <?php if ($activeTab === 'overview'): ?>
-                <div class="animate-slide-up">
-                    <h2 class="text-xl sm:text-2xl font-display font-bold text-slate-800 mb-4 sm:mb-6">Aktivite Resan</h2>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4 sm:mb-6" style="font-family: 'Space Grotesk', sans-serif;">Aktivite Resan</h2>
 
                     <div class="space-y-3 sm:space-y-4">
-                        <div class="activity-item flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                        <div class="bg-white/80 backdrop-blur-[8px] border border-white/40 hover:bg-white hover:translate-x-2.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] transition-all flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
                                 <i class="fas fa-sign-in-alt"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-semibold text-slate-800 text-sm sm:text-base">Koneksyon</h4>
                                 <p class="text-xs sm:text-sm text-slate-600">Ou konekte soti sou aparèy ou a</p>
                             </div>
-                            <span class="text-xs text-slate-500 flex-shrink-0">Jodi a</span>
+                            <span class="text-xs text-slate-500 shrink-0">Jodi a</span>
                         </div>
 
-                        <div class="activity-item flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 flex-shrink-0">
+                        <div class="bg-white/80 backdrop-blur-[8px] border border-white/40 hover:bg-white hover:translate-x-2.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] transition-all flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-semibold text-slate-800 text-sm sm:text-base">Pwofil Mizajou</h4>
                                 <p class="text-xs sm:text-sm text-slate-600">Ou modifye enfòmasyon pwofil ou</p>
                             </div>
-                            <span class="text-xs text-slate-500 flex-shrink-0">Yè</span>
+                            <span class="text-xs text-slate-500 shrink-0">Yè</span>
                         </div>
 
-                        <div class="activity-item flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 flex-shrink-0">
+                        <div class="bg-white/80 backdrop-blur-[8px] border border-white/40 hover:bg-white hover:translate-x-2.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.1)] transition-all flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 shrink-0">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-semibold text-slate-800 text-sm sm:text-base">Nouvo Komand</h4>
                                 <p class="text-xs sm:text-sm text-slate-600">Ou pase yon nouvo komand #1234</p>
                             </div>
-                            <span class="text-xs text-slate-500 flex-shrink-0">3 jou de sa</span>
+                            <span class="text-xs text-slate-500 shrink-0">3 jou de sa</span>
                         </div>
                     </div>
 
                     <div class="mt-6 sm:mt-8 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-50/90 to-pink-50/90 backdrop-blur-sm border border-indigo-100">
                         <div class="flex items-center gap-3 sm:gap-4">
-                            <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white shadow-lg flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">
+                            <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white shadow-lg flex items-center justify-center text-xl sm:text-2xl shrink-0">
                                 🎉
                             </div>
                             <div>
@@ -579,11 +386,11 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                 </div>
 
             <?php elseif ($activeTab === 'about'): ?>
-                <div class="animate-slide-up max-w-3xl">
-                    <h2 class="text-xl sm:text-2xl font-display font-bold text-slate-800 mb-4 sm:mb-6">Enfòmasyon Pèsonèl</h2>
+                <div class="max-w-3xl">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4 sm:mb-6" style="font-family: 'Space Grotesk', sans-serif;">Enfòmasyon Pèsonèl</h2>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card hover:shadow-lg transition-shadow">
+                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
                                     <i class="fas fa-user"></i>
@@ -595,7 +402,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             </p>
                         </div>
 
-                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card hover:shadow-lg transition-shadow">
+                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600">
                                     <i class="fas fa-envelope"></i>
@@ -605,7 +412,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             <p class="text-base sm:text-lg font-semibold text-slate-800 break-all"><?= htmlspecialchars($user['email']) ?></p>
                         </div>
 
-                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card hover:shadow-lg transition-shadow">
+                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
                                     <i class="fas fa-phone"></i>
@@ -615,7 +422,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             <p class="text-base sm:text-lg font-semibold text-slate-800"><?= $user['telephone'] ?: 'Pa ajoute' ?></p>
                         </div>
 
-                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card hover:shadow-lg transition-shadow">
+                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
                                     <i class="fas fa-map-marker-alt"></i>
@@ -645,8 +452,8 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                 </div>
 
             <?php elseif ($activeTab === 'settings'): ?>
-                <div class="animate-slide-up max-w-2xl">
-                    <h2 class="text-xl sm:text-2xl font-display font-bold text-slate-800 mb-4 sm:mb-6">Modifye Pwofil</h2>
+                <div class="max-w-2xl">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4 sm:mb-6" style="font-family: 'Space Grotesk', sans-serif;">Modifye Pwofil</h2>
 
                     <?php if (isset($_GET['success'])): ?>
                         <div class="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl bg-green-100/90 backdrop-blur-sm text-green-700 flex items-center gap-3 animate-pulse border border-green-200">
@@ -660,12 +467,12 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             <div>
                                 <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Prenom</label>
                                 <input type="text" name="prenom" value="<?= htmlspecialchars($user['prenom'] ?? '') ?>"
-                                    class="glass-input w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
+                                    class="bg-white/92 backdrop-blur-[12px] border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(102,126,234,0.15),0_8px_30px_rgba(0,0,0,0.12)] focus:-translate-y-0.5 transition-all w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl focus:outline-none font-medium text-base text-slate-800">
                             </div>
                             <div>
                                 <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Nom</label>
                                 <input type="text" name="nom" value="<?= htmlspecialchars($user['nom'] ?? '') ?>"
-                                    class="glass-input w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
+                                    class="bg-white/92 backdrop-blur-[12px] border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(102,126,234,0.15),0_8px_30px_rgba(0,0,0,0.12)] focus:-translate-y-0.5 transition-all w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl focus:outline-none font-medium text-base text-slate-800">
                             </div>
                         </div>
 
@@ -674,7 +481,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             <div class="relative">
                                 <i class="fas fa-phone absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                                 <input type="tel" name="phone" value="<?= htmlspecialchars($user['telephone'] ?? '') ?>"
-                                    class="glass-input w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
+                                    class="bg-white/92 backdrop-blur-[12px] border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(102,126,234,0.15),0_8px_30px_rgba(0,0,0,0.12)] focus:-translate-y-0.5 transition-all w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl focus:outline-none font-medium text-base text-slate-800">
                             </div>
                         </div>
 
@@ -683,11 +490,11 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             <div class="relative">
                                 <i class="fas fa-map-marker-alt absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                                 <input type="text" name="adresse" value="<?= htmlspecialchars($user['adresse'] ?? '') ?>"
-                                    class="glass-input w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl focus:outline-none font-medium text-sm text-slate-800">
+                                    class="bg-white/92 backdrop-blur-[12px] border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(102,126,234,0.15),0_8px_30px_rgba(0,0,0,0.12)] focus:-translate-y-0.5 transition-all w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-xl focus:outline-none font-medium text-base text-slate-800">
                             </div>
                         </div>
 
-                        <button type="submit" name="update_info" class="btn-primary w-full py-3 sm:py-4 rounded-xl text-white font-bold text-base sm:text-lg shadow-lg flex items-center justify-center gap-2">
+                        <button type="submit" name="update_info" class="bg-gradient-to-br from-[#667eea] to-[#764ba2] hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(102,126,234,0.4)] transition-all w-full py-3 sm:py-4 rounded-xl text-white font-bold text-base sm:text-lg shadow-lg flex items-center justify-center gap-2">
                             <i class="fas fa-save"></i>
                             Sove Chanjman yo
                         </button>
@@ -697,10 +504,9 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                     <div class="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-200/60">
 
                         <?php if ($isMerchant): ?>
-                            <!-- Machann deja apwouve -->
                             <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-xl">
                                 <div class="flex flex-col sm:flex-row items-center gap-4">
-                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                                         <i class="fas fa-crown text-3xl sm:text-4xl"></i>
                                     </div>
                                     <div class="flex-1 text-center sm:text-left">
@@ -722,10 +528,9 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             </div>
 
                         <?php elseif ($status_demann === 'pending'): ?>
-                            <!-- Demann an kou: Bar pwogrès -->
                             <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-lg">
                                 <div class="flex items-center gap-3 sm:gap-4 mb-4">
-                                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 animate-pulse flex-shrink-0">
+                                    <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 animate-pulse shrink-0">
                                         <i class="fas fa-hourglass-half text-xl sm:text-2xl"></i>
                                     </div>
                                     <div class="flex-1">
@@ -734,15 +539,14 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                                     </div>
                                 </div>
 
-                                <!-- Bar pwogrès -->
                                 <div class="mb-4">
                                     <div class="flex justify-between text-xs font-semibold text-blue-800 mb-2">
                                         <span>Soumèt</span>
                                         <span>Verifikasyon</span>
                                         <span>Apwobasyon</span>
                                     </div>
-                                    <div class="progress-container h-3">
-                                        <div class="progress-bar h-full rounded-full" style="width: 50%"></div>
+                                    <div class="bg-white/30 rounded-full overflow-hidden h-3">
+                                        <div class="bg-gradient-to-r from-blue-500 to-violet-500 h-full rounded-full transition-all duration-1000" style="width: 50%"></div>
                                     </div>
                                 </div>
 
@@ -759,9 +563,8 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             </div>
 
                         <?php elseif ($status_demann === 'rejected'): ?>
-                            <!-- Demann rejte -->
                             <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-red-50 border-2 border-red-200 flex items-center gap-3 sm:gap-4">
-                                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
                                     <i class="fas fa-times-circle text-xl sm:text-2xl"></i>
                                 </div>
                                 <div>
@@ -774,13 +577,11 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             </div>
 
                         <?php elseif ($isAdmin): ?>
-                            <!-- Admin: Pa montre anyen -->
 
                         <?php else: ?>
-                            <!-- Itilizatè regilye -->
-                            <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card">
+                            <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:bg-white/95 transition-all">
                                 <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl sm:text-2xl shadow-lg flex-shrink-0">
+                                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl sm:text-2xl shadow-lg shrink-0">
                                         <i class="fas fa-store"></i>
                                     </div>
                                     <div class="flex-1">
@@ -798,17 +599,17 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                 </div>
 
             <?php elseif ($activeTab === 'security'): ?>
-                <div class="animate-slide-up max-w-2xl">
-                    <h2 class="text-xl sm:text-2xl font-display font-bold text-slate-800 mb-4 sm:mb-6">Sekirite Kont</h2>
+                <div class="max-w-2xl">
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-4 sm:mb-6" style="font-family: 'Space Grotesk', sans-serif;">Sekirite Kont</h2>
 
                     <div class="space-y-4 sm:space-y-6">
-                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card shadow-sm">
+                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 shadow-sm">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 sm:mb-4">
                                 <div>
                                     <h4 class="font-bold text-slate-800 text-sm sm:text-base">Modpas</h4>
                                     <p class="text-xs sm:text-sm text-slate-500">Dènye chanjman: 30 jou de sa</p>
                                 </div>
-                                <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-slate-300 hover:bg-white/80 font-medium text-xs sm:text-sm transition-colors glass-input">
+                                <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-slate-300 hover:bg-white/80 font-medium text-xs sm:text-sm transition-colors bg-white/92 backdrop-blur-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
                                     Modifye
                                 </button>
                             </div>
@@ -818,10 +619,10 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                             <p class="text-xs text-slate-500 mt-2">Fòs modpas: Bon</p>
                         </div>
 
-                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl glass-card shadow-sm">
+                        <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/88 backdrop-blur-[12px] border border-white/50 shadow-sm">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
                                         <i class="fas fa-mobile-alt"></i>
                                     </div>
                                     <div>
@@ -829,7 +630,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
                                         <p class="text-xs sm:text-sm text-slate-500">Aktive pou sekirite siperyè</p>
                                     </div>
                                 </div>
-                                <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                                <label class="relative inline-flex items-center cursor-pointer shrink-0">
                                     <input type="checkbox" class="sr-only peer">
                                     <div class="w-10 h-5 sm:w-11 sm:h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
                                 </label>
@@ -853,8 +654,62 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
     </main>
 
     <script>
+        let mobileMenuOpen = false;
+
+        function toggleMobileMenu() {
+            mobileMenuOpen = !mobileMenuOpen;
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            const icon = document.getElementById('hamburger-icon');
+
+            if (mobileMenuOpen) {
+                menu.style.maxHeight = '400px';
+                menu.style.opacity = '1';
+                overlay.style.opacity = '1';
+                overlay.style.visibility = 'visible';
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+                document.body.style.overflow = 'hidden';
+            } else {
+                closeMobileMenu();
+            }
+        }
+
+        function closeMobileMenu() {
+            mobileMenuOpen = false;
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-overlay');
+            const icon = document.getElementById('hamburger-icon');
+
+            menu.style.maxHeight = '0';
+            menu.style.opacity = '0';
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+            document.body.style.overflow = '';
+        }
+
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                closeMobileMenu();
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && mobileMenuOpen) {
+                closeMobileMenu();
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768 && mobileMenuOpen) {
+                closeMobileMenu();
+            }
+        });
+
         document.querySelectorAll('a[href^="?tab="]').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function() {
                 document.body.style.cursor = 'wait';
             });
         });
@@ -873,7 +728,7 @@ $status_demann = strtolower($user['merchant_status'] ?? '');
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            const stats = document.querySelectorAll('.stat-card .text-2xl, .stat-card .text-3xl');
+            const stats = document.querySelectorAll('[data-counter]');
             stats.forEach(stat => {
                 const value = parseInt(stat.innerText) || 0;
                 if (value > 0) {
