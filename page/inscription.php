@@ -1,7 +1,35 @@
 <?php
+set_time_limit(120); // Bay PHP 2 minit pou l travay
 session_start();
 require_once dirname(__DIR__) . '/config/db.php';
 require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__) . '/includes/notifications.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        // Anrejistre itilizatè a...
+        $stmt = $pdo->prepare("INSERT INTO users (prenom, nom, email, telephone, password, role) VALUES (?, ?, ?, ?, ?, 'customer')");
+        $stmt->execute([$_POST['prenom'], $_POST['nom'], $_POST['email'], $_POST['telephone'], password_hash($_POST['password'], PASSWORD_DEFAULT)]);
+
+        // Voye notifikasyon bay admin yo
+        $user_data = [
+            'prenom' => $_POST['prenom'],
+            'nom' => $_POST['nom'],
+            'email' => $_POST['email'],
+            'telephone' => $_POST['telephone'],
+            'role' => 'customer'
+        ];
+        notifyNewUserRegistration($user_data);
+
+        header('Location: login.php?success=1');
+        exit();
+    } catch (PDOException $e) {
+        $error = $e->getMessage();
+    }
+}
+
+// 0. CHÈK ENPÒTAN: Asire w non fichye sa a kòrèk (mail.php oswa functions.php)
+require_once dirname(__DIR__) . '/config/mail.php';
 
 // 1. Chaje varyab anviwònman yo (.env)
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
@@ -17,14 +45,13 @@ $client->setClientId($clientID);
 $client->setClientSecret($clientSecret);
 $client->setRedirectUri($redirectUri);
 
-// TRÈ ENPÒTAN: Ajoute pèmisyon yo isit la
 $client->addScope("email");
 $client->addScope("profile");
 
 $error = "";
 $success = "";
 
-// --- 3. TRAITEMENT RETOUR GOOGLE (Lè itilizatè a fin otorize sou Google) ---
+// --- 3. TRAITEMENT RETOUR GOOGLE ---
 if (isset($_GET['code'])) {
     try {
         $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
@@ -39,36 +66,52 @@ if (isset($_GET['code'])) {
             $prenom = $google_info->givenName ?? 'Utilisateur';
             $google_id = $google_info->id;
 
-            // Tcheke si imel sa egziste deja nan baz de done a
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
             if ($user) {
-                // Si kont lan egziste, nou mete ID Google la si l potko la
                 if (empty($user['google_id'])) {
                     $update = $pdo->prepare("UPDATE users SET google_id = ? WHERE id = ?");
                     $update->execute([$google_id, $user['id']]);
                 }
                 $success = "Kont sa egziste deja. Koneksyon an kous...";
             } else {
-                // Kreye nouvo kont lan si l pa egziste
+                // KREYE NOUVO KONT GOOGLE
                 $insert = $pdo->prepare("INSERT INTO users (nom, prenom, email, role, google_id) VALUES (?, ?, ?, 'user', ?)");
-                $insert->execute([$nom, $prenom, $email, $google_id]);
+                if ($insert->execute([$nom, $prenom, $email, $google_id])) {
 
-                // Rekipere itilizatè nou fenk kreye a
+                    // --- OTO-MAIL GOOGLE ---
+                    $sujet = "Byenvini nan fanmi Le Stock!";
+                    // ATANSYON: Mwen ranje $prenom isit la paske se li ou te gen anlè a
+                    $html = "
+                    <div style='background-color: #f9fafb; padding: 40px; font-family: sans-serif;'>
+                        <div style='max-width: 600px; margin: auto; background: white; border-radius: 20px; padding: 30px; border: 1px solid #eee;'>
+                            <h1 style='color: #4f46e5; text-align: center;'>Le Stock Entreprise</h1>
+                            <p style='font-size: 16px; color: #374151;'>Bonjou <strong>$prenom</strong>,</p>
+                            <p style='color: #4b5563; line-height: 1.6;'>Nou kontan wè ou chwazi nou pou jere stock ou ak acha ou yo. Kont ou an aktive kounye a!</p>
+                            <div style='text-align: center; margin-top: 30px;'>
+                                <a href='http://localhost/le-stock/page/login.php' style='background-color: #4f46e5; color: white; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;'>Konekte sou Kont ou</a>
+                            </div>
+                            <p style='margin-top: 40px; font-size: 12px; color: #9ca3af; text-align: center;'>
+                                &copy; 2026 Le Stock Entreprise | Cap-Haïtien, Haiti
+                            </p>
+                        </div>
+                    </div>";
+
+                    voyeImel($email, $sujet, $html);
+                }
+
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
                 $stmt->execute([$pdo->lastInsertId()]);
                 $user = $stmt->fetch();
                 $success = "Enskripsyon reyisi ak Google!";
             }
 
-            // Mete enfòmasyon nan Session pou konekte l
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['prenom'] . ' ' . $user['nom'];
             $_SESSION['role'] = $user['role'];
 
-            // Redireksyone apre 2 segonn
             header("refresh:2;url=../index.php");
         }
     } catch (Exception $e) {
@@ -76,7 +119,7 @@ if (isset($_GET['code'])) {
     }
 }
 
-// --- 4. TRAITEMENT TRADISYONÈL (Lè l ranpli fòm nan) ---
+// --- 4. TRAITEMENT TRADISYONÈL ---
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_GET['code'])) {
     $lastname  = htmlspecialchars($_POST['lastname']);
     $firstname = htmlspecialchars($_POST['firstname']);
@@ -100,6 +143,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_GET['code'])) {
                 $insert = $pdo->prepare($sql);
 
                 if ($insert->execute([$lastname, $firstname, $email, $address, $phone, $hashed_password])) {
+
+                    // --- OTO-MAIL TRADISYONÈL ---
+                    $sujet = "Konfimasyon Enskripsyon - Le Stock";
+                    $html = "
+                        <div style='font-family: Arial; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>
+                            <h2 style='color: #4f46e5;'>Byenvini $firstname!</h2>
+                            <p>Mèsi deske ou chwazi <b>Le Stock Entreprise</b>. Kont ou an prè pou w itilize.</p>
+                            <p>Ou ka konekte kounye a ak imèl ou: <b>$email</b></p>
+                            <br>
+                            <small>Si se pa ou ki te fè demann sa a, tanpri inyore imèl sa a.</small>
+                        </div>";
+
+                    voyeImel($email, $sujet, $html);
+
                     $success = "Enskripsyon reyisi! W ap redireksyone nan paj login...";
                     header("refresh:2;url=login.php");
                 }

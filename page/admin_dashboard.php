@@ -9,17 +9,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
- $msg = "";
- $error = "";
- $section = $_GET['section'] ?? 'dashboard';
+$msg = "";
+$error = "";
+$section = $_GET['section'] ?? 'dashboard';
 
 // ==================== KONFIGIRASYON REDIREKSYON ====================
 
 // Detekte URL absoli pou admin.php
- $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
- $host = $_SERVER['HTTP_HOST'];
- $script_name = $_SERVER['SCRIPT_NAME'];
- $admin_url = $protocol . $host . $script_name;
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$host = $_SERVER['HTTP_HOST'];
+$script_name = $_SERVER['SCRIPT_NAME'];
+$admin_url = $protocol . $host . $script_name;
 
 // Fonksyon redireksyon amelyore
 function redirect($section, $message = '', $error = '', $return_to_same = false)
@@ -471,10 +471,10 @@ if (isset($_GET['error'])) $error = htmlspecialchars($_GET['error']);
 
 // ==================== REKIPERE DONE YO ====================
 
- $all_cats = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+$all_cats = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
 
- $demandes_marchands = [];
- $demandes_file = (dirname(__DIR__)) . '/admin/demandes_marchands.txt';
+$demandes_marchands = [];
+$demandes_file = (dirname(__DIR__)) . '/admin/demandes_marchands.txt';
 if (file_exists($demandes_file) && filesize($demandes_file) > 0) {
     $content = file_get_contents($demandes_file);
     $blocks = explode('=== DEMANN MACHANN ===', $content);
@@ -511,13 +511,13 @@ if (file_exists($demandes_file) && filesize($demandes_file) > 0) {
     }
 }
 
- $pending_merchants = array_filter($demandes_marchands, fn($d) => $d['statut'] === 'pending');
+$pending_merchants = array_filter($demandes_marchands, fn($d) => $d['statut'] === 'pending');
 
- $all_products = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id DESC")->fetchAll();
+$all_products = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id DESC")->fetchAll();
 
- $all_users = $pdo->query("SELECT id, BIN_TO_UUID(uuid) as uuid_text, prenom, nom, email, role, merchant_status, created_at FROM users ORDER BY id DESC")->fetchAll();
+$all_users = $pdo->query("SELECT id, BIN_TO_UUID(uuid) as uuid_text, prenom, nom, email, role, merchant_status, created_at FROM users ORDER BY id DESC")->fetchAll();
 
- $hot_deals = [];
+$hot_deals = [];
 try {
     $deals_stmt = $pdo->query("SELECT * FROM hot_deals ORDER BY created_at DESC");
     while ($deal = $deals_stmt->fetch()) {
@@ -530,11 +530,11 @@ try {
     $hot_deals = [];
 }
 
- $total_products = count($all_products);
- $total_categories = count($all_cats);
- $total_users = count($all_users);
- $total_merchants = $pdo->query("SELECT COUNT(*) as total FROM users WHERE role = 'merchant'")->fetch()['total'];
- $total_hot_deals = count($hot_deals);
+$total_products = count($all_products);
+$total_categories = count($all_cats);
+$total_users = count($all_users);
+$total_merchants = $pdo->query("SELECT COUNT(*) as total FROM users WHERE role = 'merchant'")->fetch()['total'];
+$total_hot_deals = count($hot_deals);
 
 // ==================== FONKSYON ÈD ====================
 
@@ -557,8 +557,8 @@ function getStatusBadge($status)
     }
 }
 
- $uploads_base_path = dirname(dirname(__FILE__)) . "/uploads/";
- $img_base_url = '../uploads/';
+$uploads_base_path = dirname(dirname(__FILE__)) . "/uploads/";
+$img_base_url = '../uploads/';
 ?>
 <!DOCTYPE html>
 <html lang="ht">
@@ -578,8 +578,14 @@ function getStatusBadge($status)
                     },
                     keyframes: {
                         fadeIn: {
-                            from: { opacity: '0', transform: 'translateY(10px)' },
-                            to: { opacity: '1', transform: 'translateY(0)' },
+                            from: {
+                                opacity: '0',
+                                transform: 'translateY(10px)'
+                            },
+                            to: {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            },
                         },
                     },
                 },
@@ -669,6 +675,12 @@ function getStatusBadge($status)
             <a href="?section=promotions" class="sidebar-btn w-full text-left p-4 rounded-xl flex items-center gap-3 transition-all bg-transparent border-none text-white cursor-pointer font-italic font-bold uppercase text-sm mb-2 hover:bg-slate-800 border-l-4 border-transparent <?= isActive($section, 'promotions') ? '!bg-slate-800 !border-l-blue-500' : '' ?>" onclick="closeSidebarOnMobile()">
                 <i class="fas fa-percentage w-6"></i> Promotions
             </a>
+
+            <!-- ==================== LIEN VOYE EMAIL (NOUVO) ==================== -->
+            <a href="admin_email.php" class="sidebar-btn w-full text-left p-4 rounded-xl flex items-center gap-3 transition-all bg-transparent border-none text-white cursor-pointer font-italic font-bold uppercase text-sm mb-2 hover:bg-slate-800 border-l-4 border-transparent <?= basename($_SERVER['PHP_SELF']) === 'admin_email.php' ? '!bg-slate-800 !border-l-blue-500' : '' ?>">
+                <i class="fas fa-envelope w-6"></i> Voye Email
+            </a>
+
             <a href="../index.php" class="sidebar-btn w-full text-left p-4 rounded-xl flex items-center gap-3 transition-all bg-transparent border-none text-slate-400 cursor-pointer font-italic font-bold uppercase text-sm mb-2 hover:bg-slate-800 hover:text-white border-l-4 border-transparent">
                 <i class="fas fa-arrow-left w-6"></i> Retounen nan sit
             </a>
@@ -1528,14 +1540,14 @@ function getStatusBadge($status)
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const icon = document.getElementById('hamburgerIcon');
-            
+
             sidebar.classList.toggle('-translate-x-full');
             sidebar.classList.toggle('translate-x-0');
             overlay.classList.toggle('opacity-0');
             overlay.classList.toggle('invisible');
             overlay.classList.toggle('opacity-100');
             overlay.classList.toggle('visible');
-            
+
             if (sidebar.classList.contains('translate-x-0')) {
                 icon.classList.remove('fa-bars');
                 icon.classList.add('fa-times');
@@ -1549,7 +1561,7 @@ function getStatusBadge($status)
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const icon = document.getElementById('hamburgerIcon');
-            
+
             sidebar.classList.add('-translate-x-full');
             sidebar.classList.remove('translate-x-0');
             overlay.classList.add('opacity-0', 'invisible');

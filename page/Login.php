@@ -12,7 +12,7 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
     $dotenv->load();
 }
 
-// 3. Konfigirasyon Google (Vèsyon Konpatib)
+// 3. Konfigirasyon Google
 $client = new Google_Client();
 $client->setClientId($_ENV['GOOGLE_CLIENT_ID'] ?? '');
 $client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET'] ?? '');
@@ -20,13 +20,13 @@ $client->setRedirectUri($_ENV['GOOGLE_REDIRECT_URL'] ?? '');
 $client->addScope("email");
 $client->addScope("profile");
 
-// Inyore SSL pou evite erè JSON sou Wamp
+// Inyore SSL pou evite erè JSON sou Wamp/Localhost
 $default_opts = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]];
 stream_context_set_default($default_opts);
 
 $error = "";
 
-// --- 4. LOJIK KONEKSYON AK IMÈL (POST) ---
+// --- 4. LOJIK KONEKSYON TRADISYONÈL (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_traditional'])) {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -42,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_traditional']))
                 $_SESSION['user_name'] = ($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '');
                 $_SESSION['role'] = $user['role'];
 
-                // Redireksyon otomatik
                 if ($user['role'] === 'admin') header("Location: admin_dashboard.php");
                 elseif ($user['role'] === 'merchant') header("Location: acceuil.php");
                 else header("Location: ../index.php");
@@ -59,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_traditional']))
 // --- 5. LOJIK GOOGLE (GET) ---
 if (isset($_GET['code'])) {
     try {
-        // Metòd pou vye vèsyon bibliyotèk la
         $client->authenticate($_GET['code']);
         $token = $client->getAccessToken();
 
@@ -70,30 +68,53 @@ if (isset($_GET['code'])) {
 
             $email = $google_info->email;
             $google_id = $google_info->id;
-            $nom = $google_info->familyName ?? '';
-            $prenom = $google_info->givenName ?? '';
+            $nom = $google_info->familyName ?? 'Utilisateur';
+            $prenom = $google_info->givenName ?? 'Le Stock';
 
-            // Tcheke si itilizatè a egziste
+            // Tcheke si itilizatè a egziste nan DB
             $stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = ? OR email = ?");
             $stmt->execute([$google_id, $email]);
             $user = $stmt->fetch();
 
             if ($user) {
-                // Si l te gen imèl sèlman, n ap ajoute Google ID a
+                // Si l te gen imèl deja men san Google ID, nou update li
                 if (empty($user['google_id'])) {
                     $pdo->prepare("UPDATE users SET google_id = ? WHERE id = ?")->execute([$google_id, $user['id']]);
                 }
             } else {
-                // Enskripsyon Otomatik
+                // --- ENSKRIPSYON OTOMATIK GOOGLE ---
                 $insert = $pdo->prepare("INSERT INTO users (nom, prenom, email, role, google_id) VALUES (?, ?, ?, 'user', ?)");
-                $insert->execute([$nom, $prenom, $email, $google_id]);
+                if ($insert->execute([$nom, $prenom, $email, $google_id])) {
 
+                    // VOYE IMÈL BYENVINI PISKE SE YON NOUVO KONT
+                    require_once dirname(__DIR__) . '/config/mail.php';
+
+                    $sujet = "Byenvini nan fanmi Le Stock!";
+                    $html = "
+                    <div style='background-color: #f9fafb; padding: 40px; font-family: sans-serif;'>
+                        <div style='max-width: 600px; margin: auto; background: white; border-radius: 20px; padding: 30px; border: 1px solid #eee;'>
+                            <h1 style='color: #4f46e5; text-align: center;'>Le Stock Entreprise</h1>
+                            <p style='font-size: 16px; color: #374151;'>Bonjou <strong>$prenom</strong>,</p>
+                            <p style='color: #4b5563; line-height: 1.6;'>Nou kontan wè ou chwazi nou pou jere biznis ou. Kont ou an aktive kounye a ak Google!</p>
+                            <div style='text-align: center; margin-top: 30px;'>
+                                <a href='http://localhost/le-stock/page/login.php' style='background-color: #4f46e5; color: white; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;'>Kòmanse Kounye a</a>
+                            </div>
+                            <p style='margin-top: 40px; font-size: 12px; color: #9ca3af; text-align: center;'>
+                                &copy; 2026 Le Stock Entreprise | Cap-Haïtien, Haiti
+                            </p>
+                        </div>
+                    </div>";
+
+                    voyeImel($email, $sujet, $html);
+                }
+
+                // Rekipere enfòmasyon itilizatè a fenk kreye a
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
                 $stmt->execute([$pdo->lastInsertId()]);
                 $user = $stmt->fetch();
             }
 
-            // Konekte otomatikman
+            // Kreye Sesyon
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['prenom'] . ' ' . $user['nom'];
             $_SESSION['role'] = $user['role'];
@@ -118,7 +139,7 @@ if (isset($_GET['code'])) {
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .bg-image-side {
-            background: linear-gradient(rgba(118, 75, 162, 0.85), rgba(102, 126, 234, 0.85)),
+            background: linear-gradient(rgba(79, 70, 229, 0.85), rgba(124, 58, 237, 0.85)),
                 url('/le-stock/assets/img/stock.png') center/cover no-repeat;
         }
     </style>
@@ -184,7 +205,7 @@ if (isset($_GET['code'])) {
 
         <div class="w-full lg:w-1/2 bg-image-side flex flex-col justify-center px-10 lg:px-20 text-white order-1 lg:order-2 py-12">
             <h2 class="text-4xl lg:text-6xl font-black mb-6 leading-tight uppercase italic tracking-tighter">Le Stock Entreprise.</h2>
-            <p class="text-lg opacity-90 mb-12 font-medium italic tracking-wide">Jere stock ou, ogmante pwofi ou ak sistèm SonyPeter la.</p>
+            <p class="text-lg opacity-90 mb-12 font-medium italic tracking-wide">Jere stock ou ak sistèm SonyPeter la.</p>
             <div class="grid grid-cols-3 gap-8 border-t border-white/20 pt-10">
                 <div><span class="block text-3xl font-black">150+</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Kliyan</span></div>
                 <div><span class="block text-3xl font-black">1.2k+</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Pwodwi</span></div>

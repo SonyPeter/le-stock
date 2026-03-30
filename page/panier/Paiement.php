@@ -6,6 +6,25 @@ ini_set('display_errors', 1);
 
 require_once dirname(__DIR__, 2) . '/config/db.php';
 require_once dirname(__DIR__, 2) . '/config/stripe.php';
+require_once dirname(__DIR__, 2) . '/includes/notifications.php';
+
+// Apre ou anrejistre kòmand nan baz done a...
+// Egzanp: Si done yo nan sesyon an apre peman an fin fèt
+$order_id = $_SESSION['last_order_id'] ?? 'N/A';
+$prenom = $_SESSION['user_prenom'] ?? 'Kliyan';
+$nom = $_SESSION['user_nom'] ?? '';
+$email = $_SESSION['user_email'] ?? '';
+$total = $_SESSION['cart_total'] ?? 0;
+$items = $_SESSION['cart_items'] ?? []; // Yon tablo ak pwodwi yo
+
+// Apre sa ou rele fonksyon an
+notifyNewOrder([
+    'order_id' => $order_id,
+    'customer_name' => $prenom . ' ' . $nom,
+    'customer_email' => $email,
+    'total_amount' => $total,
+    'items' => $items
+]);
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
