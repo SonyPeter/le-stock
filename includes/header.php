@@ -69,7 +69,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             Promotions
 
                         </a>
-                        <a href="#" class="text-gray-700 hover:text-blue-600 font-medium transition">Nouveautés</a>
+                        <a href="page/affiliation.php" class="text-gray-700 hover:text-blue-600 font-medium transition">Affiliations</a>
                     </nav>
 
                     <!-- Barre de recherche -->
@@ -133,7 +133,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                         <a href="page/profile.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                             <i class="fas fa-user text-blue-600"></i>Mon profil
                                         </a>
-                                        <a href="page/commandes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
+                                        <a href="page/panier/commande.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">
                                             <i class="fas fa-box text-blue-600"></i>Mes commandes
                                         </a>
                                         <a href="page/profile.php/?tab=settings" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition">

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,18 +37,20 @@
         }
     </script>
 </head>
+
 <body class="font-sans bg-white text-gray-900 antialiased">
 
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="#" class="flex items-center gap-2">
+            <a href="../index.php" class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
                     <span class="text-white font-bold text-sm">LE</span>
                 </div>
-                <span class="font-bold text-lg tracking-tight">LE - STOCK</span>
+                <span class="font-bold text-lg tracking-tight">STOCK</span>
             </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                <a href="../index.php" class="hover:text-brand-600 transition-colors">Acceuil</a>
                 <a href="#avantages" class="hover:text-brand-600 transition-colors">Avantages</a>
                 <a href="#comment" class="hover:text-brand-600 transition-colors">Comment ça marche</a>
                 <a href="#programme" class="hover:text-brand-600 transition-colors">Programme</a>
@@ -374,12 +377,10 @@
                             id="emailInput"
                             placeholder="Votre adresse email"
                             required
-                            class="flex-1 px-5 py-3.5 rounded-xl bg-white text-gray-900 placeholder-gray-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
-                        >
+                            class="flex-1 px-5 py-3.5 rounded-xl bg-white text-gray-900 placeholder-gray-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg">
                         <button
                             type="submit"
-                            class="px-7 py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-xl transition-all duration-300 shadow-lg whitespace-nowrap"
-                        >
+                            class="px-7 py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-xl transition-all duration-300 shadow-lg whitespace-nowrap">
                             S'Inscrire
                         </button>
                     </form>
@@ -554,10 +555,14 @@
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
             });
         });
     </script>
 </body>
+
 </html>
