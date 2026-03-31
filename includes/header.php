@@ -68,8 +68,12 @@ if (session_status() === PHP_SESSION_NONE) {
                         <a href="page/promotion.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative">
                             Promotions
 
+                            
+
                         </a>
                         <a href="page/affiliation.php" class="text-gray-700 hover:text-blue-600 font-medium transition">Affiliations</a>
+
+                         <a href="page/Apropos.php" class="text-gray-700 hover:text-blue-600 font-medium transition">À Propos</a>
                     </nav>
 
                     <!-- Barre de recherche -->

@@ -299,6 +299,7 @@ switch ($sortBy) {
                 <a href="../index.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Accueil</a>
                 <a href="acceuil.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Galerie</a>
                 <a href="hot_deal.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Hot Deal</a>
+                <a href="Apropos.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">À Propos</a>
             </nav>
 
             <!-- Actions -->

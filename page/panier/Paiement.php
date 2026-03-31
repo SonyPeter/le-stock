@@ -9,13 +9,12 @@ require_once dirname(__DIR__, 2) . '/config/stripe.php';
 require_once dirname(__DIR__, 2) . '/includes/notifications.php';
 
 // Apre ou anrejistre kòmand nan baz done a...
-// Egzanp: Si done yo nan sesyon an apre peman an fin fèt
-$order_id = $_SESSION['last_order_id'] ?? 'N/A';
-$prenom = $_SESSION['user_prenom'] ?? 'Kliyan';
-$nom = $_SESSION['user_nom'] ?? '';
-$email = $_SESSION['user_email'] ?? '';
-$total = $_SESSION['cart_total'] ?? 0;
-$items = $_SESSION['cart_items'] ?? []; // Yon tablo ak pwodwi yo
+ $order_id = $_SESSION['last_order_id'] ?? 'N/A';
+ $prenom = $_SESSION['user_prenom'] ?? 'Kliyan';
+ $nom = $_SESSION['user_nom'] ?? '';
+ $email = $_SESSION['user_email'] ?? '';
+ $total = $_SESSION['cart_total'] ?? 0;
+ $items = $_SESSION['cart_items'] ?? [];
 
 // Apre sa ou rele fonksyon an
 notifyNewOrder([
@@ -31,14 +30,14 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
-$message = '';
-$messageType = '';
+ $user_id = $_SESSION['user_id'];
+ $message = '';
+ $messageType = '';
 
 // Pran pwodwi yo nan panier a
-$cartItems = [];
-$subtotal = 0;
-$totalItems = 0;
+ $cartItems = [];
+ $subtotal = 0;
+ $totalItems = 0;
 
 try {
     $stmt = $pdo->prepare("
@@ -79,13 +78,13 @@ if (empty($cartItems)) {
 }
 
 // Kalkile total yo
-$promoDiscount = $_SESSION['promo_discount'] ?? 0;
-$discountAmount = $subtotal * $promoDiscount;
-$subtotalAfterDiscount = $subtotal - $discountAmount;
-$taxRate = 0.05;
-$taxAmount = $subtotalAfterDiscount * $taxRate;
-$shipping = ($subtotal > 5000) ? 0 : 250;
-$total = $subtotalAfterDiscount + $taxAmount + $shipping;
+ $promoDiscount = $_SESSION['promo_discount'] ?? 0;
+ $discountAmount = $subtotal * $promoDiscount;
+ $subtotalAfterDiscount = $subtotal - $discountAmount;
+ $taxRate = 0.05;
+ $taxAmount = $subtotalAfterDiscount * $taxRate;
+ $shipping = ($subtotal > 5000) ? 0 : 250;
+ $total = $subtotalAfterDiscount + $taxAmount + $shipping;
 
 // Jere soumisyon fòm peman an
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -95,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $paymentMethod = 'card';
     }
 
-    // ============ KOREKSYON: Pran done adrès livrezon ============
+    // Pran done adrès livrezon
     $deliveryAddress = trim($_POST['delivery_address'] ?? '');
     $deliveryCity = trim($_POST['delivery_city'] ?? '');
     $deliveryPhone = trim($_POST['delivery_phone'] ?? '');
@@ -132,12 +131,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($paymentIntent->status === 'succeeded') {
                         try {
                             $orderStmt = $pdo->prepare("
-                                INSERT INTO orders (user_id, total_amount, subtotal, tax_amount, 
-                                                  shipping_amount, discount_amount, promo_code, 
-                                                  payment_method, payment_status, stripe_payment_intent_id, 
-                                                  delivery_address, delivery_city, delivery_phone, delivery_notes,
-                                                  status, created_at)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, 'card', 'paid', ?, ?, ?, ?, ?, 'pending', NOW())
+                                INSERT INTO orders SET
+                                    user_id = ?,
+                                    total_amount = ?,
+                                    subtotal = ?,
+                                    tax_amount = ?,
+                                    shipping_amount = ?,
+                                    discount_amount = ?,
+                                    promo_code = ?,
+                                    payment_method = 'card',
+                                    payment_status = 'paid',
+                                    stripe_payment_intent_id = ?,
+                                    delivery_address = ?,
+                                    delivery_city = ?,
+                                    delivery_phone = ?,
+                                    delivery_notes = ?,
+                                    status = 'pending',
+                                    created_at = NOW()
                             ");
                             $orderStmt->execute([
                                 $user_id,
@@ -160,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     ? $item['price_promo'] : $item['price'];
                                 $itemTotal = $price * $item['quantity'];
 
-                                $itemStmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)");
+                                $itemStmt = $pdo->prepare("INSERT INTO order_items SET order_id = ?, product_id = ?, quantity = ?, unit_price = ?, total_price = ?");
                                 $itemStmt->execute([$orderId, $item['product_id'], $item['quantity'], $price, $itemTotal]);
 
                                 $updateStock = $pdo->prepare("UPDATE products SET stock_qty = stock_qty - ? WHERE id = ?");
@@ -222,7 +232,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $receiptPath = '';
             if (isset($_FILES['wallet_receipt']) && $_FILES['wallet_receipt']['error'] === 0) {
-                // ============ KOREKSYON: Chemen upload korek ============
                 $uploadDir = dirname(__DIR__, 2) . '/uploads/payments/';
 
                 if (!is_dir($uploadDir)) {
@@ -249,7 +258,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if (move_uploaded_file($_FILES['wallet_receipt']['tmp_name'], $uploadFile)) {
-                    // ============ KOREKSYON: Sove chemen relatif pou afichaj fasil ============
                     $receiptPath = 'uploads/payments/' . $fileName;
                 } else {
                     $message = 'Erè nan telechajman fichye a. Tanpri eseye ankò.';
@@ -265,14 +273,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo->beginTransaction();
 
-                // ============ KOREKSYON: Ajoute kolòn delivery_address, delivery_city, delivery_phone, delivery_notes ============
+                // KOREKSYON FINALE : Utilisation de INSERT SET
                 $orderStmt = $pdo->prepare("
-                    INSERT INTO orders (user_id, total_amount, subtotal, tax_amount, shipping_amount, discount_amount, promo_code, 
-                                     payment_method, payment_status, wallet_type, wallet_full_name, wallet_email, 
-                                     wallet_sender_phone, wallet_transaction_id, wallet_receipt_path,
-                                     delivery_address, delivery_city, delivery_phone, delivery_notes,
-                                     status, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, 'mobile_wallet', 'pending_verification', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
+                    INSERT INTO orders SET
+                        user_id = ?,
+                        total_amount = ?,
+                        subtotal = ?,
+                        tax_amount = ?,
+                        shipping_amount = ?,
+                        discount_amount = ?,
+                        promo_code = ?,
+                        payment_method = 'mobile_wallet',
+                        payment_status = 'pending_verification',
+                        wallet_type = ?,
+                        wallet_full_name = ?,
+                        wallet_email = ?,
+                        wallet_sender_phone = ?,
+                        wallet_transaction_id = ?,
+                        wallet_receipt_path = ?,
+                        delivery_address = ?,
+                        delivery_city = ?,
+                        delivery_phone = ?,
+                        delivery_notes = ?,
+                        status = 'pending',
+                        created_at = NOW()
                 ");
                 $orderStmt->execute([
                     $user_id,
@@ -293,11 +317,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $deliveryPhone,
                     $deliveryNotes
                 ]);
+                
                 $orderId = $pdo->lastInsertId();
 
                 foreach ($cartItems as $item) {
                     $price = ($item['price_promo'] > 0 && $item['price_promo'] < $item['price']) ? $item['price_promo'] : $item['price'];
-                    $itemStmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)");
+                    
+                    $itemStmt = $pdo->prepare("INSERT INTO order_items SET order_id = ?, product_id = ?, quantity = ?, unit_price = ?, total_price = ?");
                     $itemStmt->execute([$orderId, $item['product_id'], $item['quantity'], $price, $price * $item['quantity']]);
 
                     $updateStock = $pdo->prepare("UPDATE products SET stock_qty = stock_qty - ? WHERE id = ?");
@@ -306,8 +332,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $clearCart = $pdo->prepare("DELETE FROM panier WHERE user_id = ?");
                 $clearCart->execute([$user_id]);
+                
                 unset($_SESSION['promo_code'], $_SESSION['promo_discount']);
                 $_SESSION['last_order_id'] = $orderId;
+                
                 $pdo->commit();
 
                 header('Location: commande.php?success=1&order_id=' . $orderId);
@@ -626,12 +654,6 @@ function getDisplayPrice($item)
             border-color: #ef4444;
         }
 
-        /* ============ KOREKSYON: Styles pou adrès livrezon ============ */
-        .address-section {
-            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-            border: 1px solid rgba(34, 197, 94, 0.5);
-        }
-
         .address-input {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -647,6 +669,13 @@ function getDisplayPrice($item)
 
         .address-input::placeholder {
             color: rgba(255, 255, 255, 0.5);
+        }
+
+        .section-divider {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(59, 130, 246, 0.4), transparent);
+            margin: 2rem 0;
         }
     </style>
 
@@ -740,198 +769,229 @@ function getDisplayPrice($item)
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
                 <div class="lg:col-span-2 space-y-5">
 
-                    <!-- ============ KOREKSYON: Ajoute seksyon adrès livrezon ============ -->
-                    <div class="glass-dark rounded-xl shadow-lg overflow-hidden border border-green-800/50">
-                        <div class="border-b border-slate-700 bg-slate-900/80 px-4 sm:px-6 py-4">
-                            <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                                <i class="fas fa-map-marker-alt text-green-400"></i>
-                                Adrès Livrezon
-                            </h2>
-                            <p class="text-sm text-slate-400 mt-1">Kote nou dwa voye kòmand lan?</p>
-                        </div>
-                        <div class="p-4 sm:p-6">
-                            <div class="space-y-4">
-                                <div class="space-y-2">
-                                    <label class="block text-sm font-semibold text-green-200">
-                                        <i class="fas fa-home mr-1"></i> Adrès Konplè <span class="text-red-400">*</span>
-                                    </label>
-                                    <textarea name="delivery_address" id="delivery_address" rows="2" required
-                                        class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500 resize-none"
-                                        placeholder="Egz: Rue 15, Numewo 42, Site Canapé Vert"></textarea>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-green-200">
-                                            <i class="fas fa-city mr-1"></i> Vil / Komin <span class="text-red-400">*</span>
-                                        </label>
-                                        <input type="text" name="delivery_city" id="delivery_city" required
-                                            class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500"
-                                            placeholder="Egz: Port-au-Prince">
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-green-200">
-                                            <i class="fas fa-phone mr-1"></i> Telefòn pou Livrezon <span class="text-red-400">*</span>
-                                        </label>
-                                        <input type="tel" name="delivery_phone" id="delivery_phone" required
-                                            class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500"
-                                            placeholder="Egz: 509 37 12 3456">
-                                    </div>
-                                </div>
-                                <div class="space-y-2">
-                                    <label class="block text-sm font-semibold text-green-200">
-                                        <i class="fas fa-sticky-note mr-1"></i> Nòt Adisyonèl <span class="text-slate-500">(opsyonèl)</span>
-                                    </label>
-                                    <textarea name="delivery_notes" id="delivery_notes" rows="2"
-                                        class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500 resize-none"
-                                        placeholder="Egz: Kay la gen pòt ble, sonje pou w sonje avan ou rive..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Methods -->
+                    <!-- FORMULAIRE UNIQUE -->
                     <div class="glass-dark rounded-xl shadow-lg overflow-hidden border border-blue-800/50">
                         <div class="border-b border-slate-700 bg-slate-900/80 px-4 sm:px-6 py-4">
                             <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                                 <i class="fas fa-credit-card text-blue-400"></i>
-                                Chwazi metòd peman
+                                Paj Peman
                             </h2>
                         </div>
+
                         <div class="p-4 sm:p-6">
+
                             <form method="POST" action="" id="paymentForm" enctype="multipart/form-data">
                                 <input type="hidden" name="payment_method" id="paymentMethod" value="card">
 
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-                                    <button type="button" onclick="setPaymentMethod('card')" class="payment-method-btn active p-4 rounded-xl flex flex-col items-center gap-2 relative bg-slate-800/50 text-white" id="btn-card">
-                                        <i class="fas fa-credit-card text-2xl text-blue-400"></i>
-                                        <span class="font-medium text-sm sm:text-base">Kat Labank</span>
-                                        <div class="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center check-icon"><i class="fas fa-check text-white text-xs"></i></div>
-                                    </button>
-                                    <button type="button" onclick="setPaymentMethod('paypal')" class="payment-method-btn p-4 rounded-xl flex flex-col items-center gap-2 relative bg-slate-800/50 text-white" id="btn-paypal">
-                                        <i class="fab fa-paypal text-2xl text-blue-400"></i>
-                                        <span class="font-medium text-sm sm:text-base">PayPal</span>
-                                    </button>
-                                    <button type="button" onclick="setPaymentMethod('mobile_wallet')" class="payment-method-btn p-4 rounded-xl flex flex-col items-center gap-2 relative bg-slate-800/50 text-white" id="btn-mobile_wallet">
-                                        <i class="fas fa-mobile-alt text-2xl text-blue-400"></i>
-                                        <span class="font-medium text-sm sm:text-base">NatCash / MonCash</span>
-                                    </button>
-                                </div>
+                                <!-- SEKSYON ADRES LIVEREZON -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-1">
+                                        <i class="fas fa-map-marker-alt text-green-400"></i>
+                                        Adrès Livrezon
+                                    </h3>
+                                    <p class="text-sm text-slate-400 mb-4">Kote nou dwa voye kòmand lan?</p>
 
-                                <!-- Card Form -->
-                                <div id="card-form" class="visible-form space-y-4">
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-blue-200">Nimewo Kat</label>
-                                        <div id="card-element" class="card-input w-full px-4 py-3 rounded-xl"></div>
-                                        <div id="card-errors" class="text-red-400 text-sm mt-1"></div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-blue-200">Non sou Kat la</label>
-                                        <input type="text" id="card-name" name="card_name" placeholder="JEAN DUPONT" class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500 uppercase">
-                                    </div>
-                                    <div class="flex items-center gap-3 p-3 sm:p-4 bg-blue-900/30 border border-blue-500/30 rounded-xl mt-4">
-                                        <i class="fas fa-lock text-blue-400 text-lg"></i>
-                                        <p class="text-sm text-blue-200 font-medium">Enfòmasyon peman ou yo chifre e sekirize pa Stripe.</p>
-                                    </div>
-                                </div>
-
-                                <!-- PayPal Form -->
-                                <div id="paypal-form" class="hidden-form py-8 text-center">
-                                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fab fa-paypal text-4xl text-white"></i></div>
-                                    <h3 class="text-xl font-bold text-white mb-2">Peye ak PayPal</h3>
-                                    <p class="text-blue-200 mb-6">Ou pral redirekte sou sit PayPal la.</p>
-                                    <div class="bg-slate-800/50 p-4 rounded-lg inline-block">
-                                        <p class="text-sm text-slate-400">Total pou peye:</p>
-                                        <p class="text-2xl font-bold text-white"><?php echo formatPrice($total); ?></p>
-                                    </div>
-                                </div>
-
-                                <!-- Mobile Wallet Form -->
-                                <div id="mobile_wallet-form" class="hidden-form space-y-5">
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-blue-200">Chwazi Sèvis Mobil</label>
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="wallet_type" value="natcash" class="peer hidden" checked>
-                                                <div class="p-4 rounded-xl border-2 border-slate-600 bg-slate-800/50 peer-checked:border-green-500 peer-checked:bg-green-900/30 transition-all text-center">
-                                                    <i class="fas fa-money-bill-wave text-2xl text-green-400 mb-2"></i>
-                                                    <p class="font-bold text-white">NatCash</p>
-                                                    <p class="text-xs text-slate-400">Natcom</p>
-                                                </div>
-                                            </label>
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="wallet_type" value="moncash" class="peer hidden">
-                                                <div class="p-4 rounded-xl border-2 border-slate-600 bg-slate-800/50 peer-checked:border-orange-500 peer-checked:bg-orange-900/30 transition-all text-center">
-                                                    <i class="fas fa-mobile-alt text-2xl text-orange-400 mb-2"></i>
-                                                    <p class="font-bold text-white">MonCash</p>
-                                                    <p class="text-xs text-slate-400">Digicel</p>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="wallet-info-box rounded-xl p-4 sm:p-5">
-                                        <div class="flex items-center gap-3 mb-3"><i class="fas fa-info-circle text-blue-300 text-xl"></i>
-                                            <h4 class="font-bold text-white">Enfòmasyon Kont Nou An</h4>
-                                        </div>
-                                        <div class="space-y-2 text-sm">
-                                            <div class="flex justify-between items-center py-2 border-b border-blue-400/30"><span class="text-blue-200">Non:</span><span class="font-bold text-white">LE STOCK S.A</span></div>
-                                            <div class="flex justify-between items-center py-2 border-b border-blue-400/30"><span class="text-blue-200">Nimewo NatCash:</span><span class="font-bold text-white text-lg select-all">509 37 45 1234</span></div>
-                                            <div class="flex justify-between items-center py-2"><span class="text-blue-200">Nimewo MonCash:</span><span class="font-bold text-white text-lg select-all">509 31 22 5678</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="wallet-steps rounded-xl p-4 sm:p-5">
-                                        <h4 class="font-bold text-white mb-4 flex items-center gap-2"><i class="fas fa-list-ol text-blue-400"></i> Etap pou swiv yo:</h4>
-                                        <div class="space-y-3">
-                                            <div class="flex items-start gap-3">
-                                                <div class="step-number">1</div>
-                                                <p class="text-sm text-blue-200">Fè yon transfè sòl nan yon nan nimewo ki anwo a.</p>
-                                            </div>
-                                            <div class="flex items-start gap-3">
-                                                <div class="step-number">2</div>
-                                                <p class="text-sm text-blue-200">Asire ou ke kantite a koresponn ak total kòmand lan (<strong class="text-white"><?php echo formatPrice($total); ?></strong>).</p>
-                                            </div>
-                                            <div class="flex items-start gap-3">
-                                                <div class="step-number">3</div>
-                                                <p class="text-sm text-blue-200">Kenbe nimewo tranzaksyon an.</p>
-                                            </div>
-                                            <div class="flex items-start gap-3">
-                                                <div class="step-number">4</div>
-                                                <p class="text-sm text-blue-200">Ranpli fòm ki anba a epi voye prev peman an.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    <div class="space-y-4 p-4 sm:p-5 rounded-xl bg-slate-800/50 border border-green-800/30">
                                         <div class="space-y-2">
-                                            <label class="block text-sm font-semibold text-blue-200">Non Konplè <span class="text-red-400">*</span></label>
-                                            <input type="text" name="wallet_full_name" id="wallet_full_name" placeholder="Jean Dupont" required class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
+                                            <label for="delivery_address" class="block text-sm font-semibold text-green-200">
+                                                <i class="fas fa-home mr-1"></i> Adrès Konplè <span class="text-red-400">*</span>
+                                            </label>
+                                            <textarea name="delivery_address" id="delivery_address" rows="2" required
+                                                class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500 resize-none"
+                                                placeholder="Egz: Rue 15, Numewo 42, Site Canapé Vert"></textarea>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div class="space-y-2">
+                                                <label for="delivery_city" class="block text-sm font-semibold text-green-200">
+                                                    <i class="fas fa-city mr-1"></i> Vil / Komin <span class="text-red-400">*</span>
+                                                </label>
+                                                <input type="text" name="delivery_city" id="delivery_city" required
+                                                    class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500"
+                                                    placeholder="Egz: Port-au-Prince">
+                                            </div>
+                                            <div class="space-y-2">
+                                                <label for="delivery_phone" class="block text-sm font-semibold text-green-200">
+                                                    <i class="fas fa-phone mr-1"></i> Telefòn pou Livrezon <span class="text-red-400">*</span>
+                                                </label>
+                                                <input type="tel" name="delivery_phone" id="delivery_phone" required
+                                                    class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500"
+                                                    placeholder="Egz: 509 37 12 3456">
+                                            </div>
                                         </div>
                                         <div class="space-y-2">
-                                            <label class="block text-sm font-semibold text-blue-200">Imèl <span class="text-red-400">*</span></label>
-                                            <input type="email" name="wallet_email" id="wallet_email" placeholder="jean@example.com" required class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-blue-200">Nimewo Telefòn ou (ki fè transfè a) <span class="text-red-400">*</span></label>
-                                        <input type="tel" name="wallet_sender_phone" id="wallet_sender_phone" placeholder="509 37 12 3456" required class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-blue-200">ID Tranzaksyon <span class="text-red-400">*</span></label>
-                                        <input type="text" name="wallet_transaction_id" id="wallet_transaction_id" placeholder="Ex: TX123456789" required class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
-                                        <p class="text-xs text-slate-400 mt-1">Ou jwenn nimewo sa a nan mesaj konfimasyon transfè a.</p>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <label class="block text-sm font-semibold text-blue-200">Prev Peman (Foto) <span class="text-red-400">*</span></label>
-                                        <div class="file-upload-area rounded-xl p-6 text-center cursor-pointer" onclick="document.getElementById('wallet_receipt').click()">
-                                            <input type="file" id="wallet_receipt" name="wallet_receipt" accept="image/*,.pdf" class="hidden" onchange="handleFileSelect(this)" required>
-                                            <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2" id="upload-icon"></i>
-                                            <p class="text-sm text-blue-200 mb-1" id="upload-text">Klike pou chwazi fichye oswa glise l isit la</p>
-                                            <p class="text-xs text-slate-500" id="upload-hint">JPG, PNG, GIF oswa PDF (max 5MB)</p>
-                                            <p class="text-sm text-green-400 font-medium hidden" id="file-name"></p>
+                                            <label for="delivery_notes" class="block text-sm font-semibold text-green-200">
+                                                <i class="fas fa-sticky-note mr-1"></i> Nòt Adisyonèl <span class="text-slate-500">(opsyonèl)</span>
+                                            </label>
+                                            <textarea name="delivery_notes" id="delivery_notes" rows="2"
+                                                class="address-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500 resize-none"
+                                                placeholder="Egz: Kay la gen pòt ble, sonje pou w sonje avan ou rive..."></textarea>
                                         </div>
                                     </div>
                                 </div>
+
+                                <hr class="section-divider">
+
+                                <!-- SEKSYON METÒD PEMAN -->
+                                <div>
+                                    <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                                        <i class="fas fa-wallet text-blue-400"></i>
+                                        Chwazi Metòd Peman
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                                        <button type="button" onclick="setPaymentMethod('card')" class="payment-method-btn active p-4 rounded-xl flex flex-col items-center gap-2 relative bg-slate-800/50 text-white" id="btn-card">
+                                            <i class="fas fa-credit-card text-2xl text-blue-400"></i>
+                                            <span class="font-medium text-sm sm:text-base">Kat Labank</span>
+                                            <div class="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center check-icon"><i class="fas fa-check text-white text-xs"></i></div>
+                                        </button>
+                                        <button type="button" onclick="setPaymentMethod('paypal')" class="payment-method-btn p-4 rounded-xl flex flex-col items-center gap-2 relative bg-slate-800/50 text-white" id="btn-paypal">
+                                            <i class="fab fa-paypal text-2xl text-blue-400"></i>
+                                            <span class="font-medium text-sm sm:text-base">PayPal</span>
+                                        </button>
+                                        <button type="button" onclick="setPaymentMethod('mobile_wallet')" class="payment-method-btn p-4 rounded-xl flex flex-col items-center gap-2 relative bg-slate-800/50 text-white" id="btn-mobile_wallet">
+                                            <i class="fas fa-mobile-alt text-2xl text-blue-400"></i>
+                                            <span class="font-medium text-sm sm:text-base">NatCash / MonCash</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- CARD FORM -->
+                                    <div id="card-form" class="visible-form space-y-4">
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-blue-200">Nimewo Kat</label>
+                                            <div id="card-element" class="card-input w-full px-4 py-3 rounded-xl"></div>
+                                            <div id="card-errors" class="text-red-400 text-sm mt-1"></div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-blue-200">Non sou Kat la</label>
+                                            <input type="text" id="card-name" name="card_name" placeholder="JEAN DUPONT" class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500 uppercase">
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 sm:p-4 bg-blue-900/30 border border-blue-500/30 rounded-xl mt-4">
+                                            <i class="fas fa-lock text-blue-400 text-lg"></i>
+                                            <p class="text-sm text-blue-200 font-medium">Enfòmasyon peman ou yo chifre e sekirize pa Stripe.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- PAYPAL FORM -->
+                                    <div id="paypal-form" class="hidden-form py-8 text-center">
+                                        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fab fa-paypal text-4xl text-white"></i></div>
+                                        <h3 class="text-xl font-bold text-white mb-2">Peye ak PayPal</h3>
+                                        <p class="text-blue-200 mb-6">Ou pral redirekte sou sit PayPal la.</p>
+                                        <div class="bg-slate-800/50 p-4 rounded-lg inline-block">
+                                            <p class="text-sm text-slate-400">Total pou peye:</p>
+                                            <p class="text-2xl font-bold text-white"><?php echo formatPrice($total); ?></p>
+                                        </div>
+                                    </div>
+
+                                    <!-- MOBILE WALLET FORM -->
+                                    <div id="mobile_wallet-form" class="hidden-form space-y-5">
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-blue-200">Chwazi Sèvis Mobil</label>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <label class="cursor-pointer">
+                                                    <input type="radio" name="wallet_type" value="natcash" class="peer hidden" checked>
+                                                    <div class="p-4 rounded-xl border-2 border-slate-600 bg-slate-800/50 peer-checked:border-green-500 peer-checked:bg-green-900/30 transition-all text-center">
+                                                        <i class="fas fa-money-bill-wave text-2xl text-green-400 mb-2"></i>
+                                                        <p class="font-bold text-white">NatCash</p>
+                                                        <p class="text-xs text-slate-400">Natcom</p>
+                                                    </div>
+                                                </label>
+                                                <label class="cursor-pointer">
+                                                    <input type="radio" name="wallet_type" value="moncash" class="peer hidden">
+                                                    <div class="p-4 rounded-xl border-2 border-slate-600 bg-slate-800/50 peer-checked:border-orange-500 peer-checked:bg-orange-900/30 transition-all text-center">
+                                                        <i class="fas fa-mobile-alt text-2xl text-orange-400 mb-2"></i>
+                                                        <p class="font-bold text-white">MonCash</p>
+                                                        <p class="text-xs text-slate-400">Digicel</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="wallet-info-box rounded-xl p-4 sm:p-5">
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <i class="fas fa-info-circle text-blue-300 text-xl"></i>
+                                                <h4 class="font-bold text-white">Enfòmasyon Kont Nou An</h4>
+                                            </div>
+                                            <div class="space-y-2 text-sm">
+                                                <div class="flex justify-between items-center py-2 border-b border-blue-400/30">
+                                                    <span class="text-blue-200">Non:</span>
+                                                    <span class="font-bold text-white">LE STOCK S.A</span>
+                                                </div>
+                                                <div class="flex justify-between items-center py-2 border-b border-blue-400/30">
+                                                    <span class="text-blue-200">Nimewo NatCash:</span>
+                                                    <span class="font-bold text-white text-lg select-all">509 37 45 1234</span>
+                                                </div>
+                                                <div class="flex justify-between items-center py-2">
+                                                    <span class="text-blue-200">Nimewo MonCash:</span>
+                                                    <span class="font-bold text-white text-lg select-all">509 31 22 5678</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="wallet-steps rounded-xl p-4 sm:p-5">
+                                            <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+                                                <i class="fas fa-list-ol text-blue-400"></i> Etap pou swiv yo:
+                                            </h4>
+                                            <div class="space-y-3">
+                                                <div class="flex items-start gap-3">
+                                                    <div class="step-number">1</div>
+                                                    <p class="text-sm text-blue-200">Fè yon transfè sòl nan yon nan nimewo ki anro a.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3">
+                                                    <div class="step-number">2</div>
+                                                    <p class="text-sm text-blue-200">Asire ou ke kantite a koresponn ak total kòmand lan (<strong class="text-white"><?php echo formatPrice($total); ?></strong>).</p>
+                                                </div>
+                                                <div class="flex items-start gap-3">
+                                                    <div class="step-number">3</div>
+                                                    <p class="text-sm text-blue-200">Kenbe nimewo tranzaksyon an.</p>
+                                                </div>
+                                                <div class="flex items-start gap-3">
+                                                    <div class="step-number">4</div>
+                                                    <p class="text-sm text-blue-200">Ranpli fòm ki anba a epi voye prev peman an.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                            <div class="space-y-2">
+                                                <label class="block text-sm font-semibold text-blue-200">Non Konplè <span class="text-red-400">*</span></label>
+                                                <input type="text" name="wallet_full_name" id="wallet_full_name" placeholder="Jean Dupont" class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
+                                            </div>
+                                            <div class="space-y-2">
+                                                <label class="block text-sm font-semibold text-blue-200">Imèl <span class="text-red-400">*</span></label>
+                                                <input type="email" name="wallet_email" id="wallet_email" placeholder="jean@example.com" class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-blue-200">Nimewo Telefòn ou (ki fè transfè a) <span class="text-red-400">*</span></label>
+                                            <input type="tel" name="wallet_sender_phone" id="wallet_sender_phone" placeholder="509 37 12 3456" class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-blue-200">ID Tranzaksyon <span class="text-red-400">*</span></label>
+                                            <input type="text" name="wallet_transaction_id" id="wallet_transaction_id" placeholder="Ex: TX123456789" class="card-input w-full px-4 py-3 rounded-xl text-base font-medium placeholder:text-slate-500">
+                                            <p class="text-xs text-slate-400 mt-1">Ou jwenn nimewo sa a nan mesaj konfimasyon transfè a.</p>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-semibold text-blue-200">Prev Peman (Foto) <span class="text-red-400">*</span></label>
+                                            <div class="file-upload-area rounded-xl p-6 text-center cursor-pointer" onclick="document.getElementById('wallet_receipt').click()">
+                                                <input type="file" id="wallet_receipt" name="wallet_receipt" accept="image/*,.pdf" class="hidden" onchange="handleFileSelect(this)">
+                                                <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2" id="upload-icon"></i>
+                                                <p class="text-sm text-blue-200 mb-1" id="upload-text">Klike pou chwazi fichye oswa glise l isit la</p>
+                                                <p class="text-xs text-slate-500" id="upload-hint">JPG, PNG, GIF oswa PDF (max 5MB)</p>
+                                                <p class="text-sm text-green-400 font-medium hidden" id="file-name"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </form>
+
                         </div>
                     </div>
+                    <!-- FIN FORMULAIRE UNIQUE -->
+
                 </div>
 
                 <!-- Order Summary -->
@@ -1023,7 +1083,11 @@ function getDisplayPrice($item)
         }
 
         // Mobile menu
-        document.getElementById('mobile-menu-btn').addEventListener('click', () => document.getElementById('mobile-menu').classList.add('open'));
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.add('open');
+            document.getElementById('menu-overlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
         document.getElementById('close-menu-btn').addEventListener('click', () => {
             document.getElementById('mobile-menu').classList.remove('open');
             document.getElementById('menu-overlay').classList.add('hidden');
@@ -1037,13 +1101,15 @@ function getDisplayPrice($item)
 
         function setPaymentMethod(method) {
             document.getElementById('paymentMethod').value = method;
+
             document.querySelectorAll('.payment-method-btn').forEach(btn => {
                 btn.classList.remove('active');
                 const check = btn.querySelector('.check-icon');
                 if (check) check.remove();
             });
-            document.getElementById('card-form').className = method === 'card' ? 'visible-form space-y-4' : 'hidden-form space-y-5';
-            document.getElementById('paypal-form').className = 'hidden-form py-8 text-center';
+
+            document.getElementById('card-form').className = method === 'card' ? 'visible-form space-y-4' : 'hidden-form space-y-4';
+            document.getElementById('paypal-form').className = method === 'paypal' ? 'visible-form py-8 text-center' : 'hidden-form py-8 text-center';
             document.getElementById('mobile_wallet-form').className = method === 'mobile_wallet' ? 'visible-form space-y-5' : 'hidden-form space-y-5';
 
             const activeBtn = document.getElementById('btn-' + method);
@@ -1067,11 +1133,11 @@ function getDisplayPrice($item)
             }
         }
 
-        // ============ KOREKSYON: Valide adrès avan soumèt ============
+        // SOUMISSION DU FORMULAIRE
         document.getElementById('submitBtn').addEventListener('click', async function(e) {
             const paymentMethod = document.getElementById('paymentMethod').value;
 
-            // Valide adrès livrezon
+            // 1) Valide adrès livrezon
             const deliveryAddress = document.getElementById('delivery_address').value.trim();
             const deliveryCity = document.getElementById('delivery_city').value.trim();
             const deliveryPhone = document.getElementById('delivery_phone').value.trim();
@@ -1082,17 +1148,27 @@ function getDisplayPrice($item)
                     behavior: 'smooth',
                     block: 'center'
                 });
+                setTimeout(() => {
+                    document.getElementById('delivery_address').focus();
+                }, 500);
                 return;
             }
 
+            // 2) Si se pa kat, soumèt fòm nan dirèkteman
             if (paymentMethod !== 'card') {
                 if (paymentMethod === 'mobile_wallet') {
-                    if (!document.getElementById('wallet_full_name').value.trim() ||
-                        !document.getElementById('wallet_email').value.trim() ||
-                        !document.getElementById('wallet_sender_phone').value.trim() ||
-                        !document.getElementById('wallet_transaction_id').value.trim() ||
-                        !document.getElementById('wallet_receipt').files[0]) {
-                        alert('Tanpri ranpli tout chan yo epi ajoute yon prev peman.');
+                    const fullName = document.getElementById('wallet_full_name').value.trim();
+                    const email = document.getElementById('wallet_email').value.trim();
+                    const senderPhone = document.getElementById('wallet_sender_phone').value.trim();
+                    const transactionId = document.getElementById('wallet_transaction_id').value.trim();
+                    const receipt = document.getElementById('wallet_receipt').files[0];
+
+                    if (!fullName || !email || !senderPhone || !transactionId) {
+                        alert('Tanpri ranpli tout chan yo (Non, Imèl, Telefòn, ID Tranzaksyon).');
+                        return;
+                    }
+                    if (!receipt) {
+                        alert('Tanpri ajoute yon prev peman (foto oswa PDF).');
                         return;
                     }
                 }
@@ -1100,7 +1176,9 @@ function getDisplayPrice($item)
                 return;
             }
 
+            // 3) Si se kat, traite ak Stripe
             e.preventDefault();
+
             const cardName = document.getElementById('card-name').value.trim();
             if (!cardName) {
                 document.getElementById('card-errors').textContent = 'Tanpri antre non sou kat la.';
@@ -1116,15 +1194,14 @@ function getDisplayPrice($item)
             this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Chajman...';
 
             try {
-                const {
-                    error: stripeError
-                } = await stripe.createPaymentMethod({
+                const { error: stripeError } = await stripe.createPaymentMethod({
                     type: 'card',
                     card: cardElement,
                     billing_details: {
                         name: cardName
                     }
                 });
+
                 if (stripeError) {
                     document.getElementById('card-errors').textContent = stripeError.message;
                     this.disabled = false;
@@ -1144,13 +1221,11 @@ function getDisplayPrice($item)
                 });
 
                 if (!response.ok) throw new Error('Erè serveur: ' + response.status);
+
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
 
-                const {
-                    error,
-                    paymentIntent
-                } = await stripe.confirmCardPayment(data.clientSecret, {
+                const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
                     payment_method: {
                         card: cardElement,
                         billing_details: {
@@ -1169,11 +1244,13 @@ function getDisplayPrice($item)
                     hidPI.name = 'stripe_payment_intent_id';
                     hidPI.value = paymentIntent.id;
                     document.getElementById('paymentForm').appendChild(hidPI);
+
                     const hidSP = document.createElement('input');
                     hidSP.type = 'hidden';
                     hidSP.name = 'stripe_processed';
                     hidSP.value = '1';
                     document.getElementById('paymentForm').appendChild(hidSP);
+
                     document.getElementById('paymentForm').submit();
                 } else {
                     throw new Error('Status inatandi: ' + paymentIntent.status);

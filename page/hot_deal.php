@@ -1,9 +1,7 @@
 <?php
 session_start();
-// Korige chemen pou jwenn baz done a
 require_once dirname(__DIR__) . '/config/db.php';
 
-// KORIJE: Chemen relatif pou itilize nan HTML - depi nan pages/ ale nan uploads/
 function getImageFullPath($imageName)
 {
     return '../uploads/hot_deals/' . $imageName;
@@ -16,19 +14,7 @@ function imageExists($imageName)
     return file_exists($fullPath) && is_file($fullPath);
 }
 
-function getProductForDeal($deal, $pdo)
-{
-    $stmt = $pdo->prepare("SELECT id FROM products WHERE name LIKE ? LIMIT 1");
-    $stmt->execute(['%' . $deal['titre'] . '%']);
-    $product = $stmt->fetch();
-    if ($product) {
-        return $product['id'];
-    }
-    return null;
-}
-
  $product_id_from_url = $_GET['product_id'] ?? null;
-
  $cart_message = '';
  $cart_success = false;
 
@@ -48,12 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
         $deal = $stmt->fetch();
 
         if (!$deal) {
-            $cart_message = 'Deal sa a pa disponib ankò!';
+            $cart_message = 'Ce deal n\'est plus disponible !';
         } else {
             $stmt = $pdo->prepare("SELECT id, stock_qty FROM products WHERE name = ? LIMIT 1");
             $stmt->execute([$deal['titre']]);
             $product = $stmt->fetch();
-
             $product_id = null;
 
             if ($product) {
@@ -93,30 +78,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
             }
 
             $cart_success = true;
-            $cart_message = 'Deal la ajoute nan panye ou a!';
+            $cart_message = 'Le deal a été ajouté à votre panier !';
         }
     } catch (PDOException $e) {
-        error_log("Erè ajoute nan panier: " . $e->getMessage());
-        $cart_message = 'Erè nan ajoute deal la. Eseye ankò.';
+        error_log("Erreur ajout au panier : " . $e->getMessage());
+        $cart_message = 'Erreur lors de l\'ajout du deal. Veuillez réessayer.';
     }
 }
 
  $hot_deals = [];
 try {
     $stmt = $pdo->query("SELECT * FROM hot_deals ORDER BY created_at DESC");
-
     while ($deal = $stmt->fetch()) {
         $img_stmt = $pdo->prepare("SELECT * FROM hot_deal_images WHERE deal_id = ? ORDER BY is_primary DESC, ordre ASC");
         $img_stmt->execute([$deal['id']]);
         $images = $img_stmt->fetchAll();
-
         $validImages = [];
         foreach ($images as $img) {
             $img['full_path'] = getImageFullPath($img['image_name']);
             $img['exists'] = imageExists($img['image_name']);
             $validImages[] = $img;
         }
-
         $deal['images'] = $validImages;
         $hot_deals[] = $deal;
     }
@@ -127,482 +109,123 @@ try {
  $showDebug = false;
 ?>
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="fr" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hot Deals | LE-STOCK</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    maxWidth: {
+                        'site': '80rem',
+                    },
+                    animation: {
+                        'float-up': 'floatUp linear infinite',
+                        'badge-bounce': 'badgeBounce 0.5s ease',
+                        'whatsapp-pulse': 'whatsappPulse 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        floatUp: {
+                            '0%': { transform: 'translateY(100%) scale(0)', opacity: '0' },
+                            '20%': { opacity: '1' },
+                            '100%': { transform: 'translateY(-100vh) scale(1)', opacity: '0' },
+                        },
+                        badgeBounce: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.4)' },
+                        },
+                        whatsappPulse: {
+                            '0%, 100%': { boxShadow: '0 0 0 0 rgba(37, 211, 102, 0.4)' },
+                            '50%': { boxShadow: '0 0 0 10px rgba(37, 211, 102, 0)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        * { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #1d4ed8; }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #dbeafe; }
-        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-
-        /* ===== HEADER ===== */
-        .main-header {
-            background: #2563eb;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        }
-        .main-header .nav-link {
-            color: #93c5fd;
-            position: relative;
-            transition: color 0.3s;
-        }
-        .main-header .nav-link:hover { color: #fff; }
-        .main-header .nav-link::after {
+        .nav-link-underline::after {
             content: '';
             position: absolute;
-            bottom: -4px; left: 0;
-            width: 0; height: 2px;
+            bottom: -6px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 2.5px;
             background: #fff;
+            border-radius: 2px;
             transition: width 0.3s;
         }
-        .main-header .nav-link:hover::after { width: 100%; }
-        .main-header .icon-btn { color: #bfdbfe; transition: all 0.3s; }
-        .main-header .icon-btn:hover { color: #fff; background: rgba(255,255,255,0.15); }
-        .cart-badge { background: #1d4ed8; color: #fff; font-weight: 700; }
+        .nav-link-underline:hover::after,
+        .nav-link-underline.active-link::after { width: 70%; }
 
-        /* ===== LOGO ===== */
-        .logo-image { max-height: 55px; transition: transform 0.3s; }
-        .logo-image:hover { transform: scale(1.05); }
-        @media (max-width: 640px) { .logo-image { max-height: 40px; } }
-        @media (min-width: 1024px) { .logo-image { max-height: 70px; } }
-
-        /* ===== FOOTER ===== */
-        .main-footer {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #2563eb 100%);
-            color: #bfdbfe; padding: 3.5rem 0 1.5rem; border-top: 3px solid #2563eb;
-        }
-        .footer-logo-icon {
-            width: 46px; height: 46px; background: linear-gradient(135deg, #3b82f6, #60a5fa);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 800; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .footer-logo-text { color: #fff; font-weight: 800; font-size: 1.35rem; }
-        .main-footer h4 { color: #fff; font-weight: 700; font-size: 1.05rem; margin-bottom: 1.25rem; position: relative; padding-bottom: 0.6rem; }
-        .main-footer h4::after { content: ''; position: absolute; bottom: 0; left: 0; width: 35px; height: 3px; background: linear-gradient(90deg, #60a5fa, #2563eb); border-radius: 2px; }
-        .main-footer p, .footer-desc { color: #93c5fd; line-height: 1.7; font-size: 0.9rem; }
-        .footer-links a { color: #93c5fd; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; display: inline-block; padding: 0.2rem 0; }
-        .footer-links a:hover { color: #fff; transform: translateX(4px); }
-        .contact-item { color: #93c5fd; display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
-        .contact-item i { color: #60a5fa; margin-top: 0.2rem; }
-        .social-btn {
-            width: 40px; height: 40px; background: rgba(96,165,250,0.12); border: 2px solid rgba(96,165,250,0.25);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: #fff; text-decoration: none; transition: all 0.3s; font-size: 1rem;
-        }
-        .social-btn:hover { background: #2563eb; border-color: #60a5fa; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
-        .footer-bottom { border-top: 1px solid rgba(96,165,250,0.15); margin-top: 2.5rem; padding-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        @media (min-width: 640px) { .footer-bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
-        .footer-copy { color: #60a5fa; font-size: 0.85rem; }
-        .footer-lang {
-            background: rgba(96,165,250,0.12); color: #bfdbfe; border: 1px solid rgba(96,165,250,0.25);
-            padding: 0.4rem 0.85rem; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer;
-            display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s;
-        }
-        .footer-lang:hover { background: rgba(96,165,250,0.22); color: #fff; }
-
-        /* ===== FEATURES ===== */
-        .features-section {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-            padding: 3rem 0; border-bottom: 1px solid rgba(96,165,250,0.15);
-        }
-        .feature-card {
-            background: #fff; border-radius: 1rem; padding: 1.5rem;
-            display: flex; align-items: center; gap: 1rem;
-            transition: all 0.3s; border: 2px solid transparent;
-        }
-        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); border-color: #2563eb; }
-        .feature-icon {
-            width: 56px; height: 56px; background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-        }
-        .feature-icon i { color: #fff; font-size: 1.4rem; }
-        .feature-card h3 { color: #1e3a8a; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.15rem; }
-        .feature-card p { color: #6b7280; font-size: 0.875rem; }
-
-        /* ===== HOT DEALS PAGE ===== */
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            margin: 0;
+        .footer-heading::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 28px; height: 2.5px;
+            background: #3b82f6;
+            border-radius: 2px;
         }
 
-        .deal-card {
-            background: white;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             transition: all 0.3s ease;
         }
-
-        .deal-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
         }
-
-        .image-slider {
-            position: relative;
-            height: 320px;
-            overflow: hidden;
-            background: #f1f5f9;
-        }
-
-        .slides-container {
-            display: flex;
-            height: 100%;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .slide {
-            min-width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-            color: #64748b;
-        }
-
-        .image-placeholder i {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .slider-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #374151;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-        }
-
-        .slider-btn:hover {
-            background: white;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .slider-btn.prev { left: 16px; }
-        .slider-btn.next { right: 16px; }
-
-        .slider-dots {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .dot.active {
-            background: white;
-            transform: scale(1.2);
-        }
-
-        .discount-badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 900;
-            font-size: 14px;
-            z-index: 10;
-        }
-
-        .stock-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: #10b981;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            z-index: 10;
-        }
-
-        .stock-badge.out { background: #ef4444; }
-
-        .price-container {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-            margin: 16px 0;
-        }
-
-        .deal-price {
-            font-size: 32px;
-            font-weight: 900;
-            color: #ea580c;
-        }
-
-        .original-price {
-            font-size: 18px;
-            color: #9ca3af;
-            text-decoration: line-through;
-        }
-
-        .savings {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 700;
-            display: inline-block;
-            margin-bottom: 12px;
-        }
-
-        .countdown-box {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            color: white;
-            padding: 16px;
-            border-radius: 16px;
-            margin-top: 16px;
-        }
-
-        .countdown-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0.8;
-            margin-bottom: 8px;
-        }
-
-        .countdown-time {
-            font-size: 20px;
-            font-weight: 900;
-            font-family: 'Courier New', monospace;
-        }
-
-        .countdown-time.expired { color: #f87171; }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: white;
-        }
-
-        .empty-state i {
-            font-size: 80px;
-            margin-bottom: 24px;
-            opacity: 0.5;
-        }
-
-        .page-header {
-            text-align: center;
-            padding: 60px 20px 40px;
-            color: white;
-        }
-
-        .page-header h1 {
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 16px;
-            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-header p {
-            font-size: 18px;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        @keyframes flame {
-            0%, 100% { transform: scale(1) rotate(-2deg); }
-            50% { transform: scale(1.1) rotate(2deg); }
-        }
-
-        .fire-icon {
-            display: inline-block;
-            animation: flame 1s ease-in-out infinite;
-            color: #fbbf24;
-        }
-
-        .debug-panel {
-            background: #fef3c7;
-            border: 2px solid #f59e0b;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 800px;
-            border-radius: 12px;
-            color: #92400e;
-        }
-
-        .cart-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .cart-notification.show { transform: translateX(0); }
-
-        .cart-notification.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .cart-notification.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        .cart-notification a { color: white; text-decoration: underline; margin-left: 8px; }
-
-        .quantity-selector {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            justify-content: center;
-        }
-
-        .qty-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 2px solid #e5e7eb;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .qty-btn:hover { border-color: #3b82f6; color: #3b82f6; }
-
-        .qty-input {
-            width: 60px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 18px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 6px;
-        }
-
-        /* ===== NOTIFICATION ===== */
-        @keyframes slideInNotif {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .notif {
-            position: fixed; top: 6rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 0.75rem;
-            font-weight: 600; z-index: 10000; box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            animation: slideInNotif 0.3s ease; font-size: 0.9rem;
-        }
-        .notif-success { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
-        .notif-error { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
-
-        @keyframes badgeBounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
-        .badge-bounce { animation: badgeBounce 0.5s ease; }
-
-        @media (max-width: 768px) {
-            .page-header h1 { font-size: 32px; }
-            .deal-price { font-size: 24px; }
-            .image-slider { height: 250px; }
-        }
-
-        @media (min-width: 768px) {
-            .features-grid { grid-template-columns: repeat(3, 1fr) !important; }
-        }
-        @media (min-width: 640px) {
-            .footer-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (min-width: 1024px) {
-            .footer-grid { grid-template-columns: repeat(4, 1fr) !important; }
-            .lg-nav { display: flex !important; }
+        .whatsapp-btn:active {
+            transform: translateY(0);
         }
     </style>
 </head>
 
-<body style="margin:0;">
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
 
     <!-- ===== HEADER ===== -->
-    <header class="main-header" style="position:relative; z-index:100;">
-        <div style="max-width:80rem; margin:0 auto; padding:0 1rem;">
-            <div style="display:flex; align-items:center; justify-content:space-between; height:4.5rem;">
-                <!-- Logo -->
-                <a href="accueil.php" style="display:flex; align-items:center; text-decoration:none; flex-shrink:0;">
-                    <img src="\le-stock\assets\img\le stock entreprise copy2.png" alt="LE-STOCK" class="logo-image"
-                         style="filter:brightness(0) invert(1);"
-                         onerror="this.src='https://via.placeholder.com/180x60/ffffff/2563eb?text=LE-STOCK'; this.style.filter='none'; this.style.background='#1d4ed8'; this.style.padding='8px'; this.style.borderRadius='8px';">
+    <header class="bg-gradient-to-br from-blue-900 via-blue-600 to-blue-500 shadow-lg shadow-blue-600/35 sticky top-0 z-[500]">
+        <div class="max-w-site mx-auto px-6">
+            <div class="flex items-center justify-between h-[68px]">
+                <a href="accueil.php" class="flex items-center no-underline shrink-0">
+                    <img src="\le-stock\assets\img\le stock entreprise copy2.png" alt="LE-STOCK"
+                         class="max-h-[50px] sm:max-h-[38px] lg:max-h-[60px] transition-transform hover:scale-105 brightness-0 invert"
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%2250%22><rect fill=%22%231d4ed8%22 width=%22180%22 height=%2250%22 rx=%228%22/><text x=%2290%22 y=%2232%22 fill=%22white%22 font-family=%22Inter%22 font-weight=%22800%22 font-size=%2218%22 text-anchor=%22middle%22>LE-STOCK</text></svg>'; this.classList.remove('brightness-0','invert');">
                 </a>
 
-                <!-- Nav Desktop -->
-                <nav style="display:none; align-items:center; gap:2rem;" class="lg-nav">
-                    <a href="../index.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Accueil</a>
-                    <a href="promotion.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Promotions</a>
-                    <a href="Affiliation" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Affiliations</a>
+                <nav class="items-center gap-9 hidden lg:!flex">
+                    <a href="../index.php" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Accueil</a>
+                    <a href="promotion.php" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Promotions</a>
+                    <a href="Affiliation" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Affiliations</a>
+                    <a href="hot_deal.php" class="nav-link-underline active-link relative text-white no-underline text-sm font-medium tracking-tight">Hot Deals</a>
                 </nav>
 
-                <!-- Icons -->
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <a href="panier/Panier.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none; position:relative;" title="Panier">
-                        <i class="fas fa-shopping-cart" style="font-size:1.15rem;"></i>
-                        <span id="cart-badge" class="cart-badge" style="position:absolute; top:-2px; right:-2px; font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:9999px;">0</span>
+                <div class="flex items-center gap-1.5">
+                    <a href="panier/Panier.php" class="text-blue-200 transition-all w-[42px] h-[42px] flex items-center justify-center rounded-xl hover:text-white hover:bg-white/15 no-underline relative" title="Panier">
+                        <i class="fas fa-shopping-bag text-lg"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-600 text-white font-extrabold text-[0.65rem] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-blue-900/80">0</span>
                     </a>
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="profile.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none;" title="Profil">
-                            <i class="fas fa-user" style="font-size:1.15rem;"></i>
+                        <a href="profile.php" class="text-blue-200 transition-all w-[42px] h-[42px] flex items-center justify-center rounded-xl hover:text-white hover:bg-white/15 no-underline" title="Profil">
+                            <i class="fas fa-user text-[0.95rem]"></i>
                         </a>
                     <?php else: ?>
-                        <a href="login.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none;" title="Connexion">
-                            <i class="fas fa-sign-in-alt" style="font-size:1.15rem;"></i>
+                        <a href="login.php" class="text-blue-200 transition-all w-[42px] h-[42px] flex items-center justify-center rounded-xl hover:text-white hover:bg-white/15 no-underline" title="Connexion">
+                            <i class="fas fa-sign-in-alt text-[0.95rem]"></i>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -610,98 +233,146 @@ try {
         </div>
     </header>
 
-    <!-- ===== NOTIFICATION PANYE ===== -->
+    <!-- ===== HERO ===== -->
+    <section class="relative bg-gradient-to-br from-slate-900 via-blue-900 to-blue-600 overflow-hidden">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none" id="heroParticles"></div>
+        <div class="absolute -top-1/2 -right-[20%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(251,191,36,0.15)_0%,transparent_70%)] rounded-full"></div>
+        <div class="absolute -bottom-[40%] -left-[10%] w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(239,68,68,0.1)_0%,transparent_70%)] rounded-full"></div>
+
+        <div class="relative z-[2] text-center py-16 px-6 md:py-20 md:px-8">
+            <h1 class="text-[clamp(2.2rem,6vw,4rem)] font-black text-white leading-[1.1] mb-4">
+                Hot Deals
+            </h1>
+            <p class="text-[clamp(0.95rem,2vw,1.2rem)] text-blue-200/90 max-w-[550px] mx-auto leading-relaxed font-normal">
+                Offres exclusives à durée limitée : ne manquez pas nos Hot Deals du moment ! Notre plateforme propose la vente de Hot Deals et vous pouvez nous contacter pour publier les produits que vous souhaitez vendre.
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div class="bg-white border-b border-slate-200 sticky top-[68px] z-[400] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div class="max-w-site mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-sm text-slate-500">
+                <i class="fas fa-tags text-blue-600"></i>
+                <span><strong class="text-slate-800 bg-blue-50 px-2.5 py-0.5 rounded-md text-xs"><?= count($hot_deals) ?></strong> deals disponibles</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-blue-600 bg-blue-50 text-xs font-medium text-blue-600 cursor-pointer transition-all">
+                    <i class="fas fa-fire text-[0.7rem]"></i> Tous
+                </div>
+                <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-medium text-slate-600 cursor-pointer transition-all hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-clock text-[0.7rem]"></i> Bientôt expirés
+                </div>
+                <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-medium text-slate-600 cursor-pointer transition-all hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-arrow-down text-[0.7rem]"></i> Plus récents
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NOTIFICATION ===== -->
     <?php if ($cart_message): ?>
-        <div id="cart-notification" class="cart-notification <?php echo $cart_success ? 'success' : 'error'; ?> show">
-            <i class="fas <?php echo $cart_success ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>" style="margin-right:8px;"></i>
-            <?php echo htmlspecialchars($cart_message); ?>
-            <?php if ($cart_success): ?>
-                <a href="panier/Panier.php"><i class="fas fa-shopping-cart"></i> Wè Panye a</a>
-            <?php endif; ?>
+        <div id="cart-notification" class="fixed top-20 right-6 px-6 py-4 rounded-[14px] text-white font-semibold text-sm z-[9999] translate-x-0 transition-transform duration-[400ms] shadow-2xl flex items-center gap-3 max-w-[380px] <?= $cart_success ? 'bg-gradient-to-br from-emerald-600 to-emerald-700' : 'bg-gradient-to-br from-red-600 to-red-700' ?>">
+            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                <i class="fas <?= $cart_success ? 'fa-check' : 'fa-exclamation' ?>"></i>
+            </div>
+            <div>
+                <div><?= htmlspecialchars($cart_message) ?></div>
+                <?php if ($cart_success): ?>
+                    <a href="panier/Panier.php" class="text-white underline whitespace-nowrap font-bold">Voir le panier →</a>
+                <?php endif; ?>
+            </div>
         </div>
     <?php endif; ?>
 
-    <!-- ===== PAGE HEADER ===== -->
-    <div class="page-header">
-        <h1>
-            <span class="fire-icon"><i class="fas fa-fire"></i></span>
-            Hot Deals
-            <span class="fire-icon"><i class="fas fa-fire"></i></span>
-        </h1>
-        <p>Pwomosyon cho ki disponib kounye a. Profite anvan yo ekspire!</p>
-    </div>
-
     <?php if ($showDebug): ?>
-        <div class="debug-panel">
-            <h3><i class="fas fa-bug"></i> DEBUG</h3>
+        <div class="bg-amber-50 border-2 border-amber-500 p-6 my-6 mx-auto max-w-[800px] rounded-[14px] text-amber-800 text-sm">
+            <strong><i class="fas fa-bug"></i> DEBUG</strong>
             <p>Total Deals: <?= count($hot_deals) ?></p>
             <p>Base Path: <?= dirname(__DIR__) . '/uploads/hot_deals/' ?></p>
             <?php foreach ($hot_deals as $deal): ?>
-                <hr style="margin:10px 0;">
-                <p><strong><?= htmlspecialchars($deal['titre']) ?></strong> - <?= count($deal['images']) ?> imaj</p>
+                <hr class="my-3 border-amber-300">
+                <p><strong><?= htmlspecialchars($deal['titre']) ?></strong> — <?= count($deal['images']) ?> images</p>
                 <?php foreach ($deal['images'] as $img): ?>
-                    <p><?= htmlspecialchars($img['image_name']) ?> → <?= $img['exists'] ? '✓ Jwenn' : '✗ Pa jwenn' ?> (Path: <?= htmlspecialchars($img['full_path']) ?>)</p>
+                    <p><?= htmlspecialchars($img['image_name']) ?> → <?= $img['exists'] ? '✓' : '✗' ?></p>
                 <?php endforeach; ?>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
-    <!-- ===== DEALS CONTAINER ===== -->
-    <div class="container mx-auto px-4 pb-16 max-w-7xl">
+    <!-- ===== DEALS ===== -->
+    <section class="max-w-site mx-auto px-6 py-8 pb-12">
         <?php if (empty($hot_deals)): ?>
-            <div class="empty-state">
-                <i class="fas fa-fire-extinguisher"></i>
-                <h2 class="text-2xl font-bold mb-4">Pa gen Hot Deals pou kounye a</h2>
-                <p>Tounen pita pou wè nouvo pwomosyon yo!</p>
-                <a href="accueil.php" class="inline-block mt-8 px-8 py-3 bg-white text-purple-600 rounded-full font-bold hover:bg-gray-100 transition">
-                    <i class="fas fa-arrow-left" style="margin-right:8px;"></i> Retounen nan akèy
+            <div class="text-center py-20 px-8 max-w-[500px] mx-auto">
+                <div class="w-[120px] h-[120px] mx-auto mb-8 bg-gradient-to-br from-amber-100 to-amber-200 rounded-full flex items-center justify-center shadow-xl shadow-amber-400/20">
+                    <i class="fas fa-fire-extinguisher text-5xl text-amber-500"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Aucun deal pour le moment</h2>
+                <p class="text-slate-500 text-[0.95rem] mb-8 leading-relaxed">Revenez bientôt pour découvrir nos nouvelles offres exclusives à prix cassé !</p>
+                <a href="accueil.php" class="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-[14px] font-bold text-sm no-underline transition-all shadow-lg shadow-blue-600/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-600/40">
+                    <i class="fas fa-arrow-left"></i> Retour à l'accueil
                 </a>
             </div>
         <?php else: ?>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
                 <?php foreach ($hot_deals as $deal):
                     $discount = round((($deal['prix_original'] - $deal['prix_deal']) / $deal['prix_original']) * 100);
                     $savings = $deal['prix_original'] - $deal['prix_deal'];
                     $image_count = count($deal['images']);
                     $expired = $deal['date_fin'] && strtotime($deal['date_fin']) < time();
                     $out_of_stock = !$deal['en_stock'] || ($deal['quantite_limite'] !== null && $deal['quantite_limite'] <= 0);
+                    $is_disabled = $expired || $out_of_stock;
                 ?>
-                    <div class="deal-card <?= $expired ? 'opacity-60' : '' ?>" id="deal-<?= $deal['id'] ?>">
-                        <div class="image-slider" id="slider-<?= $deal['id'] ?>">
-                            <div class="discount-badge">-<?= $discount ?>%</div>
+                    <div class="deal-card bg-white rounded-2xl overflow-hidden border border-slate-200 transition-all duration-[400ms] hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-600/15 hover:border-transparent relative <?= $expired ? 'opacity-70 saturate-50 hover:translate-none hover:shadow-none' : '' ?>" id="deal-<?= $deal['id'] ?>">
+                        <!-- Image Slider -->
+                        <div class="relative h-[280px] sm:h-[300px] overflow-hidden bg-slate-100" id="slider-<?= $deal['id'] ?>">
+                            <!-- Discount Badge -->
+                            <div class="absolute top-3.5 left-3.5 bg-gradient-to-br from-red-600 to-red-500 text-white px-3.5 py-1.5 rounded-[10px] font-extrabold text-xs z-10 shadow-lg shadow-red-600/35 tracking-tight">
+                                -<?= $discount ?>%
+                            </div>
 
+                            <!-- Stock Badge -->
                             <?php if ($out_of_stock): ?>
-                                <div class="stock-badge out">Epuize</div>
+                                <div class="absolute top-3.5 right-3.5 px-3 py-1 rounded-[10px] text-[0.7rem] font-bold uppercase tracking-wider z-10 flex items-center gap-1.5 bg-red-500/90 text-white backdrop-blur-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Épuisé
+                                </div>
                             <?php else: ?>
-                                <div class="stock-badge">An Stock</div>
-                            <?php endif; ?>
-
-                            <?php if ($expired): ?>
-                                <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:20;">
-                                    <span style="background:#ef4444;color:#fff;padding:0.75rem 1.5rem;border-radius:9999px;font-weight:bold;font-size:1.25rem;transform:rotate(-12deg);">EXPIRE</span>
+                                <div class="absolute top-3.5 right-3.5 px-3 py-1 rounded-[10px] text-[0.7rem] font-bold uppercase tracking-wider z-10 flex items-center gap-1.5 bg-emerald-500/90 text-white backdrop-blur-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> En Stock
                                 </div>
                             <?php endif; ?>
 
-                            <div class="slides-container">
+                            <!-- Expired Overlay -->
+                            <?php if ($expired): ?>
+                                <div class="absolute inset-0 bg-slate-900/65 backdrop-blur-sm flex items-center justify-center z-20">
+                                    <span class="bg-gradient-to-br from-red-600 to-red-700 text-white px-8 py-2.5 rounded-xl font-extrabold text-sm tracking-widest uppercase shadow-xl shadow-red-600/40 -rotate-[5deg]">
+                                        <i class="fas fa-clock mr-2"></i>Expiré
+                                    </span>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Slides -->
+                            <div class="slides-container flex h-full transition-transform duration-500">
                                 <?php if ($image_count === 0): ?>
-                                    <div class="slide">
-                                        <div class="image-placeholder">
-                                            <i class="fas fa-image"></i>
-                                            <span>Pa gen imaj</span>
+                                    <div class="min-w-full h-full flex items-center justify-center">
+                                        <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 gap-2">
+                                            <i class="fas fa-image text-4xl"></i>
+                                            <span class="text-sm font-medium">Aucune image</span>
                                         </div>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($deal['images'] as $img): ?>
-                                        <div class="slide">
+                                        <div class="min-w-full h-full flex items-center justify-center">
                                             <?php if ($img['exists']): ?>
                                                 <img src="<?= htmlspecialchars($img['full_path']) ?>"
-                                                    alt="<?= htmlspecialchars($deal['titre']) ?>"
-                                                    loading="lazy"
-                                                    onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-exclamation-triangle\'></i>Erè chajman</div>'">
+                                                     alt="<?= htmlspecialchars($deal['titre']) ?>"
+                                                     loading="lazy"
+                                                     class="w-full h-full object-cover transition-transform duration-500 deal-card:hover:scale-[1.04]"
+                                                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 gap-2\'><i class=\'fas fa-exclamation-triangle text-4xl\'></i><span class=\'text-sm font-medium\'>Erreur de chargement</span></div>'">
                                             <?php else: ?>
-                                                <div class="image-placeholder">
-                                                    <i class="fas fa-question-circle"></i>
-                                                    <span>Imaj pa jwenn</span>
+                                                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-slate-400 gap-2">
+                                                    <i class="fas fa-image text-4xl"></i>
+                                                    <span class="text-sm font-medium">Image introuvable</span>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
@@ -709,66 +380,97 @@ try {
                                 <?php endif; ?>
                             </div>
 
+                            <!-- Slider Controls -->
                             <?php if ($image_count > 1): ?>
-                                <button class="slider-btn prev" onclick="moveSlide(<?= $deal['id'] ?>, -1)">
+                                <button class="absolute top-1/2 -translate-y-1/2 left-3 w-9 h-9 rounded-full bg-white/95 border-none cursor-pointer flex items-center justify-center text-sm text-gray-700 transition-all shadow-md z-10 opacity-0 deal-card:hover:opacity-100 hover:bg-blue-600 hover:text-white hover:scale-110" onclick="moveSlide(<?= $deal['id'] ?>, -1)">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button class="slider-btn next" onclick="moveSlide(<?= $deal['id'] ?>, 1)">
+                                <button class="absolute top-1/2 -translate-y-1/2 right-3 w-9 h-9 rounded-full bg-white/95 border-none cursor-pointer flex items-center justify-center text-sm text-gray-700 transition-all shadow-md z-10 opacity-0 deal-card:hover:opacity-100 hover:bg-blue-600 hover:text-white hover:scale-110" onclick="moveSlide(<?= $deal['id'] ?>, 1)">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
-                                <div class="slider-dots">
+                                <div class="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                                     <?php for ($i = 0; $i < $image_count; $i++): ?>
-                                        <span class="dot <?= $i === 0 ? 'active' : '' ?>" onclick="goToSlide(<?= $deal['id'] ?>, <?= $i ?>)"></span>
+                                        <span class="w-2 h-2 rounded-full bg-white/40 cursor-pointer transition-all border-none <?= $i === 0 ? 'bg-white w-[22px] rounded-sm' : '' ?>" onclick="goToSlide(<?= $deal['id'] ?>, <?= $i ?>)"></span>
                                     <?php endfor; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
 
-                        <div style="padding:1.5rem;">
-                            <h3 style="font-size:1.25rem;font-weight:bold;color:#111827;margin-bottom:0.5rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= htmlspecialchars($deal['titre']) ?></h3>
-                            <p style="color:#6b7280;font-size:0.875rem;margin-bottom:1rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= htmlspecialchars($deal['description']) ?></p>
+                        <!-- Card Body -->
+                        <div class="px-6 py-5 sm:py-7">
+                            <div class="text-[0.7rem] font-bold text-blue-600 uppercase tracking-widest mb-2">Hot Deal</div>
+                            <h3 class="text-[1.05rem] font-bold text-slate-900 leading-snug mb-2 line-clamp-2 min-h-[2.8em]"><?= htmlspecialchars($deal['titre']) ?></h3>
+                            <p class="text-[0.82rem] text-slate-500 leading-relaxed mb-4 line-clamp-2"><?= htmlspecialchars($deal['description']) ?></p>
 
-                            <div class="savings">
-                                <i class="fas fa-piggy-bank" style="margin-right:4px;"></i> Ou ekonomize <?= number_format($savings) ?> HTG
+                            <div class="inline-flex items-center gap-1.5 bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-800 px-3 py-1 rounded-lg text-[0.72rem] font-bold mb-3.5 border border-emerald-200">
+                                <i class="fas fa-piggy-bank"></i>
+                                Économisez <?= number_format($savings) ?> HTG
                             </div>
 
-                            <div class="price-container">
-                                <span class="deal-price"><?= number_format($deal['prix_deal']) ?> HTG</span>
-                                <span class="original-price"><?= number_format($deal['prix_original']) ?> HTG</span>
+                            <div class="flex items-baseline gap-2.5 mb-4">
+                                <span class="text-[1.65rem] font-black text-red-600 leading-none">
+                                    <?= number_format($deal['prix_deal']) ?> <small class="text-[0.7em] font-semibold">HTG</small>
+                                </span>
+                                <span class="text-sm text-slate-400 line-through font-medium"><?= number_format($deal['prix_original']) ?> HTG</span>
                             </div>
 
+                            <!-- Countdown -->
                             <?php if ($deal['date_fin']): ?>
-                                <div class="countdown-box" data-end="<?= $deal['date_fin'] ?>">
-                                    <div class="countdown-label"><i class="fas fa-clock" style="margin-right:4px;"></i> Ekspire nan</div>
-                                    <div class="countdown-time" id="countdown-<?= $deal['id'] ?>">Calculating...</div>
+                                <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[14px] px-5 py-4 mb-5 border border-white/[0.06] <?= $expired ? 'expired' : '' ?>" data-end="<?= $deal['date_fin'] ?>" id="cd-box-<?= $deal['id'] ?>">
+                                    <div class="flex items-center gap-1.5 text-[0.68rem] uppercase tracking-widest text-white/50 mb-2.5 font-semibold">
+                                        <i class="fas fa-hourglass-half text-amber-500 text-[0.75rem]"></i> Expire dans
+                                    </div>
+                                    <div class="flex items-center gap-2" id="cd-<?= $deal['id'] ?>">
+                                        <div class="text-center">
+                                            <span class="countdown-num text-[1.35rem] font-black text-white leading-none min-w-[36px] block" id="cd-d-<?= $deal['id'] ?>">--</span>
+                                            <div class="text-[0.55rem] text-white/35 uppercase tracking-wider mt-0.5 font-medium">Jours</div>
+                                        </div>
+                                        <span class="text-xl font-bold text-white/20 -mt-2">:</span>
+                                        <div class="text-center">
+                                            <span class="countdown-num text-[1.35rem] font-black text-white leading-none min-w-[36px] block" id="cd-h-<?= $deal['id'] ?>">--</span>
+                                            <div class="text-[0.55rem] text-white/35 uppercase tracking-wider mt-0.5 font-medium">Heures</div>
+                                        </div>
+                                        <span class="text-xl font-bold text-white/20 -mt-2">:</span>
+                                        <div class="text-center">
+                                            <span class="countdown-num text-[1.35rem] font-black text-white leading-none min-w-[36px] block" id="cd-m-<?= $deal['id'] ?>">--</span>
+                                            <div class="text-[0.55rem] text-white/35 uppercase tracking-wider mt-0.5 font-medium">Min</div>
+                                        </div>
+                                        <span class="text-xl font-bold text-white/20 -mt-2">:</span>
+                                        <div class="text-center">
+                                            <span class="countdown-num text-[1.35rem] font-black text-white leading-none min-w-[36px] block" id="cd-s-<?= $deal['id'] ?>">--</span>
+                                            <div class="text-[0.55rem] text-white/35 uppercase tracking-wider mt-0.5 font-medium">Sec</div>
+                                        </div>
+                                    </div>
                                 </div>
                             <?php endif; ?>
 
-                            <?php if (!$expired && !$out_of_stock): ?>
-                                <form method="POST" action="" style="margin-top:1.5rem;">
+                            <!-- Actions -->
+                            <?php if (!$is_disabled): ?>
+                                <form method="POST" action="">
                                     <input type="hidden" name="deal_id" value="<?= $deal['id'] ?>">
                                     <input type="hidden" name="add_to_cart" value="1">
-
-                                    <div class="quantity-selector">
-                                        <button type="button" class="qty-btn" onclick="changeQty(<?= $deal['id'] ?>, -1)">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <input type="number" name="quantity" id="qty-<?= $deal['id'] ?>" value="1" min="1"
-                                            max="<?= $deal['quantite_limite'] ?? 10 ?>" class="qty-input" readonly>
-                                        <button type="button" class="qty-btn" onclick="changeQty(<?= $deal['id'] ?>, 1)">
-                                            <i class="fas fa-plus"></i>
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden shrink-0 transition-colors focus-within:border-blue-600">
+                                            <button type="button" class="w-[38px] h-[38px] border-none bg-slate-50 cursor-pointer flex items-center justify-center text-slate-600 text-xs transition-all hover:bg-slate-200 hover:text-slate-900" onclick="changeQty(<?= $deal['id'] ?>, -1)">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                            <input type="number" name="quantity" id="qty-<?= $deal['id'] ?>" value="1" min="1"
+                                                max="<?= $deal['quantite_limite'] ?? 10 ?>"
+                                                class="w-11 text-center font-bold text-sm border-none border-l-2 border-r-2 border-slate-200 py-2 bg-white text-slate-900 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" readonly>
+                                            <button type="button" class="w-[38px] h-[38px] border-none bg-slate-50 cursor-pointer flex items-center justify-center text-slate-600 text-xs transition-all hover:bg-slate-200 hover:text-slate-900" onclick="changeQty(<?= $deal['id'] ?>, 1)">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        <button type="submit" class="flex-1 h-[42px] border-none rounded-xl font-bold text-sm cursor-pointer transition-all flex items-center justify-center gap-2 bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-600/40 active:translate-y-0 active:scale-[0.98]">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Ajouter
                                         </button>
                                     </div>
-
-                                    <button type="submit" style="width:100%;padding:1rem;background:linear-gradient(to right,#f97316,#dc2626);color:#fff;border:none;border-radius:0.75rem;font-weight:bold;font-size:1.125rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        <span>Achte Kounye a</span>
-                                    </button>
                                 </form>
                             <?php else: ?>
-                                <button disabled style="width:100%;margin-top:1.5rem;padding:1rem;background:#9ca3af;color:#fff;border:none;border-radius:0.75rem;font-weight:bold;font-size:1.125rem;cursor:not-allowed;opacity:0.5;">
-                                    <i class="fas fa-times-circle" style="margin-right:8px;"></i>
-                                    <?= $expired ? 'Ekspire' : 'Epuize' ?>
+                                <button class="w-full h-[46px] border-none rounded-xl font-bold text-sm cursor-not-allowed opacity-45 bg-slate-400 text-white flex items-center justify-center gap-2">
+                                    <i class="fas fa-ban"></i>
+                                    <?= $expired ? 'Expiré' : 'Épuisé' ?>
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -776,71 +478,131 @@ try {
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-    </div>
+    </section>
 
     <!-- ===== FEATURES ===== -->
-    <section class="features-section">
-        <div style="max-width:80rem; margin:0 auto; padding:0 1rem;">
-            <div style="display:grid; grid-template-columns:1fr; gap:1.25rem;" class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-cube"></i></div>
-                    <div><h3>Livraison Gratuite</h3><p>Livraison gratuite pour les commandes de plus de 180 $</p></div>
+    <section class="bg-white border-t border-slate-200 py-12">
+        <div class="max-w-site mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div class="flex items-center gap-4 px-6 py-5 rounded-2xl border border-slate-200 transition-all bg-white hover:border-blue-200 hover:shadow-lg hover:shadow-blue-600/10 hover:-translate-y-0.5">
+                <div class="w-[50px] h-[50px] rounded-[14px] flex items-center justify-center shrink-0 text-xl bg-blue-50 text-blue-600">
+                    <i class="fas fa-truck-fast"></i>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
-                    <div><h3>Paiement Flexible</h3><p>Plusieurs options de paiement sécurisé</p></div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
-                    <div><h3>Support 24×7</h3><p>Disponibles en ligne tous les jours</p></div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 mb-0.5">Livraison Gratuite</h3>
+                    <p class="text-xs text-slate-500 leading-snug">Pour les commandes de plus de 180 $</p>
                 </div>
             </div>
+            <div class="flex items-center gap-4 px-6 py-5 rounded-2xl border border-slate-200 transition-all bg-white hover:border-blue-200 hover:shadow-lg hover:shadow-blue-600/10 hover:-translate-y-0.5">
+                <div class="w-[50px] h-[50px] rounded-[14px] flex items-center justify-center shrink-0 text-xl bg-emerald-50 text-emerald-600">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 mb-0.5">Paiement Sécurisé</h3>
+                    <p class="text-xs text-slate-500 leading-snug">Plusieurs options de paiement fiables</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 px-6 py-5 rounded-2xl border border-slate-200 transition-all bg-white hover:border-blue-200 hover:shadow-lg hover:shadow-blue-600/10 hover:-translate-y-0.5">
+                <div class="w-[50px] h-[50px] rounded-[14px] flex items-center justify-center shrink-0 text-xl bg-amber-50 text-amber-600">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 mb-0.5">Support 24/7</h3>
+                    <p class="text-xs text-slate-500 leading-snug">Disponibles en ligne tous les jours</p>
+                </div>
+            </div>
+            <!-- Contactez-nous WhatsApp -->
+            <a href="https://wa.me/50912345678?text=Bonjour%20LE-STOCK%2C%20je%20souhaite%20avoir%20plus%20d%27informations%20sur%20vos%20Hot%20Deals." target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 px-6 py-5 rounded-2xl border-2 border-emerald-200 transition-all bg-gradient-to-br from-emerald-50/80 to-white hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-500/15 hover:-translate-y-0.5 no-underline group">
+                <div class="w-[50px] h-[50px] rounded-[14px] flex items-center justify-center shrink-0 text-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white animate-whatsapp-pulse shadow-lg shadow-emerald-500/30">
+                    <i class="fab fa-whatsapp text-2xl"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-sm font-bold text-slate-900 mb-0.5 flex items-center gap-1.5">
+                        Contactez-nous
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[0.6rem] font-extrabold uppercase tracking-wider leading-none">WhatsApp</span>
+                    </h3>
+                    <p class="text-xs text-emerald-700 font-semibold leading-snug flex items-center gap-1.5">
+                        <i class="fab fa-whatsapp text-[0.7rem]"></i>
+                        +509 32 73 29 20
+                    </p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 transition-all group-hover:bg-emerald-500 group-hover:text-white text-emerald-600">
+                    <i class="fas fa-arrow-right text-xs transition-transform group-hover:translate-x-0.5"></i>
+                </div>
+            </a>
         </div>
     </section>
 
     <!-- ===== FOOTER ===== -->
-    <footer class="main-footer">
-        <div style="max-width:80rem; margin:0 auto; padding:0 1rem;">
-            <div style="display:grid; grid-template-columns:1fr; gap:2rem;" class="footer-grid">
-                <div>
-                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-                        <div class="footer-logo-icon">L</div>
-                        <span class="footer-logo-text">LE-STOCK.</span>
-                    </div>
-                    <p class="footer-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                    <div style="display:flex; gap:0.65rem; margin-top:1.25rem;">
-                        <a href="#" class="social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" class="social-btn" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    </div>
+    <footer class="bg-gradient-to-br from-slate-900 to-blue-900 text-blue-200 pt-14 pb-6">
+        <div class="max-w-site mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr] gap-8">
+            <!-- Col 1 -->
+            <div>
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-400 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/30">L</div>
+                    <span class="text-white font-extrabold text-xl tracking-tight">LE-STOCK</span>
                 </div>
-                <div>
-                    <h4>Entreprise</h4>
-                    <div class="footer-links" style="display:flex; flex-direction:column; gap:0.25rem;">
-                        <a href="#">À Propos</a><a href="#">Blog</a><a href="#">Contactez-nous</a><a href="#">Carrières</a>
-                    </div>
+                <p class="text-slate-400 leading-relaxed text-sm">Votre destination pour les meilleures affaires. Qualité, prix et confiance depuis 2024.</p>
+                <div class="flex gap-2 mt-5">
+                    <a href="#" class="w-[38px] h-[38px] bg-white/[0.06] border border-white/[0.08] rounded-[10px] flex items-center justify-center text-slate-400 no-underline transition-all text-sm hover:bg-blue-600 hover:border-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-600/30" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="w-[38px] h-[38px] bg-white/[0.06] border border-white/[0.08] rounded-[10px] flex items-center justify-center text-slate-400 no-underline transition-all text-sm hover:bg-blue-600 hover:border-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-600/30" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="w-[38px] h-[38px] bg-white/[0.06] border border-white/[0.08] rounded-[10px] flex items-center justify-center text-slate-400 no-underline transition-all text-sm hover:bg-blue-600 hover:border-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-600/30" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="w-[38px] h-[38px] bg-white/[0.06] border border-white/[0.08] rounded-[10px] flex items-center justify-center text-slate-400 no-underline transition-all text-sm hover:bg-blue-600 hover:border-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-600/30" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
                 </div>
-                <div>
-                    <h4>Service Client</h4>
-                    <div class="footer-links" style="display:flex; flex-direction:column; gap:0.25rem;">
-                        <a href="#">Mon Compte</a><a href="#">Suivre ma Commande</a><a href="#">Retours</a><a href="#">FAQ</a>
-                    </div>
+            </div>
+
+            <!-- Col 2 -->
+            <div>
+                <h4 class="footer-heading text-white font-bold text-sm mb-5 relative pb-2.5">Entreprise</h4>
+                <div class="flex flex-col gap-1">
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">À Propos</a>
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Blog</a>
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Contactez-nous</a>
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Carrières</a>
                 </div>
+            </div>
+
+            <!-- Col 3 -->
+            <div>
+                <h4 class="footer-heading text-white font-bold text-sm mb-5 relative pb-2.5">Service Client</h4>
+                <div class="flex flex-col gap-1">
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Mon Compte</a>
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Suivre ma Commande</a>
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Retours</a>
+                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">FAQ</a>
+                </div>
+            </div>
+
+            <!-- Col 4 -->
+            <div>
+                <h4 class="footer-heading text-white font-bold text-sm mb-5 relative pb-2.5">Coordonnées</h4>
                 <div>
-                    <h4>Coordonnées</h4>
-                    <div>
-                        <div class="contact-item"><i class="fas fa-phone"></i><span>+0123-456-789</span></div>
-                        <div class="contact-item"><i class="fas fa-envelope"></i><span>example@gmail.com</span></div>
-                        <div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>8502 Preston Rd.<br>Inglewood, Maine 98380</span></div>
+                    <div class="text-slate-400 flex items-start gap-3 mb-3.5 text-sm">
+                        <i class="fas fa-phone text-blue-500 mt-0.5 w-4 text-center"></i>
+                        <span>+0123-456-789</span>
+                    </div>
+                    <div class="text-slate-400 flex items-start gap-3 mb-3.5 text-sm">
+                        <i class="fas fa-envelope text-blue-500 mt-0.5 w-4 text-center"></i>
+                        <span>contact@le-stock.com</span>
+                    </div>
+                    <div class="text-slate-400 flex items-start gap-3 mb-3.5 text-sm">
+                        <i class="fas fa-map-marker-alt text-blue-500 mt-0.5 w-4 text-center"></i>
+                        <span>Port-au-Prince, Haïti</span>
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p class="footer-copy">Copyright © 2024 LE-STOCK. Tous droits réservés.</p>
-                <div style="display:flex; gap:0.75rem;">
-                    <button class="footer-lang">Français <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button>
-                    <button class="footer-lang">HTG <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="max-w-site mx-auto px-6">
+            <div class="border-t border-white/[0.06] mt-10 pt-6 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+                <p class="text-slate-500 text-xs">© 2024 LE-STOCK. Tous droits réservés.</p>
+                <div class="flex gap-2">
+                    <button class="bg-white/[0.06] text-slate-400 border border-white/[0.08] px-3.5 py-1.5 rounded-lg text-xs cursor-pointer flex items-center gap-1.5 transition-all hover:bg-white/10 hover:text-white">
+                        <i class="fas fa-globe text-[0.7rem]"></i> Français <i class="fas fa-chevron-down text-[0.55rem]"></i>
+                    </button>
+                    <button class="bg-white/[0.06] text-slate-400 border border-white/[0.08] px-3.5 py-1.5 rounded-lg text-xs cursor-pointer flex items-center gap-1.5 transition-all hover:bg-white/10 hover:text-white">
+                        HTG <i class="fas fa-chevron-down text-[0.55rem]"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -848,16 +610,28 @@ try {
 
     <!-- ===== JAVASCRIPT ===== -->
     <script>
+        // ===== HERO PARTICLES =====
+        (function () {
+            const container = document.getElementById('heroParticles');
+            if (!container) return;
+            for (let i = 0; i < 20; i++) {
+                const span = document.createElement('span');
+                span.className = 'absolute bg-white/30 rounded-full animate-float-up';
+                span.style.left = Math.random() * 100 + '%';
+                span.style.animationDuration = (4 + Math.random() * 6) + 's';
+                span.style.animationDelay = Math.random() * 5 + 's';
+                const size = (2 + Math.random() * 4) + 'px';
+                span.style.width = size;
+                span.style.height = size;
+                container.appendChild(span);
+            }
+        })();
+
         // ===== IMAGE SLIDER =====
         const sliders = {};
 
         function moveSlide(dealId, direction) {
-            if (!sliders[dealId]) {
-                sliders[dealId] = {
-                    current: 0,
-                    total: document.querySelectorAll(`#slider-${dealId} .slide`).length
-                };
-            }
+            if (!sliders[dealId]) initSlider(dealId);
             sliders[dealId].current += direction;
             if (sliders[dealId].current >= sliders[dealId].total) sliders[dealId].current = 0;
             if (sliders[dealId].current < 0) sliders[dealId].current = sliders[dealId].total - 1;
@@ -865,51 +639,65 @@ try {
         }
 
         function goToSlide(dealId, index) {
-            if (!sliders[dealId]) {
-                sliders[dealId] = {
-                    current: 0,
-                    total: document.querySelectorAll(`#slider-${dealId} .slide`).length
-                };
-            }
+            if (!sliders[dealId]) initSlider(dealId);
             sliders[dealId].current = index;
             updateSlider(dealId);
         }
 
-        function updateSlider(dealId) {
-            const container = document.querySelector(`#slider-${dealId} .slides-container`);
-            const dots = document.querySelectorAll(`#slider-${dealId} .dot`);
-            if (container) container.style.transform = `translateX(-${sliders[dealId].current * 100}%)`;
-            dots.forEach((dot, index) => dot.classList.toggle('active', index === sliders[dealId].current));
+        function initSlider(dealId) {
+            const el = document.getElementById('slider-' + dealId);
+            if (!el) return;
+            sliders[dealId] = { current: 0, total: el.querySelectorAll('.min-w-full').length };
         }
 
-        // Auto-slide
+        function updateSlider(dealId) {
+            const container = document.querySelector('#slider-' + dealId + ' .slides-container');
+            const sliderEl = document.getElementById('slider-' + dealId);
+            if (container) container.style.transform = 'translateX(-' + (sliders[dealId].current * 100) + '%)';
+
+            const allDots = sliderEl.querySelectorAll('[onclick*="goToSlide(' + dealId + '"]');
+            allDots.forEach((dot, i) => {
+                if (i === sliders[dealId].current) {
+                    dot.className = 'w-[22px] h-2 rounded-sm bg-white cursor-pointer transition-all border-none';
+                } else {
+                    dot.className = 'w-2 h-2 rounded-full bg-white/40 cursor-pointer transition-all border-none';
+                }
+            });
+        }
+
+        document.querySelectorAll('[id^="slider-"]').forEach(slider => {
+            initSlider(slider.id.replace('slider-', ''));
+        });
+
         setInterval(() => {
-            document.querySelectorAll('.image-slider').forEach(slider => {
-                const dealId = slider.id.replace('slider-', '');
-                if (sliders[dealId] && sliders[dealId].total > 1) moveSlide(dealId, 1);
+            Object.keys(sliders).forEach(id => {
+                if (sliders[id].total > 1) moveSlide(id, 1);
             });
         }, 5000);
 
-        // Init sliders
-        document.querySelectorAll('.image-slider').forEach(slider => {
-            const dealId = slider.id.replace('slider-', '');
-            sliders[dealId] = {
-                current: 0,
-                total: slider.querySelectorAll('.slide').length
-            };
-        });
-
         // ===== COUNTDOWN =====
         function updateCountdowns() {
-            document.querySelectorAll('.countdown-box').forEach(box => {
+            document.querySelectorAll('[data-end]').forEach(box => {
+                const dealId = box.id.replace('cd-box-', '');
                 const endDate = new Date(box.dataset.end);
                 const now = new Date();
                 const diff = endDate - now;
-                const display = box.querySelector('.countdown-time');
+
+                const dEl = document.getElementById('cd-d-' + dealId);
+                const hEl = document.getElementById('cd-h-' + dealId);
+                const mEl = document.getElementById('cd-m-' + dealId);
+                const sEl = document.getElementById('cd-s-' + dealId);
 
                 if (diff <= 0) {
-                    display.textContent = 'EKPIRE!';
-                    display.classList.add('expired');
+                    if (dEl) dEl.textContent = '0';
+                    if (hEl) hEl.textContent = '00';
+                    if (mEl) mEl.textContent = '00';
+                    if (sEl) sEl.textContent = '00';
+                    box.classList.add('expired');
+                    if (dEl) dEl.classList.add('text-red-400');
+                    if (hEl) hEl.classList.add('text-red-400');
+                    if (mEl) mEl.classList.add('text-red-400');
+                    if (sEl) sEl.classList.add('text-red-400');
                     return;
                 }
 
@@ -918,9 +706,10 @@ try {
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-                display.textContent = days > 0
-                    ? `${days}j ${hours}h ${minutes}m`
-                    : `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+                if (dEl) dEl.textContent = days;
+                if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+                if (mEl) mEl.textContent = String(minutes).padStart(2, '0');
+                if (sEl) sEl.textContent = String(seconds).padStart(2, '0');
             });
         }
 
@@ -930,41 +719,40 @@ try {
         // ===== QUANTITY =====
         function changeQty(dealId, change) {
             const input = document.getElementById('qty-' + dealId);
-            let newVal = parseInt(input.value) + change;
+            if (!input) return;
+            let val = parseInt(input.value) + change;
             const max = parseInt(input.max) || 10;
-            const min = parseInt(input.min) || 1;
-            if (newVal >= min && newVal <= max) {
-                input.value = newVal;
-            }
+            if (val >= 1 && val <= max) input.value = val;
         }
 
         // ===== CART BADGE =====
         function updateCartBadge() {
-            fetch('panier/get_cart_count.php').then(r => r.json()).then(d => {
-                const b = document.getElementById('cart-badge');
-                if (b) {
-                    const old = parseInt(b.textContent) || 0;
-                    b.textContent = d.count || 0;
-                    if (d.count !== old && old !== 0) {
-                        b.classList.add('badge-bounce');
-                        setTimeout(() => b.classList.remove('badge-bounce'), 500);
+            fetch('panier/get_cart_count.php')
+                .then(r => r.json())
+                .then(d => {
+                    const b = document.getElementById('cart-badge');
+                    if (b) {
+                        const old = parseInt(b.textContent) || 0;
+                        b.textContent = d.count || 0;
+                        if (d.count !== old && old !== 0) {
+                            b.classList.add('animate-badge-bounce');
+                            setTimeout(() => b.classList.remove('animate-badge-bounce'), 500);
+                        }
                     }
-                }
-            }).catch(e => console.error(e));
+                })
+                .catch(() => { });
         }
 
-        // Hide notification after 5 seconds
+        // ===== NOTIFICATION =====
         setTimeout(() => {
-            const notif = document.getElementById('cart-notification');
-            if (notif) notif.classList.remove('show');
-        }, 5000);
+            const n = document.getElementById('cart-notification');
+            if (n) n.classList.add('translate-x-[calc(100%+2rem)]');
+            setTimeout(() => { if (n) n.remove(); }, 500);
+        }, 4500);
 
-        // Init
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCartBadge();
-        });
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', updateCartBadge);
     </script>
 
 </body>
-
 </html>
