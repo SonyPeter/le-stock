@@ -42,15 +42,16 @@
 
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="../index.php" class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">LE</span>
-                </div>
-                <span class="font-bold text-lg tracking-tight">STOCK</span>
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="../index.php" class="flex items-center">
+                <img 
+                    src="https://z-cdn-media.chatglm.cn/files/21cb5d0a-e105-4b52-8a16-382403da1bf7.png?auth_key=1874925098-d3b11a7c43324ad399827a57c84df1d7-0-314da5008a2cf9544910617f8d8c2c0c" 
+                    alt="LE - STOCK" 
+                    class="h-14 md:h-16 w-auto object-contain"
+                >
             </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                <a href="../index.php" class="hover:text-brand-600 transition-colors">Acceuil</a>
+                <a href="../index.php" class="hover:text-brand-600 transition-colors">Accueil</a>
                 <a href="#avantages" class="hover:text-brand-600 transition-colors">Avantages</a>
                 <a href="#comment" class="hover:text-brand-600 transition-colors">Comment ça marche</a>
                 <a href="#programme" class="hover:text-brand-600 transition-colors">Programme</a>
@@ -72,7 +73,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden">
+    <section class="relative pt-36 pb-20 md:pt-48 md:pb-32 overflow-hidden">
         <!-- Background decorations -->
         <div class="absolute top-0 right-0 w-96 h-96 bg-brand-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3"></div>
         <div class="absolute bottom-0 left-0 w-72 h-72 bg-brand-50 rounded-full blur-3xl opacity-60 translate-y-1/2 -translate-x-1/3"></div>
@@ -190,7 +191,6 @@
             </div>
 
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Avantage 1 -->
                 <div class="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all duration-300 group">
                     <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-200 transition-colors">
                         <i data-lucide="headphones" class="w-6 h-6 text-brand-600"></i>
@@ -201,7 +201,6 @@
                     </div>
                 </div>
 
-                <!-- Avantage 2 -->
                 <div class="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all duration-300 group">
                     <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-200 transition-colors">
                         <i data-lucide="zap" class="w-6 h-6 text-brand-600"></i>
@@ -212,7 +211,6 @@
                     </div>
                 </div>
 
-                <!-- Avantage 3 -->
                 <div class="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all duration-300 group">
                     <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-200 transition-colors">
                         <i data-lucide="gift" class="w-6 h-6 text-brand-600"></i>
@@ -223,7 +221,6 @@
                     </div>
                 </div>
 
-                <!-- Avantage 4 -->
                 <div class="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all duration-300 group">
                     <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-200 transition-colors">
                         <i data-lucide="bar-chart-3" class="w-6 h-6 text-brand-600"></i>
@@ -234,7 +231,6 @@
                     </div>
                 </div>
 
-                <!-- Avantage 5 -->
                 <div class="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all duration-300 group">
                     <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-200 transition-colors">
                         <i data-lucide="link" class="w-6 h-6 text-brand-600"></i>
@@ -245,7 +241,6 @@
                     </div>
                 </div>
 
-                <!-- Avantage 6 -->
                 <div class="flex items-start gap-4 p-6 rounded-2xl border border-gray-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all duration-300 group">
                     <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-brand-200 transition-colors">
                         <i data-lucide="shield-check" class="w-6 h-6 text-brand-600"></i>
@@ -397,7 +392,7 @@
                         Gratuit · Sans engagement · Accès prioritaire garanti
                     </p>
 
-                    <!-- Countdown placeholder -->
+                    <!-- Countdown -->
                     <div class="flex items-center justify-center gap-4 mt-10">
                         <div class="text-center">
                             <div class="w-16 h-16 md:w-20 md:h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/10">
@@ -437,12 +432,13 @@
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid md:grid-cols-4 gap-10 mb-12">
                 <div class="md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">LE</span>
-                        </div>
-                        <span class="font-bold text-lg text-white tracking-tight">LE - STOCK</span>
-                    </div>
+                    <a href="../index.php" class="inline-flex items-center mb-4">
+                        <img 
+                            src="https://z-cdn-media.chatglm.cn/files/21cb5d0a-e105-4b52-8a16-382403da1bf7.png?auth_key=1874925098-d3b11a7c43324ad399827a57c84df1d7-0-314da5008a2cf9544910617f8d8c2c0c" 
+                            alt="LE - STOCK" 
+                            class="h-10 w-auto object-contain brightness-0 invert opacity-90"
+                        >
+                    </a>
                     <p class="text-sm leading-relaxed max-w-sm">
                         Le programme d'affiliation le plus généreux pour développer vos revenus en ligne. Rejoignez une communauté de partenaires performants.
                     </p>
@@ -467,7 +463,7 @@
                 </div>
             </div>
             <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-sm">&copy; <?php echo date('Y'); ?> LE - STOCK. Tous droits réservés.</p>
+                <p class="text-sm">&copy; 2025 LE - STOCK. Tous droits réservés.</p>
                 <div class="flex items-center gap-4">
                     <a href="#" class="w-9 h-9 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-center transition-colors">
                         <i data-lucide="twitter" class="w-4 h-4"></i>
@@ -564,5 +560,4 @@
         });
     </script>
 </body>
-
 </html>

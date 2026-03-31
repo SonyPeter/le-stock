@@ -2,9 +2,9 @@
 session_start();
 require_once dirname(__DIR__) . '/config/db.php';
 
-// Rekipere pwodwi an promosyon
-$promotionProducts = [];
-$categories = ['All'];
+// Récupérer les produits en promotion
+ $promotionProducts = [];
+ $categories = ['All'];
 
 try {
     $stmt = $pdo->query("
@@ -48,10 +48,10 @@ function getSavings($price, $price_promo) {
     return $price - $price_promo;
 }
 
-$selectedCategory = isset($_GET['category']) ? $_GET['category'] : 'All';
-$sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'featured';
+ $selectedCategory = isset($_GET['category']) ? $_GET['category'] : 'All';
+ $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'featured';
 
-$filteredProducts = $promotionProducts;
+ $filteredProducts = $promotionProducts;
 if ($selectedCategory !== 'All') {
     $filteredProducts = array_filter($promotionProducts, function($p) use ($selectedCategory) {
         return $p['category_name'] === $selectedCategory;
@@ -78,50 +78,50 @@ switch ($sortBy) {
         break;
 }
 
-$totalProducts = count($promotionProducts);
-$totalSavings = array_reduce($promotionProducts, function($sum, $p) {
+ $totalProducts = count($promotionProducts);
+ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
     return $sum + getSavings($p['price'], $p['price_promo']);
 }, 0);
 ?>
 
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promosyon - LE-STOCK</title>
+    <title>Promotions - LE-STOCK</title>
     
-    <!-- Sèlman fichè CSS lokal ou a -->
+    <!-- Uniquement votre fichier CSS local -->
     <link rel="stylesheet" href="\le-stock\css\style.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Style pou koulè bleu yo sèlman -->
+    <!-- Style pour les couleurs bleues uniquement -->
     <style>
-        /* Koulè bleu gradient pou Hero Section */
+        /* Couleur bleu gradient pour la section Hero */
         .hero-gradient {
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
         }
         
-        /* Glassmorphism efè */
+        /* Effet Glassmorphism */
         .glass {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
         }
         
-        /* Gradient bouton */
+        /* Bouton gradient */
         .btn-gradient {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
         
-        /* Gradient badge */
+        /* Badge gradient */
         .badge-gradient {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
         
-        /* Background decoration blur */
+        /* Décoration d'arrière-plan flou */
         .bg-primary-500\/30 {
             background-color: rgba(59, 130, 246, 0.3);
         }
@@ -130,12 +130,12 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             background-color: rgba(34, 211, 238, 0.2);
         }
         
-        /* Top banner gradient */
+        /* Gradient de la bannière supérieure */
         .bg-gradient-to-r.from-primary-500.to-primary-600 {
             background: linear-gradient(to right, #3b82f6, #2563eb);
         }
         
-        /* Text koulè */
+        /* Couleur du texte */
         .text-primary-500 {
             color: #3b82f6;
         }
@@ -152,7 +152,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             color: #ef4444;
         }
         
-        /* Background koulè */
+        /* Couleur d'arrière-plan */
         .bg-dark-900 {
             background-color: #0f172a;
         }
@@ -173,7 +173,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             background-color: #020617;
         }
         
-        /* Border koulè */
+        /* Couleur de bordure */
         .border-dark-700 {
             border-color: #334155;
         }
@@ -182,7 +182,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             border-color: #1e293b;
         }
         
-        /* Text slate */
+        /* Texte slate */
         .text-slate-200 {
             color: #e2e8f0;
         }
@@ -199,7 +199,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             color: #f1f5f9;
         }
         
-        /* Hover efè */
+        /* Effet au survol */
         .hover\:text-primary-500:hover {
             color: #3b82f6;
         }
@@ -228,7 +228,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             animation: slideIn 0.3s ease;
         }
         
-        /* Mobile Menu Styles */
+        /* Styles du menu mobile */
         .mobile-menu {
             display: none;
             position: fixed;
@@ -269,12 +269,12 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
 </head>
 <body class="bg-dark-900 text-slate-200 font-sans antialiased">
 
-    <!-- Top Banner -->
+    <!-- Bannière supérieure -->
     <div id="topBanner" class="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-2.5 text-sm">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <div class="flex items-center gap-6">
                 <span><i class="fas fa-phone-alt mr-1.5"></i> (406) 555-0120</span>
-                <span>Sign up and <strong>GET 25% OFF</strong> for your first order. <a href="#" class="underline hover:no-underline">Sign up now</a></span>
+                <span>Inscrivez-vous et <strong>OBTENEZ 25% DE RÉDUCTION</strong> sur votre première commande. <a href="#" class="underline hover:no-underline">Inscrivez-vous maintenant</a></span>
             </div>
             <button onclick="closeTopBanner()" class="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
                 <i class="fas fa-times text-xs"></i>
@@ -282,11 +282,11 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
         </div>
     </div>
 
-    <!-- Header -->
+    <!-- En-tête -->
     <header class="bg-dark-800 border-b border-dark-700 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-[90px] flex justify-between items-center">
             
-            <!-- ESPAS POU LOGO OU AN -->
+            <!-- ESPACE POUR VOTRE LOGO -->
             <div class="h-full flex items-center">
                 <img src="\le-stock\assets\img\le stock entreprise copy2.png" 
                      alt="Logo" 
@@ -296,13 +296,9 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
 
             <!-- Navigation -->
             <nav class="hidden lg:flex gap-8">
-                <a href="accueil.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Home</a>
-                <a href="boutique.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Shop</a>
-                <a href="femmes.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Women</a>
-                <a href="hommes.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Men</a>
-                <a href="accessoires.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Accessories</a>
-                <a href="promotions.php" class="text-primary-500 font-semibold relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:right-0 after:h-0.5 after:bg-primary-500 after:rounded-full">Promotions</a>
-                <a href="contact.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Contact Us</a>
+                <a href="../index.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Accueil</a>
+                <a href="acceuil.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Galerie</a>
+                <a href="hot_deal.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Hot Deal</a>
             </nav>
 
             <!-- Actions -->
@@ -326,7 +322,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     </a>
                 <?php endif; ?>
                 
-                <!-- Mobile Menu Toggle Button -->
+                <!-- Bouton du menu mobile -->
                 <button onclick="toggleMobileMenu()" class="mobile-menu-toggle w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all lg:hidden">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -334,45 +330,45 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
         </div>
     </header>
 
-    <!-- Mobile Menu -->
+    <!-- Menu mobile -->
     <div id="mobileMenu" class="mobile-menu lg:hidden">
-        <a href="accueil.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Home</a>
-        <a href="boutique.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Shop</a>
-        <a href="femmes.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Women</a>
-        <a href="hommes.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Men</a>
-        <a href="accessoires.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Accessories</a>
+        <a href="accueil.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Accueil</a>
+        <a href="boutique.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Boutique</a>
+        <a href="femmes.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Femmes</a>
+        <a href="hommes.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Hommes</a>
+        <a href="accessoires.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Accessoires</a>
         <a href="promotions.php" class="text-primary-500 font-semibold">Promotions</a>
-        <a href="contact.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Contact Us</a>
+        <a href="contact.php" class="text-slate-400 hover:text-primary-500 font-medium transition-colors">Contactez-nous</a>
     </div>
 
-    <!-- Hero Section -->
+    <!-- Section Hero -->
     <section class="hero-gradient text-white py-12 relative overflow-hidden">
-        <!-- Background decoration -->
+        <!-- Décoration d'arrière-plan -->
         <div class="absolute inset-0 pointer-events-none">
             <div class="absolute top-[20%] left-[20%] w-64 h-64 bg-primary-500/30 rounded-full blur-3xl"></div>
             <div class="absolute bottom-[20%] right-[20%] w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl"></div>
         </div>
 
         <div class="max-w-3xl mx-auto px-4 text-center relative z-10">
-            <!-- Flash Badge -->
+            <!-- Badge Flash -->
             <div class="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-5 text-xs font-semibold uppercase tracking-wider">
                 <i class="fas fa-bolt text-yellow-300"></i>
-                <span>Flash Sale</span>
+                <span>Vente Flash</span>
             </div>
 
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-lg">MEGA PROMOTION</h1>
-            <p class="text-lg md:text-xl mb-2 opacity-95">Save up to <span class="text-yellow-300 font-bold">30% OFF</span> on selected items</p>
-            <p class="text-sm md:text-base opacity-85 mb-8">Limited time offer - Hurry up before it's too late!</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 drop-shadow-lg">MÉGA PROMOTION</h1>
+            <p class="text-lg md:text-xl mb-2 opacity-95">Économisez jusqu'à <span class="text-yellow-300 font-bold">30%</span> sur des articles sélectionnés</p>
+            <p class="text-sm md:text-base opacity-85 mb-8">Offre limitée - Dépêchez-vous avant qu'il ne soit trop tard !</p>
 
-            <!-- Countdown -->
+            <!-- Compte à rebours -->
             <div class="flex justify-center gap-4 mb-10">
                 <div class="glass rounded-2xl px-5 py-4 min-w-[80px] shadow-xl">
                     <span id="days" class="text-3xl font-extrabold block tabular-nums">04</span>
-                    <span class="text-xs uppercase opacity-70 tracking-wider mt-1 block">Days</span>
+                    <span class="text-xs uppercase opacity-70 tracking-wider mt-1 block">Jours</span>
                 </div>
                 <div class="glass rounded-2xl px-5 py-4 min-w-[80px] shadow-xl">
                     <span id="hours" class="text-3xl font-extrabold block tabular-nums">23</span>
-                    <span class="text-xs uppercase opacity-70 tracking-wider mt-1 block">Hours</span>
+                    <span class="text-xs uppercase opacity-70 tracking-wider mt-1 block">Heures</span>
                 </div>
                 <div class="glass rounded-2xl px-5 py-4 min-w-[80px] shadow-xl">
                     <span id="minutes" class="text-3xl font-extrabold block tabular-nums">57</span>
@@ -380,11 +376,11 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                 </div>
                 <div class="glass rounded-2xl px-5 py-4 min-w-[80px] shadow-xl">
                     <span id="seconds" class="text-3xl font-extrabold block tabular-nums">48</span>
-                    <span class="text-xs uppercase opacity-70 tracking-wider mt-1 block">Seconds</span>
+                    <span class="text-xs uppercase opacity-70 tracking-wider mt-1 block">Secondes</span>
                 </div>
             </div>
 
-            <!-- Stats -->
+            <!-- Statistiques -->
             <div class="flex justify-center gap-5 flex-wrap">
                 <div class="glass rounded-2xl px-7 py-5 flex items-center gap-3.5 shadow-xl">
                     <div class="w-11 h-11 bg-primary-500/30 rounded-xl flex items-center justify-center text-primary-400 text-lg">
@@ -392,7 +388,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     </div>
                     <div class="text-left">
                         <div class="text-2xl font-extrabold"><?= $totalProducts ?></div>
-                        <div class="text-xs opacity-70 capitalize">Products on Sale</div>
+                        <div class="text-xs opacity-70 capitalize">Produits en promotion</div>
                     </div>
                 </div>
                 <div class="glass rounded-2xl px-7 py-5 flex items-center gap-3.5 shadow-xl">
@@ -401,7 +397,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     </div>
                     <div class="text-left">
                         <div class="text-2xl font-extrabold">30%</div>
-                        <div class="text-xs opacity-70 capitalize">Maximum Discount</div>
+                        <div class="text-xs opacity-70 capitalize">Réduction maximale</div>
                     </div>
                 </div>
                 <div class="glass rounded-2xl px-7 py-5 flex items-center gap-3.5 shadow-xl">
@@ -410,21 +406,21 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     </div>
                     <div class="text-left">
                         <div class="text-2xl font-extrabold"><?= number_format($totalSavings, 0) ?></div>
-                        <div class="text-xs opacity-70 capitalize">Total Savings</div>
+                        <div class="text-xs opacity-70 capitalize">Économies totales</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Content -->
+    <!-- Contenu principal -->
     <main class="max-w-7xl mx-auto px-4 py-10">
         
-        <!-- Filters -->
+        <!-- Filtres -->
         <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 mb-8">
             <div class="flex flex-col lg:flex-row justify-between gap-6">
                 <div class="flex-1">
-                    <label class="block text-xs font-semibold uppercase text-slate-500 tracking-wider mb-3">Categories</label>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 tracking-wider mb-3">Catégories</label>
                     <div class="flex flex-wrap gap-2.5">
                         <?php foreach ($categories as $category): ?>
                             <a href="?category=<?= urlencode($category) ?>&sort=<?= $sortBy ?>" 
@@ -436,25 +432,25 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                 </div>
 
                 <div class="lg:w-56">
-                    <label class="block text-xs font-semibold uppercase text-slate-500 tracking-wider mb-3">Sort By</label>
+                    <label class="block text-xs font-semibold uppercase text-slate-500 tracking-wider mb-3">Trier par</label>
                     <form method="get" class="m-0">
                         <input type="hidden" name="category" value="<?= htmlspecialchars($selectedCategory) ?>">
                         <select name="sort" onchange="this.form.submit()" class="w-full px-3.5 py-2.5 border border-dark-700 rounded-xl text-sm bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 cursor-pointer">
-                            <option value="featured" <?= $sortBy === 'featured' ? 'selected' : '' ?>>Featured</option>
-                            <option value="price-low" <?= $sortBy === 'price-low' ? 'selected' : '' ?>>Price: Low to High</option>
-                            <option value="price-high" <?= $sortBy === 'price-high' ? 'selected' : '' ?>>Price: High to Low</option>
-                            <option value="discount" <?= $sortBy === 'discount' ? 'selected' : '' ?>>Highest Discount</option>
+                            <option value="featured" <?= $sortBy === 'featured' ? 'selected' : '' ?>>En vedette</option>
+                            <option value="price-low" <?= $sortBy === 'price-low' ? 'selected' : '' ?>>Prix : Croissant</option>
+                            <option value="price-high" <?= $sortBy === 'price-high' ? 'selected' : '' ?>>Prix : Décroissant</option>
+                            <option value="discount" <?= $sortBy === 'discount' ? 'selected' : '' ?>>Plus forte réduction</option>
                         </select>
                     </form>
                 </div>
             </div>
 
             <div class="mt-5 pt-5 border-t border-dark-700 text-sm text-slate-500">
-                Showing <strong class="text-slate-200 font-semibold"><?= count($filteredProducts) ?></strong> of <strong class="text-slate-200 font-semibold"><?= $totalProducts ?></strong> products
+                Affichage de <strong class="text-slate-200 font-semibold"><?= count($filteredProducts) ?></strong> sur <strong class="text-slate-200 font-semibold"><?= $totalProducts ?></strong> produits
             </div>
         </div>
 
-        <!-- Products Grid -->
+        <!-- Grille de produits -->
         <?php if (count($filteredProducts) > 0): ?>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
                 <?php foreach ($filteredProducts as $product): 
@@ -469,15 +465,15 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                  onerror="this.src='../assets/img/placeholder.png'">
                             
-                            <!-- Discount Badge -->
+                            <!-- Badge de réduction -->
                             <span class="absolute top-3 left-3 badge-gradient text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-red-500/30">-<?= $discount ?>%</span>
                             
                             <!-- Actions -->
                             <div class="absolute top-3 right-3 flex flex-col gap-2 opacity-0 translate-x-2.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                                <button onclick="addToFavorites(<?= $product['id'] ?>)" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all" title="Add to favorites">
+                                <button onclick="addToFavorites(<?= $product['id'] ?>)" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all" title="Ajouter aux favoris">
                                     <i class="fas fa-heart text-sm"></i>
                                 </button>
-                                <button onclick="quickView(<?= $product['id'] ?>)" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all" title="Quick view">
+                                <button onclick="quickView(<?= $product['id'] ?>)" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all" title="Aperçu rapide">
                                     <i class="fas fa-eye text-sm"></i>
                                 </button>
                             </div>
@@ -498,16 +494,16 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
 
                             <div class="inline-flex items-center gap-1.5 bg-green-500/15 text-green-400 px-3 py-1.5 rounded-full text-xs font-semibold mb-4 border border-green-500/20">
                                 <i class="fas fa-piggy-bank"></i>
-                                You save <?= number_format($savings, 2) ?> HTG
+                                Vous économisez <?= number_format($savings, 2) ?> HTG
                             </div>
 
                             <div class="flex justify-between items-center pt-4 border-t border-dark-700">
                                 <span class="text-sm text-slate-500 flex items-center gap-1.5 <?= $isLowStock ? 'text-red-500 font-semibold' : '' ?>">
                                     <i class="fas fa-box"></i>
-                                    <?= $product['stock_qty'] ?? 0 ?> left
+                                    <?= $product['stock_qty'] ?? 0 ?> restants
                                 </span>
                                 <button onclick="addToCart(<?= $product['id'] ?>)" class="btn-gradient text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:scale-105 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
-                                    <i class="fas fa-cart-plus"></i> Add
+                                    <i class="fas fa-cart-plus"></i> Ajouter
                                 </button>
                             </div>
                         </div>
@@ -517,36 +513,36 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
         <?php else: ?>
             <div class="text-center py-20 text-slate-500 bg-dark-800 border border-dark-700 rounded-3xl">
                 <i class="fas fa-search text-6xl text-primary-500/50 mb-6"></i>
-                <h2 class="text-2xl font-bold text-slate-100 mb-2">No products found</h2>
-                <p class="text-base mb-6">Try changing your filters or check back later for new promotions.</p>
+                <h2 class="text-2xl font-bold text-slate-100 mb-2">Aucun produit trouvé</h2>
+                <p class="text-base mb-6">Essayez de modifier vos filtres ou revenez plus tard pour de nouvelles promotions.</p>
                 <a href="promotions.php" class="btn-gradient text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
-                    <i class="fas fa-undo"></i> Reset Filters
+                    <i class="fas fa-undo"></i> Réinitialiser les filtres
                 </a>
             </div>
         <?php endif; ?>
 
-        <!-- CTA Section -->
+        <!-- Section d'appel à l'action -->
         <div class="bg-gradient-to-br from-dark-800 to-dark-700 border border-dark-700 rounded-3xl p-12 text-center relative overflow-hidden mb-12">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-cyan-400"></div>
-            <h2 class="text-3xl font-bold text-slate-100 mb-3">Don't Miss Out on These Amazing Deals!</h2>
-            <p class="text-base text-slate-400 mb-7">Subscribe to our newsletter and get exclusive offers</p>
+            <h2 class="text-3xl font-bold text-slate-100 mb-3">Ne manquez pas ces offres incroyables !</h2>
+            <p class="text-base text-slate-400 mb-7">Abonnez-vous à notre newsletter et recevez des offres exclusives</p>
             <form onsubmit="event.preventDefault(); subscribeNewsletter(this);" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input type="email" placeholder="Enter your email" required class="flex-1 px-5 py-3.5 border border-dark-700 rounded-xl text-base bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500 placeholder-slate-500">
+                <input type="email" placeholder="Entrez votre email" required class="flex-1 px-5 py-3.5 border border-dark-700 rounded-xl text-base bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500 placeholder-slate-500">
                 <button type="submit" class="btn-gradient text-white px-8 py-3.5 rounded-xl font-semibold hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/40 transition-all whitespace-nowrap">
-                    Subscribe Now
+                    S'abonner maintenant
                 </button>
             </form>
         </div>
 
-        <!-- Features -->
+        <!-- Avantages -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-dark-800 border border-dark-700 rounded-2xl p-7 flex items-start gap-4 hover:border-primary-500 transition-colors">
                 <div class="w-13 h-13 bg-primary-500/15 rounded-xl flex items-center justify-center text-primary-500 text-2xl flex-shrink-0">
                     <i class="fas fa-shipping-fast"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-semibold text-slate-100 mb-1">Free Shipping</h3>
-                    <p class="text-sm text-slate-500">Free shipping for order above $180</p>
+                    <h3 class="text-base font-semibold text-slate-100 mb-1">Livraison gratuite</h3>
+                    <p class="text-sm text-slate-500">Livraison gratuite pour les commandes de plus de 180 $</p>
                 </div>
             </div>
             <div class="bg-dark-800 border border-dark-700 rounded-2xl p-7 flex items-start gap-4 hover:border-primary-500 transition-colors">
@@ -554,8 +550,8 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     <i class="fas fa-credit-card"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-semibold text-slate-100 mb-1">Flexible Payment</h3>
-                    <p class="text-sm text-slate-500">Multiple secure payment options</p>
+                    <h3 class="text-base font-semibold text-slate-100 mb-1">Paiement flexible</h3>
+                    <p class="text-sm text-slate-500">Plusieurs options de paiement sécurisé</p>
                 </div>
             </div>
             <div class="bg-dark-800 border border-dark-700 rounded-2xl p-7 flex items-start gap-4 hover:border-primary-500 transition-colors">
@@ -563,25 +559,25 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     <i class="fas fa-headset"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-semibold text-slate-100 mb-1">24x7 Support</h3>
-                    <p class="text-sm text-slate-500">We support online all days</p>
+                    <h3 class="text-base font-semibold text-slate-100 mb-1">Support 24x7</h3>
+                    <p class="text-sm text-slate-500">Disponibles en ligne tous les jours</p>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
+    <!-- Pied de page -->
     <footer class="bg-slate-950 border-t border-dark-800 mt-16 pt-14 pb-6">
         <div class="max-w-7xl mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
                 
-                <!-- Logo & About -->
+                <!-- Logo et à propos -->
                 <div>
                     <div class="mb-5">
                         <img src="../assets/img/logo.png" alt="Logo" class="h-20 max-w-[320px] object-contain" onerror="this.style.display='none'">
                     </div>
-                    <p class="text-sm text-slate-500 leading-relaxed mb-5">Your one-stop destination for premium products at unbeatable prices. Quality meets affordability.</p>
+                    <p class="text-sm text-slate-500 leading-relaxed mb-5">Votre destination unique pour des produits premium à des prix imbattables. La qualité rencontre l'accessibilité.</p>
                     <div class="flex gap-3">
                         <a href="#" class="w-11 h-11 bg-dark-800 border border-dark-700 rounded-xl flex items-center justify-center text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white transition-all">
                             <i class="fab fa-facebook-f"></i>
@@ -598,27 +594,27 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     </div>
                 </div>
 
-                <!-- Company -->
+                <!-- Entreprise -->
                 <div>
-                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Company</h4>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">About Us</a>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Our Story</a>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Careers</a>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 transition-colors">Press</a>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Entreprise</h4>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">À propos</a>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Notre histoire</a>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Carrières</a>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 transition-colors">Presse</a>
                 </div>
 
-                <!-- Customer Service -->
+                <!-- Service client -->
                 <div>
-                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Customer Service</h4>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Help Center</a>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Track Order</a>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Returns</a>
-                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 transition-colors">Contact Us</a>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Service client</h4>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Centre d'aide</a>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Suivre commande</a>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">Retours</a>
+                    <a href="#" class="block text-sm text-slate-500 hover:text-primary-500 transition-colors">Contactez-nous</a>
                 </div>
 
-                <!-- Contact Info -->
+                <!-- Coordonnées -->
                 <div>
-                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Contact Info</h4>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Coordonnées</h4>
                     <a href="tel:+0123-456-789" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">
                         <i class="fas fa-phone mr-2"></i> +0123-456-789
                     </a>
@@ -633,22 +629,22 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                 </div>
             </div>
 
-            <!-- Footer Bottom -->
+            <!-- Bas du pied de page -->
             <div class="pt-6 border-t border-dark-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-                <p>&copy; <?= date('Y') ?> LE-STOCK. All rights reserved.</p>
+                <p>&copy; <?= date('Y') ?> LE-STOCK. Tous droits réservés.</p>
                 <div class="flex gap-5">
                     <button class="bg-dark-800 border border-dark-700 px-4 py-2 rounded-lg text-slate-400 hover:border-primary-500 hover:text-primary-500 flex items-center gap-2 transition-all">
-                        <i class="fas fa-globe"></i> English <i class="fas fa-chevron-down text-xs"></i>
+                        <i class="fas fa-globe"></i> Français <i class="fas fa-chevron-down text-xs"></i>
                     </button>
                     <button class="bg-dark-800 border border-dark-700 px-4 py-2 rounded-lg text-slate-400 hover:border-primary-500 hover:text-primary-500 flex items-center gap-2 transition-all">
-                        <i class="fas fa-dollar-sign"></i> USD <i class="fas fa-chevron-down text-xs"></i>
+                        <i class="fas fa-dollar-sign"></i> HTG <i class="fas fa-chevron-down text-xs"></i>
                     </button>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Quick View Modal -->
+    <!-- Modal d'aperçu rapide -->
     <div id="quickViewModal" onclick="if(event.target === this) closeQuickView()" class="hidden fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-dark-800 border border-dark-700 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
             <button onclick="closeQuickView()" class="absolute top-5 right-5 w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-red-500 hover:border-red-500 hover:text-white flex items-center justify-center transition-all z-10">
@@ -658,47 +654,47 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
         </div>
     </div>
 
-    <!-- Admin Edit Button -->
+    <!-- Bouton d'édition admin -->
     <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-        <button onclick="openEditModal()" title="Edit Countdown" class="fixed bottom-6 right-6 w-14 h-14 btn-gradient text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-primary-500/40 hover:scale-110 transition-transform z-50">
+        <button onclick="openEditModal()" title="Modifier le compte à rebours" class="fixed bottom-6 right-6 w-14 h-14 btn-gradient text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-primary-500/40 hover:scale-110 transition-transform z-50">
             <i class="fas fa-cog"></i>
         </button>
 
-        <!-- Edit Modal -->
+        <!-- Modal d'édition -->
         <div id="editModal" onclick="if(event.target === this) closeEditModal()" class="hidden fixed inset-0 bg-slate-950/90 z-[60] flex items-center justify-center p-6 backdrop-blur-sm">
             <div class="bg-dark-800 border border-dark-700 rounded-3xl max-w-lg w-full p-8">
                 <h3 class="text-xl font-bold text-slate-100 mb-6 flex items-center gap-2.5">
                     <i class="fas fa-clock text-primary-500"></i>
-                    Edit Countdown
+                    Modifier le compte à rebours
                 </h3>
                 
                 <div class="space-y-5">
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-2">End Date</label>
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Date de fin</label>
                         <input type="datetime-local" id="countdownEndDate" class="w-full px-4 py-3 border border-dark-700 rounded-xl bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-2">Promotion Title</label>
-                        <input type="text" id="promoTitle" value="MEGA PROMOTION" class="w-full px-4 py-3 border border-dark-700 rounded-xl bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500">
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Titre de la promotion</label>
+                        <input type="text" id="promoTitle" value="MÉGA PROMOTION" class="w-full px-4 py-3 border border-dark-700 rounded-xl bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-2">Discount Text</label>
-                        <input type="text" id="promoDiscount" value="30% OFF" class="w-full px-4 py-3 border border-dark-700 rounded-xl bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500">
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Texte de réduction</label>
+                        <input type="text" id="promoDiscount" value="30%" class="w-full px-4 py-3 border border-dark-700 rounded-xl bg-dark-900 text-slate-200 focus:outline-none focus:border-primary-500">
                     </div>
                 </div>
 
                 <div class="flex gap-3 mt-6">
-                    <button onclick="closeEditModal()" class="flex-1 bg-dark-700 text-slate-400 py-3.5 rounded-xl font-semibold hover:bg-dark-600 transition-colors">Cancel</button>
-                    <button onclick="saveCountdown()" class="flex-1 btn-gradient text-white py-3.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-primary-500/40 transition-all">Save Changes</button>
+                    <button onclick="closeEditModal()" class="flex-1 bg-dark-700 text-slate-400 py-3.5 rounded-xl font-semibold hover:bg-dark-600 transition-colors">Annuler</button>
+                    <button onclick="saveCountdown()" class="flex-1 btn-gradient text-white py-3.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-primary-500/40 transition-all">Enregistrer</button>
                 </div>
             </div>
         </div>
     <?php endif; ?>
 
     <script>
-        // Countdown Timer
+        // Compte à rebours
         let countdownEndDate = localStorage.getItem('countdownEndDate') 
             ? new Date(localStorage.getItem('countdownEndDate'))
             : new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
@@ -726,7 +722,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Mobile Menu Toggle
+        // Basculer le menu mobile
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             const toggle = document.querySelector('.mobile-menu-toggle');
@@ -734,7 +730,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             menu.classList.toggle('active');
             toggle.classList.toggle('active');
             
-            // Change icon
+            // Changer l'icône
             const icon = toggle.querySelector('i');
             if (menu.classList.contains('active')) {
                 icon.classList.remove('fa-bars');
@@ -745,7 +741,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             }
         }
 
-        // Admin Functions
+        // Fonctions admin
         function openEditModal() {
             document.getElementById('editModal').classList.remove('hidden');
             const dateStr = countdownEndDate.toISOString().slice(0, 16);
@@ -769,12 +765,12 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             document.querySelector('.hero-gradient h1').textContent = newTitle;
             document.querySelector('.hero-gradient .text-yellow-300').textContent = newDiscount;
             
-            showNotification('Countdown updated successfully!', 'success');
+            showNotification('Compte à rebours mis à jour avec succès !', 'success');
             closeEditModal();
             updateCountdown();
         }
 
-        // Add to Cart
+        // Ajouter au panier
         function addToCart(productId) {
             fetch('add_to_cart.php', {
                 method: 'POST',
@@ -783,12 +779,12 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             })
             .then(r => r.json())
             .then(data => {
-                showNotification(data.success ? 'Product added to cart!' : (data.message || 'Error'), data.success ? 'success' : 'error');
+                showNotification(data.success ? 'Produit ajouté au panier !' : (data.message || 'Erreur'), data.success ? 'success' : 'error');
             })
-            .catch(() => showNotification('Network error', 'error'));
+            .catch(() => showNotification('Erreur réseau', 'error'));
         }
 
-        // Add to Favorites
+        // Ajouter aux favoris
         function addToFavorites(productId) {
             fetch('add_to_favorites.php', {
                 method: 'POST',
@@ -797,11 +793,11 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             })
             .then(r => r.json())
             .then(data => {
-                showNotification(data.success ? 'Added to favorites!' : (data.message || 'Please login first'), data.success ? 'success' : 'error');
+                showNotification(data.success ? 'Ajouté aux favoris !' : (data.message || 'Veuillez vous connecter d\'abord'), data.success ? 'success' : 'error');
             });
         }
 
-        // Quick View
+        // Aperçu rapide
         function quickView(productId) {
             const modal = document.getElementById('quickViewModal');
             const content = document.getElementById('quickViewContent');
@@ -824,9 +820,9 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                                      onerror="this.src='../assets/img/placeholder.png'">
                             </div>
                             <div>
-                                <span class="inline-block badge-gradient text-white px-4 py-2 rounded-full text-sm font-bold mb-4">-${discount}% OFF</span>
+                                <span class="inline-block badge-gradient text-white px-4 py-2 rounded-full text-sm font-bold mb-4">-${discount}%</span>
                                 <h2 class="text-2xl font-bold text-slate-100 mb-4">${data.name}</h2>
-                                <p class="text-slate-400 mb-6 leading-relaxed">${data.description || 'No description available.'}</p>
+                                <p class="text-slate-400 mb-6 leading-relaxed">${data.description || 'Pas de description disponible.'}</p>
                                 
                                 <div class="mb-5">
                                     <span class="text-3xl font-extrabold text-primary-500">${new Intl.NumberFormat().format(data.price_promo)} HTG</span>
@@ -835,12 +831,12 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                                 
                                 <div class="inline-flex items-center gap-2 bg-green-500/15 text-green-400 px-4 py-3 rounded-xl mb-6 border border-green-500/20">
                                     <i class="fas fa-piggy-bank"></i>
-                                    <span class="font-semibold">You save ${new Intl.NumberFormat().format(savings)} HTG</span>
+                                    <span class="font-semibold">Vous économisez ${new Intl.NumberFormat().format(savings)} HTG</span>
                                 </div>
                                 
                                 <div class="flex gap-3">
                                     <button onclick="addToCart(${data.id}); closeQuickView();" class="flex-1 btn-gradient text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
-                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                                        <i class="fas fa-cart-plus"></i> Ajouter au panier
                                     </button>
                                     <button onclick="addToFavorites(${data.id})" class="w-14 h-14 rounded-xl border border-dark-700 bg-dark-900 flex items-center justify-center hover:border-red-500 transition-colors">
                                         <i class="fas fa-heart text-red-500 text-xl"></i>
@@ -851,7 +847,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
                     `;
                 })
                 .catch(() => {
-                    content.innerHTML = '<div class="text-center text-red-500 py-16"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><br>Error loading product</div>';
+                    content.innerHTML = '<div class="text-center text-red-500 py-16"><i class="fas fa-exclamation-circle text-4xl mb-4"></i><br>Erreur lors du chargement du produit</div>';
                 });
         }
 
@@ -862,7 +858,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
         // Newsletter
         function subscribeNewsletter(form) {
             const email = form.querySelector('input[type="email"]').value;
-            showNotification('Thank you for subscribing with: ' + email, 'success');
+            showNotification('Merci pour votre inscription avec : ' + email, 'success');
             form.reset();
         }
 
@@ -883,7 +879,7 @@ $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
             }, 3000);
         }
 
-        // Close top banner
+        // Fermer la bannière supérieure
         function closeTopBanner() {
             document.getElementById('topBanner').style.display = 'none';
             localStorage.setItem('topBannerClosed', 'true');

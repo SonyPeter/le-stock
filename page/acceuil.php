@@ -69,7 +69,7 @@ try {
         $all_brands = $pdo->query("SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand != ''")->fetchAll(PDO::FETCH_COLUMN);
     }
 } catch (PDOException $e) {
-    die("Erè: " . $e->getMessage());
+    die("Erreur : " . $e->getMessage());
 }
 
 function truncate($text, $length = 50) {
@@ -136,31 +136,31 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
     [
         'src' => '\le-stock\assets\video\copy.mp4',
         'poster' => '\le-stock\assets\img\ten.jpg',
-        'title' => 'Nouvo Koleksyon',
-        'subtitle' => 'Dekouvri sa ki nouvo'
+        'title' => 'Nouvelle Collection',
+        'subtitle' => 'Découvrez ce qui est nouveau'
     ],
     [
         'src' => '\le-stock\assets\video\lv_0_20260315230933.mp4',
         'poster' => '../assets/videos/poster2.jpg',
-        'title' => 'Pwodwi Popilè',
-        'subtitle' => 'Pi bon chwa kliyan yo'
+        'title' => 'Produits Populaires',
+        'subtitle' => 'Les meilleurs choix des clients'
     ],
     [
         'src' => '\le-stock\assets\video\copy3.mp4',
         'poster' => '../assets/videos/poster3.jpg',
-        'title' => 'Promosyòn Espesyal',
-        'subtitle' => 'Rabè jiska 50%'
+        'title' => 'Promotion Spéciale',
+        'subtitle' => 'Réduction jusqu\'à 50%'
     ]
 ];
 ?>
 
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LE-STOCK - Galeri Pwodwi</title>
+    <title>LE-STOCK - Galerie Produits</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -539,9 +539,9 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
 
                 <!-- Nav Desktop -->
                 <nav style="display:none; align-items:center; gap:2rem;" class="lg-nav">
-                    <a href="../index.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Galerie</a>
-                    <a href="promotion.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Promosyons</a>
-                    <a href="hot_deal.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Hot-Deal</a>
+                    <a href="../index.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Accueil</a>
+                    <a href="promotion.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Promotions</a>
+                    <a href="hot_deal.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Bonnes Affaires</a>
                 </nav>
 
                 <!-- Icons -->
@@ -551,11 +551,11 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                         <span id="cart-badge" class="cart-badge" style="position:absolute; top:-2px; right:-2px; font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:9999px;">0</span>
                     </a>
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="profile.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none;" title="Pwofil">
+                        <a href="profile.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none;" title="Profil">
                             <i class="fas fa-user" style="font-size:1.15rem;"></i>
                         </a>
                     <?php else: ?>
-                        <a href="login.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none;" title="Konekte">
+                        <a href="login.php" class="icon-btn" style="padding:0.5rem; border-radius:50%; text-decoration:none;" title="Connexion">
                             <i class="fas fa-sign-in-alt" style="font-size:1.15rem;"></i>
                         </a>
                     <?php endif; ?>
@@ -578,7 +578,7 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                 <div class="video-content">
                     <h1 class="glass-title"><?= htmlspecialchars($video['title']) ?></h1>
                     <p class="glass-subtitle"><?= htmlspecialchars($video['subtitle']) ?></p>
-                    <p class="glass-caption">Navige nan <?= count($all_products) ?> pwodwi primye kalite</p>
+                    <p class="glass-caption">Naviguez parmi <?= count($all_products) ?> produits de première qualité</p>
                 </div>
             </div>
         </div>
@@ -586,10 +586,10 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
 
         <div class="carousel-progress" id="progressBar"></div>
 
-        <button class="carousel-arrow prev" onclick="prevSlide()" aria-label="Videyo anvan">
+        <button class="carousel-arrow prev" onclick="prevSlide()" aria-label="Vidéo précédente">
             <i class="fas fa-chevron-left"></i>
         </button>
-        <button class="carousel-arrow next" onclick="nextSlide()" aria-label="Videyo pwochen">
+        <button class="carousel-arrow next" onclick="nextSlide()" aria-label="Vidéo suivante">
             <i class="fas fa-chevron-right"></i>
         </button>
 
@@ -606,14 +606,14 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
             <form method="GET" style="display:flex; flex-direction:column; align-items:center; gap:0.75rem;" class="search-form">
                 <div style="flex:1; width:100%; position:relative;">
                     <i class="fas fa-search" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
-                    <input type="text" name="search" id="searchInput" placeholder="Chache pwodwi pa non..." value="<?= htmlspecialchars($search_query) ?>" class="search-input">
+                    <input type="text" name="search" id="searchInput" placeholder="Rechercher un produit par nom..." value="<?= htmlspecialchars($search_query) ?>" class="search-input">
                 </div>
                 <div style="display:flex; gap:0.5rem; width:100%;" class="search-btns">
                     <button type="submit" class="btn-search" style="flex:1; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-                        <i class="fas fa-search"></i> Chache
+                        <i class="fas fa-search"></i> Rechercher
                     </button>
                     <button type="button" onclick="toggleFilters()" class="btn-filter-mobile" style="flex:1; display:flex; align-items:center; justify-content:center; gap:0.5rem;" id="btnFilterMobile">
-                        <i class="fas fa-sliders-h"></i> Filtre
+                        <i class="fas fa-sliders-h"></i> Filtres
                     </button>
                 </div>
             </form>
@@ -630,14 +630,14 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                 <aside style="width:300px; flex-shrink:0;" class="sidebar-desktop">
                     <div class="filter-sidebar">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-                            <h2 class="filter-title">Filtre</h2>
-                            <a href="?" class="filter-reset">Reyinisyalize tout</a>
+                            <h2 class="filter-title">Filtres</h2>
+                            <a href="?" class="filter-reset">Réinitialiser tout</a>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:1.5rem;">
                             <div>
-                                <h3 class="filter-label">Kategori</h3>
+                                <h3 class="filter-label">Catégorie</h3>
                                 <div style="display:flex; flex-direction:column; gap:0.35rem; max-height:200px; overflow-y:auto; padding-right:0.5rem;">
-                                    <button onclick="window.location.href='?category=All<?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'" class="filter-btn <?= $selected_category === 'All' ? 'active' : '' ?>">Tout Kategori</button>
+                                    <button onclick="window.location.href='?category=All<?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'" class="filter-btn <?= $selected_category === 'All' ? 'active' : '' ?>">Toutes les catégories</button>
                                     <?php foreach ($all_categories as $cat): ?>
                                         <button onclick="window.location.href='?category=<?= urlencode($cat['name']) ?><?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'" class="filter-btn <?= $selected_category === $cat['name'] ? 'active' : '' ?>"><?= htmlspecialchars($cat['name']) ?></button>
                                     <?php endforeach; ?>
@@ -646,11 +646,11 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                             <div>
                                 <h3 class="filter-label">Prix</h3>
                                 <div style="display:flex; flex-direction:column; gap:0.35rem;">
-                                    <button onclick="setPriceRange(0,999999)" class="filter-btn <?= ($price_min == 0 && $price_max == 999999) ? 'active' : '' ?>">Tout Prix</button>
-                                    <button onclick="setPriceRange(0,1000)" class="filter-btn <?= ($price_min == 0 && $price_max == 1000) ? 'active' : '' ?>">Anba 1,000 HTG</button>
+                                    <button onclick="setPriceRange(0,999999)" class="filter-btn <?= ($price_min == 0 && $price_max == 999999) ? 'active' : '' ?>">Tous les prix</button>
+                                    <button onclick="setPriceRange(0,1000)" class="filter-btn <?= ($price_min == 0 && $price_max == 1000) ? 'active' : '' ?>">Moins de 1,000 HTG</button>
                                     <button onclick="setPriceRange(1000,5000)" class="filter-btn <?= ($price_min == 1000 && $price_max == 5000) ? 'active' : '' ?>">1,000 - 5,000 HTG</button>
                                     <button onclick="setPriceRange(5000,10000)" class="filter-btn <?= ($price_min == 5000 && $price_max == 10000) ? 'active' : '' ?>">5,000 - 10,000 HTG</button>
-                                    <button onclick="setPriceRange(10000,999999)" class="filter-btn <?= ($price_min == 10000) ? 'active' : '' ?>">Pi wo 10,000 HTG</button>
+                                    <button onclick="setPriceRange(10000,999999)" class="filter-btn <?= ($price_min == 10000) ? 'active' : '' ?>">Plus de 10,000 HTG</button>
                                 </div>
                             </div>
                         </div>
@@ -663,15 +663,15 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                     <div class="mobile-filters-overlay" onclick="toggleFilters()">
                         <div class="mobile-filters-panel" onclick="event.stopPropagation()">
                             <div class="mobile-filters-header">
-                                <h2>Filtre</h2>
+                                <h2>Filtres</h2>
                                 <button class="mobile-filters-close" onclick="toggleFilters()"><i class="fas fa-times"></i></button>
                             </div>
                             <div class="mobile-filters-body">
                                 <div style="display:flex; flex-direction:column; gap:1.5rem;">
                                     <div>
-                                        <h3 class="filter-label">Kategori</h3>
+                                        <h3 class="filter-label">Catégorie</h3>
                                         <div style="display:flex; flex-direction:column; gap:0.35rem;">
-                                            <button onclick="window.location.href='?category=All<?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'" class="filter-btn <?= $selected_category === 'All' ? 'active' : '' ?>">Tout Kategori</button>
+                                            <button onclick="window.location.href='?category=All<?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'" class="filter-btn <?= $selected_category === 'All' ? 'active' : '' ?>">Toutes les catégories</button>
                                             <?php foreach ($all_categories as $cat): ?>
                                                 <button onclick="window.location.href='?category=<?= urlencode($cat['name']) ?><?= $search_query ? '&search=' . urlencode($search_query) : '' ?>'" class="filter-btn <?= $selected_category === $cat['name'] ? 'active' : '' ?>"><?= htmlspecialchars($cat['name']) ?></button>
                                             <?php endforeach; ?>
@@ -680,11 +680,11 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                                     <div>
                                         <h3 class="filter-label">Prix</h3>
                                         <div style="display:flex; flex-direction:column; gap:0.35rem;">
-                                            <button onclick="setPriceRange(0,999999)" class="filter-btn <?= ($price_min == 0 && $price_max == 999999) ? 'active' : '' ?>">Tout Prix</button>
-                                            <button onclick="setPriceRange(0,1000)" class="filter-btn <?= ($price_min == 0 && $price_max == 1000) ? 'active' : '' ?>">Anba 1,000 HTG</button>
+                                            <button onclick="setPriceRange(0,999999)" class="filter-btn <?= ($price_min == 0 && $price_max == 999999) ? 'active' : '' ?>">Tous les prix</button>
+                                            <button onclick="setPriceRange(0,1000)" class="filter-btn <?= ($price_min == 0 && $price_max == 1000) ? 'active' : '' ?>">Moins de 1,000 HTG</button>
                                             <button onclick="setPriceRange(1000,5000)" class="filter-btn <?= ($price_min == 1000 && $price_max == 5000) ? 'active' : '' ?>">1,000 - 5,000 HTG</button>
                                             <button onclick="setPriceRange(5000,10000)" class="filter-btn <?= ($price_min == 5000 && $price_max == 10000) ? 'active' : '' ?>">5,000 - 10,000 HTG</button>
-                                            <button onclick="setPriceRange(10000,999999)" class="filter-btn <?= ($price_min == 10000) ? 'active' : '' ?>">Pi wo 10,000 HTG</button>
+                                            <button onclick="setPriceRange(10000,999999)" class="filter-btn <?= ($price_min == 10000) ? 'active' : '' ?>">Plus de 10,000 HTG</button>
                                         </div>
                                     </div>
                                 </div>
@@ -698,21 +698,21 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                     <!-- Toolbar -->
                     <div class="toolbar">
                         <p class="toolbar-text">
-                            Afiche <strong><?= $start_index + 1 ?></strong>-<strong><?= min($start_index + $items_per_page, $total_products) ?></strong> nan <strong><?= $total_products ?></strong> pwodwi
+                            Affichage <strong><?= $start_index + 1 ?></strong>-<strong><?= min($start_index + $items_per_page, $total_products) ?></strong> sur <strong><?= $total_products ?></strong> produits
                         </p>
                         <div style="display:flex; align-items:center; gap:0.75rem;">
                             <div style="display:none; align-items:center; gap:0.35rem; border:1px solid #d1d5db; border-radius:0.5rem; padding:0.2rem; background:#f9fafb;" class="view-toggle">
-                                <button onclick="setViewMode('grid')" class="view-btn <?= $view_mode === 'grid' ? 'active' : '' ?>" title="Glay"><i class="fas fa-th"></i></button>
-                                <button onclick="setViewMode('list')" class="view-btn <?= $view_mode === 'list' ? 'active' : '' ?>" title="Lis"><i class="fas fa-list"></i></button>
+                                <button onclick="setViewMode('grid')" class="view-btn <?= $view_mode === 'grid' ? 'active' : '' ?>" title="Grille"><i class="fas fa-th"></i></button>
+                                <button onclick="setViewMode('list')" class="view-btn <?= $view_mode === 'list' ? 'active' : '' ?>" title="Liste"><i class="fas fa-list"></i></button>
                             </div>
                             <style>.view-toggle{display:none!important;}@media(min-width:640px){.view-toggle{display:flex!important;}}</style>
                             <select onchange="window.location.href='?sort='+this.value<?= $selected_category !== 'All' ? "+'&category=" . urlencode($selected_category) . "'" : "''" ?><?= $search_query ? "+'&search=" . urlencode($search_query) . "'" : "''" ?>" class="sort-select">
                                 <option value="featured" <?= $sort_by === 'featured' ? 'selected' : '' ?>>En Vitrine</option>
-                                <option value="newest" <?= $sort_by === 'newest' ? 'selected' : '' ?>>Pi Nouvo</option>
-                                <option value="price-low" <?= $sort_by === 'price-low' ? 'selected' : '' ?>>Prix: Ki pi ba</option>
-                                <option value="price-high" <?= $sort_by === 'price-high' ? 'selected' : '' ?>>Prix: Wo</option>
-                                <option value="name-asc" <?= $sort_by === 'name-asc' ? 'selected' : '' ?>>Non: A-Z</option>
-                                <option value="name-desc" <?= $sort_by === 'name-desc' ? 'selected' : '' ?>>Non: Z-A</option>
+                                <option value="newest" <?= $sort_by === 'newest' ? 'selected' : '' ?>>Plus Récent</option>
+                                <option value="price-low" <?= $sort_by === 'price-low' ? 'selected' : '' ?>>Prix : Croissant</option>
+                                <option value="price-high" <?= $sort_by === 'price-high' ? 'selected' : '' ?>>Prix : Décroissant</option>
+                                <option value="name-asc" <?= $sort_by === 'name-asc' ? 'selected' : '' ?>>Nom : A-Z</option>
+                                <option value="name-desc" <?= $sort_by === 'name-desc' ? 'selected' : '' ?>>Nom : Z-A</option>
                             </select>
                         </div>
                     </div>
@@ -720,9 +720,9 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                     <?php if (count($current_products) === 0): ?>
                         <div class="empty-state">
                             <i class="fas fa-search"></i>
-                            <h3>Pa gen pwodwi</h3>
-                            <p>Eseye modifye filtè ou yo oswa rechèch ou a</p>
-                            <a href="?" class="btn-reset">Reyinisyalize Filtre</a>
+                            <h3>Aucun produit trouvé</h3>
+                            <p>Essayez de modifier vos filtres ou votre recherche</p>
+                            <a href="?" class="btn-reset">Réinitialiser les filtres</a>
                         </div>
                     <?php else: ?>
 
@@ -739,11 +739,11 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                                         <?php if ($is_promo): ?>
                                             <div style="position:absolute; top:0.6rem; left:0.6rem;"><span class="badge-promo">-<?= getDiscountPercent($product) ?>%</span></div>
                                         <?php elseif (isset($product['created_at']) && strtotime($product['created_at']) > strtotime('-7 days')): ?>
-                                            <div style="position:absolute; top:0.6rem; left:0.6rem;"><span class="badge-new">NOUVO</span></div>
+                                            <div style="position:absolute; top:0.6rem; left:0.6rem;"><span class="badge-new">NOUVEAU</span></div>
                                         <?php endif; ?>
                                         <div class="card-actions">
-                                            <button onclick="addToFavorites(<?= $product['id'] ?>)" class="card-action-btn" title="Ajoute nan favori"><i class="fas fa-heart"></i></button>
-                                            <button onclick="quickView(<?= $product['id'] ?>)" class="card-action-btn" title="Gade rapid"><i class="fas fa-eye"></i></button>
+                                            <button onclick="addToFavorites(<?= $product['id'] ?>)" class="card-action-btn" title="Ajouter aux favoris"><i class="fas fa-heart"></i></button>
+                                            <button onclick="quickView(<?= $product['id'] ?>)" class="card-action-btn" title="Aperçu rapide"><i class="fas fa-eye"></i></button>
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -778,7 +778,7 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                                         <?php if ($is_promo): ?>
                                             <div style="position:absolute; top:0.6rem; left:0.6rem;"><span class="badge-promo">-<?= getDiscountPercent($product) ?>%</span></div>
                                         <?php elseif (isset($product['created_at']) && strtotime($product['created_at']) > strtotime('-7 days')): ?>
-                                            <div style="position:absolute; top:0.6rem; left:0.6rem;"><span class="badge-new">NOUVO</span></div>
+                                            <div style="position:absolute; top:0.6rem; left:0.6rem;"><span class="badge-new">NOUVEAU</span></div>
                                         <?php endif; ?>
                                     </div>
                                     <div class="list-body">
@@ -797,9 +797,9 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                                                 <?php endif; ?>
                                             </div>
                                             <div style="display:flex; gap:0.5rem;">
-                                                <button onclick="addToFavorites(<?= $product['id'] ?>)" class="card-action-btn" style="width:38px;height:38px;" title="Favori"><i class="fas fa-heart"></i></button>
-                                                <button onclick="quickView(<?= $product['id'] ?>)" class="card-action-btn" style="width:38px;height:38px;" title="Gade rapid"><i class="fas fa-eye"></i></button>
-                                                <button onclick="addToCart(<?= $product['id'] ?>, this)" class="btn-cart" style="width:auto; padding:0 1rem; border-radius:0.625rem; font-size:0.85rem; gap:0.4rem; display:flex; align-items:center;"><i class="fas fa-cart-plus" style="margin-right:0.35rem;"></i>Ajoute</button>
+                                                <button onclick="addToFavorites(<?= $product['id'] ?>)" class="card-action-btn" style="width:38px;height:38px;" title="Favoris"><i class="fas fa-heart"></i></button>
+                                                <button onclick="quickView(<?= $product['id'] ?>)" class="card-action-btn" style="width:38px;height:38px;" title="Aperçu rapide"><i class="fas fa-eye"></i></button>
+                                                <button onclick="addToCart(<?= $product['id'] ?>, this)" class="btn-cart" style="width:auto; padding:0 1rem; border-radius:0.625rem; font-size:0.85rem; gap:0.4rem; display:flex; align-items:center;"><i class="fas fa-cart-plus" style="margin-right:0.35rem;"></i>Ajouter</button>
                                             </div>
                                         </div>
                                     </div>
@@ -848,15 +848,15 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
             <div style="display:grid; grid-template-columns:1fr; gap:1.25rem;" class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-cube"></i></div>
-                    <div><h3>Free Shipping</h3><p>Free shipping for order above $180</p></div>
+                    <div><h3>Livraison Gratuite</h3><p>Livraison gratuite pour les commandes de plus de 180 $</p></div>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-credit-card"></i></div>
-                    <div><h3>Flexible Payment</h3><p>Multiple secure payment options</p></div>
+                    <div><h3>Paiement Flexible</h3><p>Plusieurs options de paiement sécurisé</p></div>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-headset"></i></div>
-                    <div><h3>24×7 Support</h3><p>We support online all days</p></div>
+                    <div><h3>Support 24×7</h3><p>Disponibles en ligne tous les jours</p></div>
                 </div>
             </div>
         </div>
@@ -881,19 +881,19 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                     </div>
                 </div>
                 <div>
-                    <h4>Company</h4>
+                    <h4>Entreprise</h4>
                     <div class="footer-links" style="display:flex; flex-direction:column; gap:0.25rem;">
-                        <a href="#">About Us</a><a href="#">Blog</a><a href="#">Contact Us</a><a href="#">Career</a>
+                        <a href="#">À Propos</a><a href="#">Blog</a><a href="#">Contactez-nous</a><a href="#">Carrières</a>
                     </div>
                 </div>
                 <div>
-                    <h4>Customer Services</h4>
+                    <h4>Service Client</h4>
                     <div class="footer-links" style="display:flex; flex-direction:column; gap:0.25rem;">
-                        <a href="#">My Account</a><a href="#">Track Your Order</a><a href="#">Return</a><a href="#">FAQS</a>
+                        <a href="#">Mon Compte</a><a href="#">Suivre ma Commande</a><a href="#">Retours</a><a href="#">FAQ</a>
                     </div>
                 </div>
                 <div>
-                    <h4>Contact Info</h4>
+                    <h4>Coordonnées</h4>
                     <div>
                         <div class="contact-item"><i class="fas fa-phone"></i><span>+0123-456-789</span></div>
                         <div class="contact-item"><i class="fas fa-envelope"></i><span>example@gmail.com</span></div>
@@ -902,10 +902,10 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                 </div>
             </div>
             <div class="footer-bottom">
-                <p class="footer-copy">Copyright © 2024 Clothing Website Design. All Rights Reserved.</p>
+                <p class="footer-copy">Copyright © 2024 LE-STOCK. Tous droits réservés.</p>
                 <div style="display:flex; gap:0.75rem;">
-                    <button class="footer-lang">English <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button>
-                    <button class="footer-lang">USD <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button>
+                    <button class="footer-lang">Français <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button>
+                    <button class="footer-lang">HTG <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i></button>
                 </div>
             </div>
         </div>
@@ -984,16 +984,16 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
         function addToCart(id, btn) {
             if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
             fetch('panier/add_to_cart.php', { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'}, body: 'product_id='+id+'&qty=1' })
-            .then(r => r.text()).then(t => { try { return JSON.parse(t); } catch(e) { throw new Error('Repons pa valide'); } })
-            .then(d => { if(d.success) { updateCartBadge(); showNotif('Pwodwi ajoute nan panier!','success'); } else { showNotif(d.message||'Erè, eseye ankò.','error'); } })
-            .catch(e => { console.error(e); showNotif('Erè: '+e.message,'error'); })
+            .then(r => r.text()).then(t => { try { return JSON.parse(t); } catch(e) { throw new Error('Réponse invalide'); } })
+            .then(d => { if(d.success) { updateCartBadge(); showNotif('Produit ajouté au panier !','success'); } else { showNotif(d.message||'Erreur, veuillez réessayer.','error'); } })
+            .catch(e => { console.error(e); showNotif('Erreur : '+e.message,'error'); })
             .finally(() => { if(btn) setTimeout(() => { btn.disabled=false; btn.innerHTML='<i class="fas fa-cart-plus"></i>'; }, 500); });
         }
 
         function addToFavorites(id) {
             fetch('add_to_favorites.php', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'product_id='+id })
-            .then(r => r.json()).then(d => { if(d.success) showNotif('Ajoute nan favori!','success'); else showNotif(d.message||'Ou dwe konekte anvan.','error'); })
-            .catch(() => showNotif('Erè rezo, eseye ankò.','error'));
+            .then(r => r.json()).then(d => { if(d.success) showNotif('Ajouté aux favoris !','success'); else showNotif(d.message||'Vous devez vous connecter d\'abord.','error'); })
+            .catch(() => showNotif('Erreur réseau, veuillez réessayer.','error'));
         }
 
         function quickView(id) {
@@ -1009,7 +1009,7 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                         <div style="display:flex; flex-direction:column; justify-content:center;">
                             <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:0.5rem; color:#111827;">${d.name}</h2>
                             <p style="color:#2563eb; font-weight:600; margin-bottom:1rem; text-transform:uppercase; letter-spacing:0.05em; font-size:0.85rem;">${d.category_name}</p>
-                            <p style="color:#6b7280; margin-bottom:1.5rem; line-height:1.6;">${d.description||'Pa gen deskripsyon.'}</p>
+                            <p style="color:#6b7280; margin-bottom:1.5rem; line-height:1.6;">${d.description||'Pas de description disponible.'}</p>
                             <div style="margin-bottom:1.5rem;">
                                 ${promo ? `<span style="font-size:1.8rem; font-weight:700; color:#dc2626;">${new Intl.NumberFormat().format(d.price_promo)} HTG</span>
                                 <span style="color:#9ca3af; text-decoration:line-through; margin-left:0.75rem; font-size:1.15rem;">${new Intl.NumberFormat().format(d.price)} HTG</span>
@@ -1017,15 +1017,14 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                                 : `<span style="font-size:1.8rem; font-weight:700; color:#111827;">${new Intl.NumberFormat().format(d.price)} HTG</span>`}
                             </div>
                             <button onclick="addToCart(${d.id},this);closeQuickView();" style="background:#2563eb;color:#fff;border:none;padding:0.75rem 1.25rem;border-radius:0.75rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;cursor:pointer;width:100%;font-size:1rem;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
-                                <i class="fas fa-cart-plus" style="margin-right:0.5rem;"></i> Ajoute nan Panier
+                                <i class="fas fa-cart-plus" style="margin-right:0.5rem;"></i> Ajouter au Panier
                             </button>
                         </div>
                     </div>`;
                 modal.classList.add('show');
                 document.body.style.overflow = 'hidden';
-            }).catch(e => { console.error(e); showNotif('Erè nan chajman pwodwi a','error'); });
+            }).catch(e => { console.error(e); showNotif('Erreur lors du chargement du produit','error'); });
         }
-        <style>@media(min-width:768px){.qv-grid{grid-template-columns:repeat(2,1fr)!important;}}</style>
 
         function closeQuickView() { document.getElementById('quickViewModal').classList.remove('show'); document.body.style.overflow = 'auto'; }
         function closeQuickViewOnOverlay(e) { if(e.target === e.currentTarget) closeQuickView(); }

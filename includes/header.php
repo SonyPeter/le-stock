@@ -55,7 +55,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <!-- Navigation desktop -->
                 <nav class="hidden lg:flex items-center gap-8">
                     <a href="page/acceuil.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative group">
-                        Accueil
+                        Galerie
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
                     </a>
 
