@@ -68,12 +68,12 @@ if (session_status() === PHP_SESSION_NONE) {
                         <a href="page/promotion.php" class="text-gray-700 hover:text-blue-600 font-medium transition relative">
                             Promotions
 
-                            
+
 
                         </a>
                         <a href="page/affiliation.php" class="text-gray-700 hover:text-blue-600 font-medium transition">Affiliations</a>
 
-                         <a href="page/Apropos.php" class="text-gray-700 hover:text-blue-600 font-medium transition">À Propos</a>
+                        <a href="page/Apropos.php" class="text-gray-700 hover:text-blue-600 font-medium transition">À Propos</a>
                     </nav>
 
                     <!-- Barre de recherche -->
@@ -100,7 +100,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </button>
 
                         <!-- Favoris -->
-                        <a href="pages/favoris.php" class="hidden sm:flex p-2 hover:bg-gray-100 rounded-full transition relative group">
+                        <a href="page/panier/panier.php" class="hidden sm:flex p-2 hover:bg-gray-100 rounded-full transition relative group">
                             <i class="far fa-heart text-xl text-gray-700 group-hover:text-red-500 transition"></i>
                             <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">3</span>
                         </a>

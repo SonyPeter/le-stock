@@ -398,7 +398,7 @@ include 'includes/header.php';
   </section>
 
   <!-- SECTION COMMENT ÇA MARCHE -->
-  <section class="py-20 sm:py-24 bg-blue-500 overflow-hidden">
+  <section class="py-20 sm:py-24 bg-gray-900 overflow-hidden">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 w-full max-w-full">
       <div class="text-center mb-16 sm:mb-20">
         <span class="inline-block px-4 py-1.5 mb-4 text-xs font-medium tracking-wider text-blue-600 uppercase bg-white/90 rounded-full shadow-sm">
