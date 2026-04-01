@@ -82,6 +82,42 @@ switch ($sortBy) {
  $totalSavings = array_reduce($promotionProducts, function($sum, $p) {
     return $sum + getSavings($p['price'], $p['price_promo']);
 }, 0);
+
+// KORÈKSYON: Ajoute pwodwi nan panier epi redirije
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
+    $productId = intval($_POST['product_id']);
+    $quantity = intval($_POST['quantity'] ?? 1);
+    
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: login.php');
+        exit();
+    }
+    
+    try {
+        // Verifye si pwodwi a deja nan panier a
+        $checkStmt = $pdo->prepare("SELECT id, quantity FROM panier WHERE user_id = ? AND product_id = ?");
+        $checkStmt->execute([$_SESSION['user_id'], $productId]);
+        $existingItem = $checkStmt->fetch();
+        
+        if ($existingItem) {
+            // Mete ajou kantite a
+            $newQty = $existingItem['quantity'] + $quantity;
+            $updateStmt = $pdo->prepare("UPDATE panier SET quantity = ? WHERE id = ?");
+            $updateStmt->execute([$newQty, $existingItem['id']]);
+        } else {
+            // Ajoute nouvo atik
+            $insertStmt = $pdo->prepare("INSERT INTO panier (user_id, product_id, quantity, created_at) VALUES (?, ?, ?, NOW())");
+            $insertStmt->execute([$_SESSION['user_id'], $productId, $quantity]);
+        }
+        
+        // REDIRIKSYON: Voye nan paj panier a dirèk
+        header('Location: panier/Panier.php');
+        exit();
+        
+    } catch (PDOException $e) {
+        error_log("Erè panier: " . $e->getMessage());
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -246,13 +282,6 @@ switch ($sortBy) {
             display: block;
         }
         
-        .mobile-menu a {
-            display: block;
-            padding: 1rem;
-            border-bottom: 1px solid #334155;
-            font-size: 1.1rem;
-        }
-        
         .mobile-menu-toggle.active {
             background-color: #3b82f6;
             border-color: #3b82f6;
@@ -303,18 +332,13 @@ switch ($sortBy) {
             </nav>
 
             <!-- Actions -->
-            <div class="flex gap-3">
-                <a href="recherche.php" class="w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all">
-                    <i class="fas fa-search"></i>
-                </a>
-                <a href="favoris.php" class="w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <a href="panier.php" class="w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all">
+            <div class="flex gap-1">
+                
+                <a href="panier/Panier.php" class="w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all">
                     <i class="fas fa-shopping-cart"></i>
                 </a>
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="profil.php" class="w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all">
+                    <a href="profile.php" class="w-11 h-11 rounded-xl bg-dark-900 border border-dark-700 text-slate-400 hover:bg-primary-500 hover:border-primary-500 hover:text-white flex items-center justify-center transition-all">
                         <i class="fas fa-user"></i>
                     </a>
                 <?php else: ?>
@@ -503,9 +527,15 @@ switch ($sortBy) {
                                     <i class="fas fa-box"></i>
                                     <?= $product['stock_qty'] ?? 0 ?> restants
                                 </span>
-                                <button onclick="addToCart(<?= $product['id'] ?>)" class="btn-gradient text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:scale-105 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
-                                    <i class="fas fa-cart-plus"></i> Ajouter
-                                </button>
+                                <!-- KORÈKSYON: Fòm pou ajoute nan panier ak rediriksyon -->
+                                <form method="POST" action="" class="m-0">
+                                    <input type="hidden" name="add_to_cart" value="1">
+                                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn-gradient text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:scale-105 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
+                                        <i class="fas fa-cart-plus"></i> Ajouter
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -617,15 +647,15 @@ switch ($sortBy) {
                 <div>
                     <h4 class="text-sm font-bold uppercase tracking-wider text-slate-100 mb-5">Coordonnées</h4>
                     <a href="tel:+0123-456-789" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">
-                        <i class="fas fa-phone mr-2"></i> +0123-456-789
+                        <i class="fas fa-phone mr-2"></i> +50941726999/32733920
                     </a>
-                    <a href="mailto:support@lestock.com" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">
-                        <i class="fas fa-envelope mr-2"></i> support@lestock.com
+                    <a href="mailto:lestockentreprise@gmail.com" class="block text-sm text-slate-500 hover:text-primary-500 mb-2.5 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i> lestockentreprise@gmail.com
                     </a>
                     <p class="text-sm text-slate-500 mt-3 leading-relaxed">
                         <i class="fas fa-map-marker-alt mr-2"></i>
-                        8502 Preston Rd, Inglewood<br>
-                        Maine 98380, USA
+                        12 Rue 24-A <br>
+                        Cap-Haïtien, Nord, Haïti
                     </p>
                 </div>
             </div>
@@ -771,18 +801,34 @@ switch ($sortBy) {
             updateCountdown();
         }
 
-        // Ajouter au panier
+        // KORÈKSYON: Fonksyon addToCart kounye a itilize fòm soumisyon
+        // Fonksyon sa rete pou itilizasyon JavaScript si bezwen
         function addToCart(productId) {
-            fetch('add_to_cart.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'product_id=' + productId + '&qty=1'
-            })
-            .then(r => r.json())
-            .then(data => {
-                showNotification(data.success ? 'Produit ajouté au panier !' : (data.message || 'Erreur'), data.success ? 'success' : 'error');
-            })
-            .catch(() => showNotification('Erreur réseau', 'error'));
+            // Kreye yon fòm dinamik pou soumèt
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '';
+            
+            const inputAction = document.createElement('input');
+            inputAction.type = 'hidden';
+            inputAction.name = 'add_to_cart';
+            inputAction.value = '1';
+            
+            const inputProduct = document.createElement('input');
+            inputProduct.type = 'hidden';
+            inputProduct.name = 'product_id';
+            inputProduct.value = productId;
+            
+            const inputQty = document.createElement('input');
+            inputQty.type = 'hidden';
+            inputQty.name = 'quantity';
+            inputQty.value = '1';
+            
+            form.appendChild(inputAction);
+            form.appendChild(inputProduct);
+            form.appendChild(inputQty);
+            document.body.appendChild(form);
+            form.submit();
         }
 
         // Ajouter aux favoris
@@ -836,9 +882,14 @@ switch ($sortBy) {
                                 </div>
                                 
                                 <div class="flex gap-3">
-                                    <button onclick="addToCart(${data.id}); closeQuickView();" class="flex-1 btn-gradient text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
-                                        <i class="fas fa-cart-plus"></i> Ajouter au panier
-                                    </button>
+                                    <form method="POST" action="" class="flex-1 m-0">
+                                        <input type="hidden" name="add_to_cart" value="1">
+                                        <input type="hidden" name="product_id" value="${data.id}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="w-full btn-gradient text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-primary-500/40 transition-all">
+                                            <i class="fas fa-cart-plus"></i> Ajouter au panier
+                                        </button>
+                                    </form>
                                     <button onclick="addToFavorites(${data.id})" class="w-14 h-14 rounded-xl border border-dark-700 bg-dark-900 flex items-center justify-center hover:border-red-500 transition-colors">
                                         <i class="fas fa-heart text-red-500 text-xl"></i>
                                     </button>

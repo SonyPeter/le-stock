@@ -885,21 +885,21 @@ usort($filtered_products, function ($a, $b) use ($sort_by) {
                 <div>
                     <h4>Entreprise</h4>
                     <div class="footer-links" style="display:flex; flex-direction:column; gap:0.25rem;">
-                        <a href="#">À Propos</a><a href="#">Blog</a><a href="#">Contactez-nous</a><a href="#">Carrières</a>
+                        <a href="Apropos.php">À Propos</a><a href="#">Blog</a><a href="Contacte.php">Contactez-nous</a><a href="#">Carrières</a>
                     </div>
                 </div>
                 <div>
                     <h4>Service Client</h4>
                     <div class="footer-links" style="display:flex; flex-direction:column; gap:0.25rem;">
-                        <a href="#">Mon Compte</a><a href="#">Suivre ma Commande</a><a href="#">Retours</a><a href="#">FAQ</a>
+                        <a href="profile.php">Mon Compte</a><a href="#">Suivre ma Commande</a><a href="../index">Retours</a><a href="#">FAQ</a>
                     </div>
                 </div>
                 <div>
                     <h4>Coordonnées</h4>
                     <div>
-                        <div class="contact-item"><i class="fas fa-phone"></i><span>+0123-456-789</span></div>
-                        <div class="contact-item"><i class="fas fa-envelope"></i><span>example@gmail.com</span></div>
-                        <div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>8502 Preston Rd.<br>Inglewood, Maine 98380</span></div>
+                        <div class="contact-item"><i class="fas fa-phone"></i><span>+50941726999/32723930</span></div>
+                        <div class="contact-item"><i class="fas fa-envelope"></i><span>lestockentreprise@gmail.com</span></div>
+                        <div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>12 Rue 24-A.<br>Cap-Haïtien, Nord, Haïti</span></div>
                     </div>
                 </div>
             </div>

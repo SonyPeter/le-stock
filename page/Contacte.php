@@ -61,6 +61,9 @@ $faqs = [
     <title>Contact - LE-STOCK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -75,6 +78,77 @@ $faqs = [
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #dbeafe; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+        /* ===== HEADER STYLES FROM ACCEUIL ===== */
+        .main-header {
+            background: #2563eb;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .main-header .nav-link {
+            color: #93c5fd;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .main-header .nav-link:hover { color: #fff; }
+        .main-header .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: #fff;
+            transition: width 0.3s;
+        }
+        .main-header .nav-link:hover::after { width: 100%; }
+        .main-header .icon-btn { 
+            color: #bfdbfe; 
+            transition: all 0.3s; 
+            text-decoration: none;
+            position: relative;
+        }
+        .main-header .icon-btn:hover { color: #fff; background: rgba(255,255,255,0.15); }
+        .cart-badge { 
+            background: #1d4ed8; 
+            color: #fff; 
+            font-weight: 700;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 9999px;
+        }
+
+        /* ===== LOGO ===== */
+        .logo-image { 
+            max-height: 55px; 
+            transition: transform 0.3s;
+            filter: brightness(0) invert(1);
+        }
+        .logo-image:hover { transform: scale(1.05); }
+        @media (max-width: 640px) { .logo-image { max-height: 40px; } }
+        @media (min-width: 1024px) { .logo-image { max-height: 70px; } }
+
+        /* Animation badge */
+        @keyframes badgeBounce { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+        .badge-bounce { animation: badgeBounce 0.5s ease; }
+
+        /* Mobile menu */
+        .mobile-menu-panel {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu-panel.open {
+            transform: translateX(0);
+        }
+
+        /* Rest of contact page styles */
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -82,46 +156,67 @@ $faqs = [
 </head>
 <body class="min-h-screen bg-gray-50">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
+    <!-- ===== HEADER FROM ACCEUIL ===== -->
+    <header class="main-header" style="position:relative; z-index:100;">
+        <div style="max-width:80rem; margin:0 auto; padding:0 1rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; height:4.5rem;">
                 <!-- Logo -->
-                <a href="index.php" class="flex items-center gap-2 sm:gap-3">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                        <span class="text-white text-xl sm:text-2xl">📦</span>
-                    </div>
-                    <div class="hidden sm:block">
-                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">LE-STOCK</h1>
-                        <p class="text-xs text-gray-500">Votre boutique en ligne</p>
-                    </div>
+                <a href="accueil.php" style="display:flex; align-items:center; text-decoration:none; flex-shrink:0;">
+                    <img src="\le-stock\assets\img\le stock entreprise copy2.png" alt="LE-STOCK" class="logo-image"
+                         onerror="this.src='https://via.placeholder.com/180x60/ffffff/2563eb?text=LE-STOCK'; this.style.filter='none'; this.style.background='#1d4ed8'; this.style.padding='8px'; this.style.borderRadius='8px';">
                 </a>
 
-                <!-- Navigation Desktop -->
-                <nav class="hidden md:flex items-center gap-6">
-                    <a href="index.php" class="text-gray-600 hover:text-blue-600 transition-colors">Accueil</a>
-                    <a href="boutique.php" class="text-gray-600 hover:text-blue-600 transition-colors">Produits</a>
-                    <a href="apropos.php" class="text-gray-600 hover:text-blue-600 transition-colors">À propos</a>
-                    <a href="contact.php" class="text-blue-600 font-medium">Contact</a>
+                <!-- Nav Desktop -->
+                <nav style="display:none; align-items:center; gap:2rem;" class="lg-nav">
+                    <a href="../index.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Accueil</a>
+                    <a href="acceuil.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Galerie</a>
+                    <a href="promotion.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Promotions</a>
+                    <a href="hot_deal.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">Hot deal</a>
+                    <a href="Apropos.php" class="nav-link" style="text-decoration:none; font-size:0.9rem; font-weight:500;">À Propos</a>
                 </nav>
 
-                <!-- Mobile Menu Button -->
-                <button class="md:hidden p-2 text-gray-600 hover:text-gray-900" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
+                <!-- Icons -->
+               
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a href="profile.php" class="icon-btn" style="padding:0.5rem; border-radius:50%;" title="Profil">
+                            <i class="fas fa-user" style="font-size:1.15rem;"></i>
+                        </a>
+                    <?php else: ?>
+                        <a href="login.php" class="icon-btn" style="padding:0.5rem; border-radius:50%;" title="Connexion">
+                            <i class="fas fa-sign-in-alt" style="font-size:1.15rem;"></i>
+                        </a>
+                    <?php endif; ?>
+                    
+                    <!-- Mobile menu button -->
+                    <button onclick="toggleMobileMenu()" class="icon-btn" style="padding:0.5rem; border-radius:50%; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer;" id="mobile-menu-btn">
+                        <i class="fas fa-bars" style="font-size:1.15rem;"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
-            <div class="px-4 py-3 space-y-2">
-                <a href="index.php" class="block py-2 text-gray-600 hover:text-blue-600">Accueil</a>
-                <a href="boutique.php" class="block py-2 text-gray-600 hover:text-blue-600">Produits</a>
-                <a href="apropos.php" class="block py-2 text-gray-600 hover:text-blue-600">À propos</a>
-                <a href="contact.php" class="block py-2 text-blue-600 font-medium">Contact</a>
-            </div>
-        </div>
+        <!-- Show nav on large screens -->
+        <style>.lg-nav { display: none !important; } @media (min-width: 1024px) { .lg-nav { display: flex !important; } }</style>
     </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu-panel fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-[200] lg:hidden">
+        <div style="padding:1rem; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; color:#111827;">Menu</span>
+            <button onclick="toggleMobileMenu()" style="padding:0.5rem; background:none; border:none; cursor:pointer; color:#6b7280;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav style="padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+            <a href="../index.php" style="padding:0.75rem; color:#374151; text-decoration:none; border-radius:0.5rem; transition:all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Accueil</a>
+            <a href="acceuil.php" style="padding:0.75rem; color:#374151; text-decoration:none; border-radius:0.5rem; transition:all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Galerie</a>
+            <a href="promotion.php" style="padding:0.75rem; color:#374151; text-decoration:none; border-radius:0.5rem; transition:all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Promotions</a>
+            <a href="hot_deal.php" style="padding:0.75rem; color:#374151; text-decoration:none; border-radius:0.5rem; transition:all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">Hot Deal</a>
+            <a href="Apropos.php" style="padding:0.75rem; color:#374151; text-decoration:none; border-radius:0.5rem; transition:all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">À Propos</a>
+            <a href="Kontak.php" style="padding:0.75rem; color:#2563eb; font-weight:600; text-decoration:none; border-radius:0.5rem; background:#eff6ff;">Contact</a>
+        </nav>
+    </div>
+    <div id="menu-overlay" onclick="toggleMobileMenu()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:150;" class="lg:hidden"></div>
 
     <!-- Hero Section -->
     <section class="bg-gradient-to-br from-blue-600 to-purple-700 text-white py-12 sm:py-16">
@@ -155,9 +250,9 @@ $faqs = [
                             <div>
                                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Adresse</h3>
                                 <p class="text-gray-500 text-xs sm:text-sm leading-relaxed">
-                                    123 Rue Commerce<br>
-                                    Port-au-Prince, Haïti<br>
-                                    HT-6110
+                                     12 Rue 24-A<br>
+                                    Cap-Haïtien, Nord, Haïti<br>
+                                    HT-1110
                                 </p>
                             </div>
                         </div>
@@ -170,8 +265,8 @@ $faqs = [
                             <div>
                                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Téléphone</h3>
                                 <p class="text-gray-500 text-xs sm:text-sm leading-relaxed">
-                                    +509 1234 5678<br>
-                                    +509 9876 5432
+                                    +509 41 72 6999<br>
+                                    +509 3273 3920
                                 </p>
                             </div>
                         </div>
@@ -184,8 +279,8 @@ $faqs = [
                             <div>
                                 <h3 class="text-sm font-semibold text-gray-900 mb-1">Email</h3>
                                 <p class="text-gray-500 text-xs sm:text-sm leading-relaxed">
-                                    contact@le-stock.com<br>
-                                    support@le-stock.com
+                                    lestockentreprise@gmail.com<br>
+                                    
                                 </p>
                             </div>
                         </div>
@@ -393,10 +488,10 @@ $faqs = [
                 <div>
                     <h4 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Liens Rapides</h4>
                     <ul class="space-y-2 text-xs sm:text-sm">
-                        <li><a href="index.php" class="text-gray-400 hover:text-white transition-colors">Accueil</a></li>
-                        <li><a href="boutique.php" class="text-gray-400 hover:text-white transition-colors">Produits</a></li>
-                        <li><a href="apropos.php" class="text-gray-400 hover:text-white transition-colors">À propos</a></li>
-                        <li><a href="contact.php" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="../index.php" class="text-gray-400 hover:text-white transition-colors">Accueil</a></li>
+                        <li><a href="acceuil.php" class="text-gray-400 hover:text-white transition-colors">Galerie</a></li>
+                        <li><a href="Apropos.php" class="text-gray-400 hover:text-white transition-colors">À propos</a></li>
+                     
                     </ul>
                 </div>
 
@@ -435,6 +530,64 @@ $faqs = [
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('menu-overlay');
+            const btn = document.getElementById('mobile-menu-btn');
+            
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+                btn.innerHTML = '<i class="fas fa-bars" style="font-size:1.15rem;"></i>';
+            } else {
+                menu.classList.add('open');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                btn.innerHTML = '<i class="fas fa-times" style="font-size:1.15rem;"></i>';
+            }
+        }
+
+        // Update cart badge
+        function updateCartBadge() {
+            fetch('panier/get_cart_count.php')
+                .then(r => r.json())
+                .then(d => {
+                    const b = document.getElementById('cart-badge');
+                    if (b) {
+                        const old = parseInt(b.textContent) || 0;
+                        b.textContent = d.count || 0;
+                        if (d.count !== old && old !== 0) {
+                            b.classList.add('badge-bounce');
+                            setTimeout(() => b.classList.remove('badge-bounce'), 500);
+                        }
+                    }
+                })
+                .catch(e => console.error(e));
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartBadge();
+        });
+
+        // Close mobile menu on resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                const menu = document.getElementById('mobile-menu');
+                const overlay = document.getElementById('menu-overlay');
+                const btn = document.getElementById('mobile-menu-btn');
+                menu.classList.remove('open');
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+                btn.innerHTML = '<i class="fas fa-bars" style="font-size:1.15rem;"></i>';
+            }
+        });
+    </script>
 
 </body>
 </html>

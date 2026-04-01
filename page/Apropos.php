@@ -186,6 +186,7 @@ require_once dirname(__DIR__) . '/config/db.php';
                     <a href="promotion.php" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Promotions</a>
                     <a href="Affiliation" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Affiliations</a>
                     <a href="hot_deal.php" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Hot Deals</a>
+                     <a href="Contacte.php" class="nav-link-underline relative text-blue-200/85 no-underline text-sm font-medium tracking-tight transition-colors hover:text-white">Contactez-Nous</a>
                   
                 </nav>
 
@@ -1183,17 +1184,15 @@ require_once dirname(__DIR__) . '/config/db.php';
                 <div class="flex flex-col gap-1">
                     <a href="a_propos.php" class="text-white no-underline text-sm transition-all inline-block py-0.5 hover:text-blue-300 hover:translate-x-0.5">À Propos</a>
                     <a href="#termes" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Termes & Conditions</a>
-                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Blog</a>
-                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Contactez-nous</a>
+                    <a href="Contacte" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Contactez-nous</a>
                 </div>
             </div>
             <div>
                 <h4 class="footer-heading text-white font-bold text-sm mb-5 relative pb-2.5">Service Client</h4>
                 <div class="flex flex-col gap-1">
-                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Mon Compte</a>
+                    <a href="profile" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Mon Compte</a>
                     <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Suivre ma Commande</a>
-                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Retours</a>
-                    <a href="#" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">FAQ</a>
+                    <a href="../index" class="text-slate-400 no-underline text-sm transition-all inline-block py-0.5 hover:text-white hover:translate-x-0.5">Retours</a>
                 </div>
             </div>
             <div>
@@ -1205,11 +1204,12 @@ require_once dirname(__DIR__) . '/config/db.php';
                     </div>
                     <div class="text-slate-400 flex items-start gap-3 mb-3.5 text-sm">
                         <i class="fas fa-envelope text-blue-500 mt-0.5 w-4 text-center"></i>
-                        <span>contact@le-stock.com</span>
+                        <span>lestockentreprise@gmail.com</span>
                     </div>
                     <div class="text-slate-400 flex items-start gap-3 mb-3.5 text-sm">
                         <i class="fas fa-map-marker-alt text-blue-500 mt-0.5 w-4 text-center"></i>
-                        <span>Cap-Haïtien, Haïti</span>
+                        <span>12 Rue 24-A<br>
+                        Cap-Haïtien, Haïti</span>
                     </div>
                 </div>
             </div>

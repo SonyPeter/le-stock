@@ -115,19 +115,19 @@
         <div class="relative max-w-7xl mx-auto px-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
                 <div class="text-center">
-                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">500+</div>
+                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">0+</div>
                     <div class="text-brand-200 text-sm font-medium">Partenaires Actifs</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">25%</div>
+                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">0%</div>
                     <div class="text-brand-200 text-sm font-medium">Commission Moyenne</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">50K+</div>
+                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">0+</div>
                     <div class="text-brand-200 text-sm font-medium">Produits Disponibles</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">48h</div>
+                    <div class="text-4xl md:text-5xl font-extrabold text-white mb-2">X</div>
                     <div class="text-brand-200 text-sm font-medium">Paiement Rapide</div>
                 </div>
             </div>
@@ -324,22 +324,22 @@
                         <div class="space-y-5">
                             <div class="flex items-center justify-between py-3 border-b border-white/10">
                                 <span class="text-brand-200 text-sm">10 ventes / mois</span>
-                                <span class="font-bold text-lg">250 €</span>
+                                <span class="font-bold text-lg">... HTG</span>
                             </div>
                             <div class="flex items-center justify-between py-3 border-b border-white/10">
                                 <span class="text-brand-200 text-sm">50 ventes / mois</span>
-                                <span class="font-bold text-lg">1 250 €</span>
+                                <span class="font-bold text-lg">... HTG</span>
                             </div>
                             <div class="flex items-center justify-between py-3 border-b border-white/10">
                                 <span class="text-brand-200 text-sm">100 ventes / mois</span>
-                                <span class="font-bold text-lg text-brand-400">2 500 €</span>
+                                <span class="font-bold text-lg text-brand-400">... HTG</span>
                             </div>
                             <div class="flex items-center justify-between py-3">
                                 <span class="text-brand-200 text-sm">500+ ventes / mois</span>
-                                <span class="font-bold text-lg text-brand-400">12 500 €+</span>
+                                <span class="font-bold text-lg text-brand-400">... HTG</span>
                             </div>
                         </div>
-                        <p class="text-brand-400/60 text-xs mt-6 text-center">* Basé sur une commission moyenne de 25 € par vente</p>
+                        <p class="text-brand-400/60 text-xs mt-6 text-center">* Basé sur une commission moyenne de ... HTG par vente</p>
                     </div>
                 </div>
             </div>
@@ -455,10 +455,10 @@
                 <div>
                     <h4 class="font-semibold text-white text-sm mb-4">Légal</h4>
                     <ul class="space-y-2.5 text-sm">
-                        <li><a href="#" class="hover:text-white transition-colors">Conditions d'utilisation</a></li>
+                        <li><a href="Apropos" class="hover:text-white transition-colors">Conditions d'utilisation</a></li>
                         <li><a href="#" class="hover:text-white transition-colors">Politique de confidentialité</a></li>
                         <li><a href="#" class="hover:text-white transition-colors">Mentions légales</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                        <li><a href="Contacte" class="hover:text-white transition-colors">Contact</a></li>
                     </ul>
                 </div>
             </div>
