@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
- $user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 try {
     // Récupérer les infos utilisateur
@@ -51,7 +51,7 @@ try {
             WHERE o.user_id = ?");
         $stats->execute([$user_id]);
         $orderStats = $stats->fetch(PDO::FETCH_ASSOC);
-        
+
         $userStats['total_orders'] = (int)($orderStats['total_orders'] ?? 0);
         $userStats['total_spent'] = (float)($orderStats['total_spent'] ?? 0);
         $userStats['pending_orders'] = (int)($orderStats['pending_orders'] ?? 0);
@@ -144,12 +144,11 @@ try {
             $merchantPoints = 0;
         }
     }
-
 } catch (PDOException $e) {
     die("Erreur base de données: " . $e->getMessage());
 }
 
- $activeTab = $_GET['tab'] ?? 'overview';
+$activeTab = $_GET['tab'] ?? 'overview';
 
 // Traitement du formulaire de mise à jour
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_info'])) {
@@ -165,12 +164,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_info'])) {
     }
 }
 
- $isAdmin = strtolower($user['role'] ?? '') === 'admin';
- $isMerchant = strtolower($user['role'] ?? '') === 'merchant';
- $status_demann = strtolower($user['merchant_status'] ?? '');
+$isAdmin = strtolower($user['role'] ?? '') === 'admin';
+$isMerchant = strtolower($user['role'] ?? '') === 'merchant';
+$status_demann = strtolower($user['merchant_status'] ?? '');
 
 // Fonction pour formater le temps écoulé
-function timeAgo($datetime) {
+function timeAgo($datetime)
+{
     if (empty($datetime)) return 'N/A';
     $now = new DateTime();
     $ago = new DateTime($datetime);
@@ -185,7 +185,8 @@ function timeAgo($datetime) {
 }
 
 // Fonction pour le statut de commande - MÊME LOGIQUE QUE commandes.php
-function getOrderStatus($status) {
+function getOrderStatus($status)
+{
     $statuses = [
         'pending' => ['label' => 'En attente', 'color' => 'amber', 'icon' => 'clock'],
         'validated' => ['label' => 'Validé', 'color' => 'blue', 'icon' => 'check-circle'],
@@ -202,7 +203,8 @@ function getOrderStatus($status) {
 }
 
 // Fonction pour formater le prix - MÊME LOGIQUE QUE commandes.php
-function formatPrice($price) {
+function formatPrice($price)
+{
     return number_format($price, 2) . ' HTG';
 }
 ?>
@@ -523,7 +525,7 @@ function formatPrice($price) {
                     <?php else: ?>
                         <!-- Commandes récentes depuis la BD - MÊME FORMAT QUE commandes.php -->
                         <div class="space-y-3 sm:space-y-4">
-                            <?php foreach ($recentOrders as $order): 
+                            <?php foreach ($recentOrders as $order):
                                 $statusInfo = getOrderStatus($order['status']);
                                 $colorClasses = [
                                     'amber' => 'bg-amber-100 text-amber-600',
@@ -966,13 +968,16 @@ function formatPrice($price) {
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 const easedProgress = 1 - Math.pow(1 - progress, 3);
                 const currentValue = Math.floor(easedProgress * (end - start) + start);
-                
+
                 if (isCurrency) {
-                    obj.innerHTML = currentValue.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' HTG';
+                    obj.innerHTML = currentValue.toLocaleString('fr-FR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + ' HTG';
                 } else {
                     obj.innerHTML = currentValue.toLocaleString('fr-FR');
                 }
-                
+
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
                 }
@@ -985,7 +990,7 @@ function formatPrice($price) {
             stats.forEach(stat => {
                 const endValue = parseFloat(stat.getAttribute('data-counter')) || 0;
                 const isCurrency = stat.getAttribute('data-type') === 'currency';
-                
+
                 if (endValue > 0) {
                     animateValue(stat, 0, endValue, 1500, isCurrency);
                 } else if (isCurrency) {
@@ -995,6 +1000,20 @@ function formatPrice($price) {
                 }
             });
         });
+
+        history.pushState(null, null, window.location.href);
+
+        // 2. Chak fwa itilizatè a klike sou bouton "Bak", nou fòse l tounen devan
+        window.onpopstate = function() {
+            history.go(1);
+        };
+
+        // 3. Pou asire nou sa mache sou tout navigatè (Chrome, Firefox, Safari)
+        // Nou toujou pouse yon nouvo eta nan istwa a chak fwa li eseye pati
+        window.addEventListener('popstate', function(event) {
+            history.pushState(null, null, window.location.href);
+        });
     </script>
 </body>
+
 </html>

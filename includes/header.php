@@ -183,17 +183,17 @@ if (session_status() === PHP_SESSION_NONE) {
                 <a href="index.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
                     <i class="fas fa-home text-blue-600 w-5"></i>Accueil
                 </a>
-                <a href="pages/categories.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
-                    <i class="fas fa-th-large text-blue-600 w-5"></i>Catégories
+                <a href="page/acceuil.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
+                    <i class="fas fa-th-large text-blue-600 w-5"></i>Gallerie
                 </a>
-                <a href="pages/promotions.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
+                <a href="page/promotion.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
                     <i class="fas fa-fire text-blue-600 w-5"></i>Promotions
                 </a>
-                <a href="pages/nouveautes.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
-                    <i class="fas fa-star text-blue-600 w-5"></i>Nouveautés
+                <a href="page/panier.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium">
+                    <i class="fas fa-star text-blue-600 w-5"></i>Panier
                 </a>
-                <a href="pages/favoris.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium sm:hidden">
-                    <i class="fas fa-heart text-blue-600 w-5"></i>Favoris
+                <a href="pages/profile.php" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium sm:hidden">
+                    <i class="fas fa-heart text-blue-600 w-5"></i>Profile
                     <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">3</span>
                 </a>
             </div>
@@ -246,7 +246,15 @@ if (session_status() === PHP_SESSION_NONE) {
         }
 
         // Rele fonksyon an lè paj la chaje
-        document.addEventListener('DOMContentLoaded', updateCartCount);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+
+            // Dezaktive bouton back navigatè a (anpeche tounen dèyè)
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.go(1);
+            };
+        });
 
         // Fonksyon pou ajoute nan panier (si ou bezwen li nan header)
         function addToCart(productId) {

@@ -156,7 +156,7 @@ if (isset($_GET['code'])) {
                     </div>
                 </div>
                 <h1 class="text-3xl font-black text-center text-gray-900 mb-2 italic uppercase tracking-tighter">LE STOCK</h1>
-                <p class="text-center text-gray-500 mb-8 font-medium">Konekte pou w jere biznis ou</p>
+                <p class="text-center text-gray-500 mb-8 font-medium">Connexion</p>
 
                 <div class="mb-6">
                     <a href="<?= $client->createAuthUrl(); ?>" class="w-full flex items-center justify-center gap-3 border border-gray-300 py-3.5 rounded-xl font-bold text-gray-700 hover:bg-gray-50 transition-all active:scale-95 shadow-sm">
@@ -169,7 +169,7 @@ if (isset($_GET['code'])) {
                     <div class="absolute inset-0 flex items-center">
                         <div class="w-full border-t border-gray-200"></div>
                     </div>
-                    <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-400 font-bold uppercase text-[10px] tracking-widest">ou ak imèl ou</span></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-400 font-bold uppercase text-[10px] tracking-widest">ou avec votre email</span></div>
                 </div>
 
                 <?php if ($error): ?>
@@ -186,7 +186,7 @@ if (isset($_GET['code'])) {
                         <input type="email" name="email" required class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-semibold transition-all shadow-inner">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-black uppercase text-gray-500 mb-1 ml-1 tracking-wider">Modpas</label>
+                        <label class="block text-[11px] font-black uppercase text-gray-500 mb-1 ml-1 tracking-wider">Mot de passe</label>
                         <div class="relative">
                             <input type="password" name="password" id="pass" required class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-semibold transition-all shadow-inner">
                             <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600">
@@ -194,22 +194,22 @@ if (isset($_GET['code'])) {
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 shadow-lg active:scale-95 transition-all">Se konekte kounye a</button>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 shadow-lg active:scale-95 transition-all">Se connecter maintenant</button>
                 </form>
 
                 <p class="text-center mt-8 text-sm text-gray-500 font-medium">
-                    Poko gen kont ? <a href="inscription.php" class="font-black text-indigo-600 hover:underline italic uppercase">Kreyé yon kont</a>
+                    Poko gen kont ? <a href="inscription.php" class="font-black text-indigo-600 hover:underline italic uppercase">Créer un compte</a>
                 </p>
             </div>
         </div>
 
         <div class="w-full lg:w-1/2 bg-image-side flex flex-col justify-center px-10 lg:px-20 text-white order-1 lg:order-2 py-12">
             <h2 class="text-4xl lg:text-6xl font-black mb-6 leading-tight uppercase italic tracking-tighter">Le Stock Entreprise.</h2>
-            <p class="text-lg opacity-90 mb-12 font-medium italic tracking-wide">Jere stock ou ak sistèm SonyPeter la.</p>
+            <p class="text-lg opacity-90 mb-12 font-medium italic tracking-wide">Gérer votre stock avec le système SonyPeter.</p>
             <div class="grid grid-cols-3 gap-8 border-t border-white/20 pt-10">
-                <div><span class="block text-3xl font-black">150+</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Kliyan</span></div>
-                <div><span class="block text-3xl font-black">1.2k+</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Pwodwi</span></div>
-                <div><span class="block text-3xl font-black italic">4.9</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Satisfe</span></div>
+                <div><span class="block text-3xl font-black">150+</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Clients</span></div>
+                <div><span class="block text-3xl font-black">1.2k+</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Produits</span></div>
+                <div><span class="block text-3xl font-black italic">4.9</span><span class="text-[10px] uppercase font-bold opacity-70 tracking-widest text-indigo-200">Satisfait</span></div>
             </div>
         </div>
     </div>
@@ -226,6 +226,59 @@ if (isset($_GET['code'])) {
                 icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
+
+
+        // 1. Nou ajoute yon "fout istwa" (dummy state) le paj la chaje
+        history.pushState(null, null, window.location.href);
+
+        // 2. Chak fwa itilizatè a klike sou bouton "Bak", nou fòse l tounen devan
+        window.onpopstate = function() {
+            history.go(1);
+        };
+
+        // 3. Pou asire nou sa mache sou tout navigatè (Chrome, Firefox, Safari)
+        // Nou toujou pouse yon nouvo eta nan istwa a chak fwa li eseye pati
+        window.addEventListener('popstate', function(event) {
+            history.pushState(null, null, window.location.href);
+        });
+
+
+
+        (function(global) {
+            if (typeof(global) === "undefined") {
+                throw new Error("window is undefined");
+            }
+
+            var _hash = "!";
+            var noBackPlease = function() {
+                global.location.href += "#";
+
+                // Nou itilize yon ti tan (timeout) pou pouse eta a repete
+                global.setTimeout(function() {
+                    global.location.href += _hash;
+                }, 50);
+            };
+
+            // Chak fwa hash la chanje (le li peze bak), nou remete l
+            global.onhashchange = function() {
+                if (global.location.hash !== _hash) {
+                    global.location.hash = _hash;
+                }
+            };
+
+            global.onload = function() {
+                noBackPlease();
+
+                // Bloque backspace key tou (opsyonèl)
+                document.body.onkeydown = function(e) {
+                    var elm = e.target.nodeName.toLowerCase();
+                    if (e.which === 8 && (elm !== 'input' && elm !== 'textarea')) {
+                        e.preventDefault();
+                    }
+                    e.stopPropagation();
+                };
+            };
+        })(window);
     </script>
 </body>
 

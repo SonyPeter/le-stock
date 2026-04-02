@@ -302,6 +302,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_GET['code'])) {
             </div>
         </div>
     </div>
+
+    <script>
+        // 1. Nou ajoute yon "fout istwa" (dummy state) le paj la chaje
+        history.pushState(null, null, window.location.href);
+
+        // 2. Chak fwa itilizatè a klike sou bouton "Bak", nou fòse l tounen devan
+        window.onpopstate = function() {
+            history.go(1);
+        };
+
+        // 3. Pou asire nou sa mache sou tout navigatè (Chrome, Firefox, Safari)
+        // Nou toujou pouse yon nouvo eta nan istwa a chak fwa li eseye pati
+        window.addEventListener('popstate', function(event) {
+            history.pushState(null, null, window.location.href);
+        });
+
+
+        (function(global) {
+            if (typeof(global) === "undefined") {
+                throw new Error("window is undefined");
+            }
+
+            var _hash = "!";
+            var noBackPlease = function() {
+                global.location.href += "#";
+
+                // Nou itilize yon ti tan (timeout) pou pouse eta a repete
+                global.setTimeout(function() {
+                    global.location.href += _hash;
+                }, 50);
+            };
+
+            // Chak fwa hash la chanje (le li peze bak), nou remete l
+            global.onhashchange = function() {
+                if (global.location.hash !== _hash) {
+                    global.location.hash = _hash;
+                }
+            };
+
+            global.onload = function() {
+                noBackPlease();
+
+                // Bloque backspace key tou (opsyonèl)
+                document.body.onkeydown = function(e) {
+                    var elm = e.target.nodeName.toLowerCase();
+                    if (e.which === 8 && (elm !== 'input' && elm !== 'textarea')) {
+                        e.preventDefault();
+                    }
+                    e.stopPropagation();
+                };
+            };
+        })(window);
+    </script>
 </body>
 
 </html>

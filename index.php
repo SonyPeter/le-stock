@@ -323,7 +323,7 @@ include 'includes/header.php';
             <span>Visiter</span>
             <i class="fas fa-arrow-right text-sm"></i>
           </a>
-          <a href="inscription.php" class="btn-secondary bg-white/5 hover:bg-white/10 text-white font-semibold py-4 px-10 sm:px-14 rounded-full border border-white/30 flex items-center justify-center text-sm sm:text-base whitespace-nowrap tracking-wide">
+          <a href="page/profile.php" class="btn-secondary bg-white/5 hover:bg-white/10 text-white font-semibold py-4 px-10 sm:px-14 rounded-full border border-white/30 flex items-center justify-center text-sm sm:text-base whitespace-nowrap tracking-wide">
             Devni Machann
           </a>
         </div>
